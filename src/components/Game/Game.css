@@ -1,0 +1,18 @@
+.game-app {
+    margin: 0 auto;
+    padding: 40px;
+    border: solid 1px #e4aee4;
+    text-align: center;
+    border-radius: 5px;
+}
+
+.game-app>.title {
+    color: #FFF;
+    font-weight: lighter;
+    margin: 0;
+
+}
+
+.game-app>.hex-field {
+    margin-top: 40px;
+}
