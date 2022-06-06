@@ -1,0 +1,20 @@
+.hex {
+    display: block;
+    width: var(--hex-width);
+    height: var(--hex-height);
+    background: url(../../images/hex.svg) no-repeat center;
+    background-size: 102%;
+    float: left;
+    text-align: center;
+    line-height: var(--hex-height);
+    color: #ccc;
+}
+
+.hex:hover {
+    cursor: pointer;
+    opacity: 0.8;
+}
+
+.hex.hex-none {
+    opacity: 0.25;
+}
