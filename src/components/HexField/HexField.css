@@ -1,5 +1,5 @@
 .hex-field {
-    --hex-height: 6vw;
+    --hex-height: 5vw;
     --hex-width: calc(var(--hex-height) * 0.87);
     margin: 0 auto;
     display: inline-block;

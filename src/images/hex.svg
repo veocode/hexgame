@@ -1,10 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 25.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1" id="Слой_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 172.59 198" style="enable-background:new 0 0 172.59 198;" xml:space="preserve">
-<style type="text/css">
-	
-		.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#FCFAF6;stroke:#ECE9E1;stroke-width:10;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
-</style>
-<polygon class="st0" points="86.3,5 167.59,52 167.59,146 86.3,193 5,146 5,52 "/>
+<svg width="172.59" height="198" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" version="1.1">
+
+ <g>
+  <title>Layer 1</title>
+  <polygon stroke="#4b6584" stroke-width="4" id="svg_2" stroke-miterlimit="10" stroke-linejoin="round" stroke-linecap="round" fill="none" clip-rule="evenodd" fill-rule="evenodd" points="86.30023956298828,0.5951157212257385 171.39952087402344,49.79755783081055 171.39952087402344,148.2024383544922 86.30023956298828,197.40487670898438 1.1904850006103516,148.2024383544922 1.1904850006103516,49.79755783081055 " class="st0"/>
+  <polygon id="svg_1" stroke-miterlimit="10" stroke-linejoin="round" stroke-linecap="round" stroke-width="3" stroke="#3f5670" fill="#527091" clip-rule="evenodd" fill-rule="evenodd" points="86.30000305175781,5 167.58999633789062,52 167.58999633789062,146 86.30000305175781,193 5.000001907348633,146 5.000001907348633,52 " class="st0"/>
+ </g>
 </svg>
