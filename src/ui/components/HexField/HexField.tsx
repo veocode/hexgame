@@ -1,4 +1,5 @@
 import React from 'react';
+import { HexMapCell } from '../../../game/hexmapcell';
 import { HexCell } from '../HexCell/HexCell';
 import './HexField.css';
 
@@ -6,7 +7,7 @@ import './HexField.css';
 interface HexFieldProps {
   width: number,
   height: number,
-  cells: number[],
+  cells: HexMapCell[],
   onCellClick: (id: number) => void
 };
 
@@ -18,7 +19,7 @@ export const HexField: React.FC<HexFieldProps> = (props) => {
     const hexes: JSX.Element[] = [];
     for (let col = 1; col <= props.width; col++) {
       hexes.push(
-        <HexCell key={index++} id={index} type={props.cells[index]} onClick={id => props.onCellClick(id)} />
+        <HexCell key={index++} id={index} cell={props.cells[index]} onClick={id => props.onCellClick(id)} />
       )
     }
 

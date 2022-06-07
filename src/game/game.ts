@@ -1,6 +1,7 @@
+import { HexMapCell } from "./hexmapcell";
 import { HexMap } from "./hexmap";
 
-type MapUpdatedCallback = (cells: number[]) => void
+type MapUpdatedCallback = (cells: HexMapCell[]) => void
 
 export class Game {
 
@@ -15,15 +16,17 @@ export class Game {
     }
 
     onCellClick(id: number) {
-        this.invertCell(id);
+        this.map.resetHighlight();
+        this.map.highlightCellNeighbors(id);
+        if (this.callbacks.MapUpdated) {
+            this.callbacks.MapUpdated(this.map.getCells());
+        }
     }
 
     invertCell(id: number) {
         // this.map.invertCell(id);
         console.log(this.map.getCellEmptyNeighbors(id));
-        // if (this.callbacks.MapUpdated) {
-        //     this.callbacks.MapUpdated(this.map.getCells());
-        // }
+
     }
 
     whenMapUpdated(callback: MapUpdatedCallback) {

@@ -8,6 +8,7 @@
     text-align: center;
     line-height: var(--hex-height);
     color: #ccc;
+    position: relative;
 }
 
 .hex:hover {
@@ -17,4 +18,21 @@
 
 .hex.hex-none {
     opacity: 0.25;
+}
+
+.hex .highlight {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    pointer-events: none;
+}
+
+.hex .highlight-green {
+    background: url(../../images/hex-green.svg) no-repeat center;
+}
+
+.hex .highlight-orange {
+    background: url(../../images/hex-orange.svg) no-repeat center;
 }

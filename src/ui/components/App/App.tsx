@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './App.css';
 import { HexField } from '../HexField/HexField';
 import { Game } from '../../../game/game';
+import { HexMapCell } from '../../../game/hexmapcell';
 
 
 interface AppProps {
@@ -9,9 +10,9 @@ interface AppProps {
 };
 
 export const App: React.FC<AppProps> = ({ game }) => {
-  const [cells, setCells] = useState<number[]>(game.getMap().getCells());
+  const [cells, setCells] = useState<HexMapCell[]>(game.getMap().getCells());
 
-  game.whenMapUpdated((updatedCells: number[]) => {
+  game.whenMapUpdated((updatedCells: HexMapCell[]) => {
     setCells(updatedCells);
   });
 
