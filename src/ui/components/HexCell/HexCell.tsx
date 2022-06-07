@@ -17,6 +17,6 @@ export const HexCell: React.FC<HexCellProps> = (props) => {
   }
 
   return (
-    <div className={`hex hex-${classes[props.type]}`} onClick={() => props.onClick(props.id)}></div>
+    <div className={`hex hex-${classes[props.type]}`} onClick={() => props.onClick(props.id)}>{props.id}</div>
   );
 }

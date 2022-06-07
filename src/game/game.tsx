@@ -1,52 +1,33 @@
-type CellsUpdatedCallback = (cells: number[]) => void
+import { HexMap } from "./hexmap";
+
+type MapUpdatedCallback = (cells: number[]) => void
 
 export class Game {
 
-    private width: number = 9;
-    private height: number = 9;
-
-    private cells: number[] = [
-        0, 1, 0, 1, 0, 1, 0, 1, 0,
-        1, 0, 1, 1, 1, 1, 0, 1, 0,
-        1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 1, 0, 1, 1, 0, 1, 1, 1,
-        1, 1, 0, 1, 0, 1, 0, 1, 1,
-        1, 1, 0, 1, 1, 0, 1, 1, 1,
-        1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 0, 1, 1, 1, 1, 0, 1, 0,
-        0, 1, 0, 1, 0, 1, 0, 1, 0
-    ];
+    private map: HexMap = new HexMap();
 
     private callbacks: {
-        CellsUpdated?: CellsUpdatedCallback | null
+        MapUpdated?: MapUpdatedCallback | null
     } = {};
 
-    getCellCoordinates(id: number): { x: number, y: number } {
-        return {
-            x: id % this.width,
-            y: id / this.width
-        }
-    }
-
-    getCells(): number[] {
-        return this.cells;
+    getMap(): HexMap {
+        return this.map;
     }
 
     onCellClick(id: number) {
-        this.updateCell(id, 1 - this.cells[id]);
+        this.invertCell(id);
     }
 
-    updateCell(id: number, value: number) {
-        if (this.cells[id] == value) return;
-        this.cells[id] = value;
-        if (this.callbacks.CellsUpdated) {
-            console.log(this.cells);
-            this.callbacks.CellsUpdated(this.cells);
-        }
+    invertCell(id: number) {
+        // this.map.invertCell(id);
+        console.log(this.map.getCellEmptyNeighbors(id));
+        // if (this.callbacks.MapUpdated) {
+        //     this.callbacks.MapUpdated(this.map.getCells());
+        // }
     }
 
-    whenCellsUpdated(callback: CellsUpdatedCallback) {
-        this.callbacks.CellsUpdated = callback;
+    whenMapUpdated(callback: MapUpdatedCallback) {
+        this.callbacks.MapUpdated = callback;
     }
 
 }

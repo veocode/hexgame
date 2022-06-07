@@ -7,7 +7,6 @@ interface HexFieldProps {
   width: number,
   height: number,
   cells: number[],
-  updateId: number,
   onCellClick: (id: number) => void
 };
 
