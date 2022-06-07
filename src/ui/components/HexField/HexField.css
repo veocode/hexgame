@@ -1,5 +1,5 @@
 .hex-field {
-    --hex-height: 5vw;
+    --hex-height: 8vh;
     --hex-width: calc(var(--hex-height) * 0.87);
     margin: 0 auto;
     display: inline-block;
@@ -15,21 +15,4 @@
     margin-left: calc(var(--hex-width)/2);
     margin-top: calc(-1 * var(--hex-height)/4);
     margin-bottom: calc(-1 * var(--hex-height)/4);
-}
-
-.hex {
-    display: block;
-    width: var(--hex-width);
-    height: var(--hex-height);
-    background: url(../../images/hex.svg) no-repeat center;
-    background-size: 102%;
-    float: left;
-    text-align: center;
-    line-height: var(--hex-height);
-    color: #ccc;
-}
-
-.hex:hover {
-    cursor: pointer;
-    opacity: 0.8;
 }

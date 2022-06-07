@@ -3,7 +3,7 @@
     width: var(--hex-width);
     height: var(--hex-height);
     background: url(../../images/hex.svg) no-repeat center;
-    background-size: 102%;
+    background-size: 95%;
     float: left;
     text-align: center;
     line-height: var(--hex-height);
