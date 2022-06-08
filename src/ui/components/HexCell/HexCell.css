@@ -20,19 +20,59 @@
     opacity: 0.25;
 }
 
-.hex .highlight {
+.hex>.hex-child {
     width: 100%;
     height: 100%;
     position: absolute;
     left: 0;
     top: 0;
     pointer-events: none;
+    background: no-repeat center;
+    background-size: contain;
 }
 
-.hex .highlight-green {
-    background: url(../../images/hex-green.svg) no-repeat center;
+.hex>.highlight {
+    animation: fadeIn .25s ease;
 }
 
-.hex .highlight-orange {
-    background: url(../../images/hex-orange.svg) no-repeat center;
+.hex>.highlight-white {
+    background-image: url(../../images/hex-white.svg);
+}
+
+.hex>.highlight-green {
+    background-image: url(../../images/hex-green.svg);
+}
+
+.hex>.highlight-orange {
+    background-image: url(../../images/hex-orange.svg);
+}
+
+.hex>.occupant-red {
+    animation: growIn .4s ease-in-out;
+    background-image: url(../../images/hex-red.svg);
+}
+
+.hex>.occupant-blue {
+    animation: growIn .4s ease-in-out;
+    background-image: url(../../images/hex-blue.svg);
+}
+
+@keyframes growIn {
+    from {
+        transform: scale(0);
+    }
+
+    to {
+        transform: scale(1);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }

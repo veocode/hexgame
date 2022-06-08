@@ -1,5 +1,6 @@
 import { HexMapCell } from "./hexmapcell";
 import { HexMap } from "./hexmap";
+import { PlayerTag } from "../types/utils";
 
 type MapUpdatedCallback = (cells: HexMapCell[]) => void
 
@@ -16,6 +17,9 @@ export class Game {
     }
 
     onCellClick(id: number) {
+        const randomPlayer = [PlayerTag.Player1, PlayerTag.Player2][Math.floor(Math.random() * 2)];
+
+        this.map.occupyCell(id, randomPlayer);
         this.map.resetHighlight();
         this.map.highlightCellNeighbors(id);
         if (this.callbacks.MapUpdated) {

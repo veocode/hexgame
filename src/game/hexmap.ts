@@ -1,4 +1,4 @@
-import { Point } from "../types/utils";
+import { PlayerTag, Point2D } from "../types/utils";
 import { HexCellHightlightType, HexMapCell } from "./hexmapcell";
 
 enum NeighborLevel {
@@ -44,7 +44,7 @@ export class HexMap {
         return this.cells[id].isEmpty();
     }
 
-    getCellCoordinatesById(id: number): Point {
+    getCellCoordinatesById(id: number): Point2D {
         return {
             x: (id % this.width) | 0,
             y: (id / this.width) | 0
@@ -87,8 +87,8 @@ export class HexMap {
 
     getCellNearestNeighborIds(id: number): number[] {
         const neighborIds: number[] = [];
-        const neighborPositions: Point[] = [];
-        const pos: Point = this.getCellCoordinatesById(id);
+        const neighborPositions: Point2D[] = [];
+        const pos: Point2D = this.getCellCoordinatesById(id);
 
         if (pos.y % 2 !== 0) {
             if (pos.y > 0)
@@ -140,6 +140,13 @@ export class HexMap {
         const neighborList = this.getCellEmptyNeighbors(id);
         neighborList[NeighborLevel.Near].forEach(cellId => this.highlightCell(cellId, HexCellHightlightType.Near))
         neighborList[NeighborLevel.Far].forEach(cellId => this.highlightCell(cellId, HexCellHightlightType.Far))
+        this.highlightCell(id, HexCellHightlightType.Center);
+    }
+
+    occupyCell(id: number, player: PlayerTag) {
+        const cell = this.cells[id];
+        if (!cell.isEmpty()) return;
+        cell.setOccupiedBy(player);
     }
 
 }
