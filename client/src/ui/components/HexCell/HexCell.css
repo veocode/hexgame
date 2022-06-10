@@ -9,6 +9,7 @@
     line-height: var(--hex-height);
     color: #ccc;
     position: relative;
+    font-size: 11px;
 }
 
 .hex:hover {
@@ -57,6 +58,10 @@
     background-image: url(../../images/hex-blue.svg);
 }
 
+.hex>.occupant-leave {
+    animation: growOut .5s ease-in-out;
+}
+
 @keyframes growIn {
     from {
         transform: scale(0);
@@ -64,6 +69,16 @@
 
     to {
         transform: scale(1);
+    }
+}
+
+@keyframes growOut {
+    from {
+        transform: scale(1);
+    }
+
+    to {
+        transform: scale(0);
     }
 }
 

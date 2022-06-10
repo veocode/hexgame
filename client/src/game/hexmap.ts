@@ -1,12 +1,15 @@
-import { PlayerTag, Point2D } from "../types/utils";
+import { Point2D } from "../types/utils";
 import { HexCellHightlightType, HexMapCell } from "./hexmapcell";
+import { PlayerTag } from "./player";
 
-enum NeighborLevel {
+export enum HexNeighborLevel {
     Near = 1,
     Far = 2,
 }
 
 type HexNeighborsByLevel = { [key: number]: number[] };
+type HexNeighborsCache = { [key: number]: HexNeighborsByLevel };
+type HexCellInitCallback = (cell: HexMapCell) => void;
 
 export class HexMap {
 
@@ -14,18 +17,19 @@ export class HexMap {
     private height: number = 9;
 
     private cells: HexMapCell[] = [];
+    private neighborsCache: HexNeighborsCache = {};
 
-    constructor() {
+    constructor(cellInitCallback: HexCellInitCallback | null = null) {
+        let id = 0;
         for (let y = 0; y < this.height; y++) {
             for (let x = 0; x < this.width; x++) {
-                const cell = new HexMapCell();
-                const chance = Math.random();
-                if (chance >= 0.15) {
-                    cell.setEmpty();
-                }
+                const cell = new HexMapCell(id++);
+                if (cellInitCallback) cellInitCallback(cell);
                 this.cells.push(cell);
             }
         }
+
+        this.initNeighborsCache();
     }
 
     getWidth(): number {
@@ -36,12 +40,34 @@ export class HexMap {
         return this.height;
     }
 
+    initNeighborsCache() {
+        this.cells.forEach(cell => {
+            this.neighborsCache[cell.id] = this.getCellNeighbors(cell.id);
+        });
+    }
+
+    getCell(id: number): HexMapCell {
+        return this.cells[id];
+    }
+
     getCells(): HexMapCell[] {
         return [...this.cells];
     }
 
+    isCellExists(id: number): boolean {
+        return !this.cells[id].isNone();
+    }
+
     isCellEmpty(id: number): boolean {
         return this.cells[id].isEmpty();
+    }
+
+    isCellOccupied(id: number): boolean {
+        return this.cells[id].isOccupied();
+    }
+
+    isCellOccupiedBy(id: number, player: PlayerTag): boolean {
+        return this.cells[id].isOccupiedBy(player);
     }
 
     getCellCoordinatesById(id: number): Point2D {
@@ -55,18 +81,65 @@ export class HexMap {
         return x + this.width * y;
     }
 
+    getCellNeighborLevel(id: number, neighborId: number): HexNeighborLevel | null {
+        const allNeighborsList = this.getCellNeighbors(id);
+        if (allNeighborsList[HexNeighborLevel.Near].includes(neighborId)) return HexNeighborLevel.Near;
+        if (allNeighborsList[HexNeighborLevel.Far].includes(neighborId)) return HexNeighborLevel.Far;
+        return null;
+    }
+
+    getCellHostileNeighbors(id: number): number[] {
+        const cell = this.cells[id];
+        if (!cell.isOccupied) return [];
+
+        const occupiedBy = cell.getOccupiedBy();
+        const nearestNeighborIds = this.getCellNearestNeighborIds(id);
+        const hostileIds: number[] = [];
+
+        nearestNeighborIds.forEach(nearId => {
+            if (this.cells[nearId].isHostileTo(occupiedBy)) {
+                hostileIds.push(nearId);
+            }
+        });
+
+        return hostileIds;
+    }
+
     getCellEmptyNeighbors(id: number): HexNeighborsByLevel {
+        const emptyNeighborsList: HexNeighborsByLevel = {};
+        emptyNeighborsList[HexNeighborLevel.Near] = [];
+        emptyNeighborsList[HexNeighborLevel.Far] = [];
+
+        const allNeighborsList = this.getCellNeighbors(id);
+
+        allNeighborsList[HexNeighborLevel.Near].forEach(nearId => {
+            if (this.isCellEmpty(nearId)) {
+                emptyNeighborsList[HexNeighborLevel.Near].push(nearId);
+            }
+        });
+
+        allNeighborsList[HexNeighborLevel.Far].forEach(farId => {
+            if (id === farId) return;
+            if (this.isCellEmpty(farId)) {
+                emptyNeighborsList[HexNeighborLevel.Far].push(farId);
+            }
+        });
+
+        return emptyNeighborsList
+    }
+
+    getCellNeighbors(id: number): HexNeighborsByLevel {
+        if (id in this.neighborsCache) { return this.neighborsCache[id]; }
+
         const neighborList: HexNeighborsByLevel = {};
-        neighborList[NeighborLevel.Near] = [];
-        neighborList[NeighborLevel.Far] = [];
+        neighborList[HexNeighborLevel.Near] = [];
+        neighborList[HexNeighborLevel.Far] = [];
 
         const visitedIds: number[] = [id];
         const nearestNeighborIds = this.getCellNearestNeighborIds(id);
         nearestNeighborIds.forEach(nearId => {
-            if (this.isCellEmpty(nearId)) {
-                neighborList[NeighborLevel.Near].push(nearId);
-                visitedIds.push(nearId);
-            }
+            neighborList[HexNeighborLevel.Near].push(nearId);
+            visitedIds.push(nearId);
         });
 
         nearestNeighborIds.forEach(nearId => {
@@ -75,10 +148,8 @@ export class HexMap {
                 if (id === farId) return;
                 if (visitedIds.includes(farId)) return;
 
-                if (this.isCellEmpty(farId)) {
-                    neighborList[NeighborLevel.Far].push(farId);
-                    visitedIds.push(farId);
-                }
+                neighborList[HexNeighborLevel.Far].push(farId);
+                visitedIds.push(farId);
             });
         });
 
@@ -86,6 +157,8 @@ export class HexMap {
     }
 
     getCellNearestNeighborIds(id: number): number[] {
+        if (id in this.neighborsCache) { return this.neighborsCache[id][HexNeighborLevel.Near]; }
+
         const neighborIds: number[] = [];
         const neighborPositions: Point2D[] = [];
         const pos: Point2D = this.getCellCoordinatesById(id);
@@ -138,15 +211,30 @@ export class HexMap {
 
     highlightCellNeighbors(id: number) {
         const neighborList = this.getCellEmptyNeighbors(id);
-        neighborList[NeighborLevel.Near].forEach(cellId => this.highlightCell(cellId, HexCellHightlightType.Near))
-        neighborList[NeighborLevel.Far].forEach(cellId => this.highlightCell(cellId, HexCellHightlightType.Far))
+        neighborList[HexNeighborLevel.Near].forEach(cellId => this.highlightCell(cellId, HexCellHightlightType.Near))
+        neighborList[HexNeighborLevel.Far].forEach(cellId => this.highlightCell(cellId, HexCellHightlightType.Far))
         this.highlightCell(id, HexCellHightlightType.Center);
     }
 
-    occupyCell(id: number, player: PlayerTag) {
+    occupyCell(id: number, player: PlayerTag): boolean {
         const cell = this.cells[id];
-        if (!cell.isEmpty()) return;
+        if (!cell.isEmpty()) return false;
         cell.setOccupiedBy(player);
+        return true;
+    }
+
+    freeCell(id: number): boolean {
+        const cell = this.cells[id];
+        if (!cell.isOccupied()) return false;
+        cell.setFreed();
+        return true;
+    }
+
+    emptyCell(id: number): boolean {
+        const cell = this.cells[id];
+        if (cell.isEmpty()) return false;
+        cell.setEmpty();
+        return true;
     }
 
 }

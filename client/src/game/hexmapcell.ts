@@ -1,9 +1,10 @@
-import { PlayerTag } from "../types/utils";
+import { PlayerTag } from "./player";
 
 export enum HexCellState {
     None = 0,
     Empty,
-    Occupied
+    Occupied,
+    Freed
 }
 
 export enum HexCellHightlightType {
@@ -18,6 +19,8 @@ export class HexMapCell {
     private state: HexCellState = HexCellState.None;
     private highlightType: HexCellHightlightType = HexCellHightlightType.None;
     private occupiedBy: PlayerTag | null = null;
+
+    constructor(public readonly id: number) { }
 
     isNone(): boolean {
         return this.state === HexCellState.None;
@@ -45,6 +48,10 @@ export class HexMapCell {
         return this.state === HexCellState.Occupied;
     }
 
+    isOccupiedBy(player: PlayerTag): boolean {
+        return this.isOccupied() && this.getOccupiedBy() === player;
+    }
+
     setOccupiedBy(player: PlayerTag) {
         this.state = HexCellState.Occupied;
         this.occupiedBy = player;
@@ -52,6 +59,18 @@ export class HexMapCell {
 
     getOccupiedBy(): PlayerTag | null {
         return this.occupiedBy;
+    }
+
+    isFreed(): boolean {
+        return this.state === HexCellState.Freed;
+    }
+
+    setFreed() {
+        this.state = HexCellState.Freed;
+    }
+
+    isHostileTo(otherPlayer: PlayerTag | null): boolean {
+        return this.isOccupied() && this.getOccupiedBy() !== otherPlayer;
     }
 
     highlightAsNear() {

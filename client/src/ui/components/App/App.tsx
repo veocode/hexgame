@@ -18,7 +18,6 @@ export const App: React.FC<AppProps> = ({ game }) => {
 
   return (
     <div className="game-app">
-      <h1 className="title">hexgrid</h1>
       <HexField
         width={game.getMap().getWidth()}
         height={game.getMap().getHeight()}

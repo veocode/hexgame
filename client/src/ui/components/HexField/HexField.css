@@ -1,8 +1,15 @@
 .hex-field {
-    --hex-height: 8vh;
+    --hex-height: 10vw;
     --hex-width: calc(var(--hex-height) * 0.87);
     margin: 0 auto;
     display: inline-block;
+}
+
+@media (min-width: 1200px) {
+    .hex-field {
+        --hex-height: 10vh;
+        --hex-width: calc(var(--hex-height) * 0.87);
+    }
 }
 
 .hex-field .row {
