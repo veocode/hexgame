@@ -1,7 +1,7 @@
 import { io, Socket } from "socket.io-client";
 import { HexMapCell } from "../shared/hexmapcell";
 import { HexMap, HexNeighborLevel } from '../shared/hexmap';
-import { Player, PlayerTag } from '../shared/player';
+import { Player, PlayerColorsList, PlayerTag } from '../shared/player';
 
 export enum GameState {
     LoggedOut = 0,
@@ -28,7 +28,10 @@ export interface GameStateMessage {
 
 export class Game {
 
-    private socket: Socket = io('http://localhost:3010', { autoConnect: false });
+    private socket: Socket = io('http://localhost:3010', {
+        reconnection: false,
+        autoConnect: false
+    });
 
     private map: HexMap;
     private player: Player;
@@ -50,10 +53,12 @@ export class Game {
         this.player = this.createPlayer();
     }
 
-    connect() {
+    connect(nickname: string) {
         this.socket.on("connect_error", e => {
             console.log('error', e);
         });
+
+        this.socket.auth = { nickname };
 
         this.socket.connect();
     }
@@ -85,10 +90,24 @@ export class Game {
         })
     }
 
-    searchAndStart() {
+    searchAndStart(nickname: string) {
         this.setSearchingGame();
-        this.connect();
+        this.connect(nickname);
         this.socket.emit('game:search-request');
+    }
+
+    getPlayerColors(): PlayerColorsList {
+        if (this.player.getTag() === PlayerTag.Player1) {
+            return {
+                1: 'own',
+                2: 'enemy',
+            }
+        }
+
+        return {
+            2: 'own',
+            1: 'enemy',
+        }
     }
 
     createMap(): HexMap {

@@ -38,12 +38,15 @@ export enum ClientState {
 export class Client {
 
     public readonly id: string;
+    public readonly nickname: string;
+
     private tag: number = 0;
     private opponent: Client;
     private state: ClientState = ClientState.Idle;
 
     constructor(private readonly socket: Socket) {
         this.id = socket.id;
+        this.nickname = socket.handshake.auth.nickname;
     }
 
     getTag(): number {

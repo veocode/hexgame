@@ -1,0 +1,12 @@
+.message-screen {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.message-screen .message {
+    font-size: 32px;
+    font-weight: lighter;
+    color: #FFF;
+}

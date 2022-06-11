@@ -3,6 +3,8 @@ export enum PlayerTag {
     Player2 = 2,
 }
 
+export type PlayerColorsList = { [key: number]: string }
+
 export class Player {
 
     private tag: number = 0;

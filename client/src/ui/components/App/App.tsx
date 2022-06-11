@@ -1,45 +1,27 @@
 import React, { useState } from 'react';
 import './App.css';
-import { HexField } from '../HexField/HexField';
+import { HexField } from '../GameScreen/HexField/HexField';
 import { Game, GameState, GameStateMessage } from '../../../game/game';
 import { HexMapCell } from '../../../shared/hexmapcell';
-import { StatePanel } from '../StatePanel/StatePanel';
 import { MessageScreen } from '../MessageScreen/MessageScreen';
+import { LoginScreen } from '../LoginScreen/LoginScreen';
+import { GameScreen } from '../GameScreen/GameScreen';
 
 interface AppProps {
   game: Game,
 };
 
 export const App: React.FC<AppProps> = ({ game }) => {
-  const [cells, setCells] = useState<HexMapCell[]>(game.getMap().getCells());
-  const [stateMessage, setStateMessage] = useState<GameStateMessage>({ text: 'hexgrid', className: '' });
   const [state, setState] = useState<GameState>(game.getState());
-
-  game.whenMapUpdated((updatedCells: HexMapCell[]) => {
-    setCells(updatedCells);
-  });
 
   game.whenStateUpdated((state: GameState) => {
     setState(state);
-  })
-
-  game.whenStateMessageUpdated((stateMessage: GameStateMessage) => {
-    console.log('whenStateMessageUpdated', stateMessage);
-    setStateMessage({ ...stateMessage });
   });
 
   let childComponents;
 
   if (state === GameState.LoggedOut) {
-    childComponents = [
-      <div className='main-menu'>
-        <h1>hexgame</h1>,
-        <div className='login-form'>
-          <input type='text' value='player' />
-          <button onClick={() => game.searchAndStart()}>Play</button>
-        </div>
-      </div>
-    ]
+    childComponents = <LoginScreen game={game} />
   }
 
   if (state === GameState.SearchingGame) {
@@ -47,17 +29,7 @@ export const App: React.FC<AppProps> = ({ game }) => {
   }
 
   if (state === GameState.Started) {
-    childComponents = [
-      <StatePanel
-        stateMessage={stateMessage}
-      />,
-      <HexField
-        width={game.getMap().getWidth()}
-        height={game.getMap().getHeight()}
-        cells={cells}
-        onCellClick={id => game.onCellClick(id)}
-      />
-    ]
+    childComponents = <GameScreen game={game} />;
   }
 
   return (

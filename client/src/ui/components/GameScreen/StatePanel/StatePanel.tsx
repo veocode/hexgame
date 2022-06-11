@@ -1,5 +1,5 @@
 import React from 'react';
-import { GameStateMessage } from "../../../game/game";
+import { GameStateMessage } from '../../../../game/game';
 import './StatePanel.css';
 
 interface StatePanelProps {

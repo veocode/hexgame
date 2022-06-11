@@ -1,12 +1,13 @@
 import React from 'react';
-import { HexCellHightlightType, HexMapCell } from '../../../shared/hexmapcell';
-import { PlayerTag } from '../../../shared/player';
+import { HexCellHightlightType, HexMapCell } from '../../../../shared/hexmapcell';
+import { PlayerTag } from '../../../../shared/player';
 import './HexCell.css';
 
 
 interface HexCellProps {
   id: number,
   cell: HexMapCell,
+  playerColors: { [key: number]: string },
   onClick: (id: number) => void
 };
 
@@ -31,7 +32,7 @@ export const HexCell: React.FC<HexCellProps> = (props) => {
 
   if (cell.isOccupied() || cell.isFreed()) {
     const occupantTag = cell.getOccupiedBy();
-    const occupantClass = occupantTag === PlayerTag.Player1 ? 'red' : 'blue';
+    const occupantClass = occupantTag ? props.playerColors[occupantTag] : 'red';
     const occupantTypeClass = cell.isFreed() ? '-leave' : '';
     occupant = <div className={`hex-child occupant${occupantTypeClass} occupant-${occupantClass}`}></div>
   }

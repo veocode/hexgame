@@ -8,12 +8,12 @@ export class GameManager {
     addClient(client: Client) {
         this.clients.add(client);
         this.bindClientEvents(client);
-        console.log(`Client added to GameManager, Players Online: ${this.clients.count()}`)
+        console.log(`Client connected: ${client.nickname}, Players Online: ${this.clients.count()}`)
     }
 
     removeClient(client: Client) {
         this.clients.remove(client);
-        console.log(`Client removed from GameManager, Players Online: ${this.clients.count()}`)
+        console.log(`Client left: ${client.nickname}, Players Online: ${this.clients.count()}`)
     }
 
     bindClientEvents(client: Client) {
@@ -38,7 +38,7 @@ export class GameManager {
 
         if (!opponentClient) { console.log('No Opponents Found, Please wait..........'); }
         else {
-            console.log(`Found Opponent: ${opponentClient.id} for client ${client.id}`);
+            console.log(`Found Opponent: ${opponentClient.nickname} for client ${client.nickname}`);
             client.setOpponent(opponentClient);
             opponentClient.setOpponent(client);
 

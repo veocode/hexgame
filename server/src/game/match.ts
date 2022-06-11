@@ -1,4 +1,4 @@
-import { HexMap } from '../shared/hexmap';
+import { HexMap, HexNeighborLevel } from '../shared/hexmap';
 import { HexMapCell } from '../shared/hexmapcell';
 import { PlayerTag } from '../shared/player';
 import { Client } from './client';
@@ -45,10 +45,21 @@ export class GameMatch {
     bindPlayerEvents(player: Client) {
         player.on('game:match-move:response', ({ fromId, toId }) => {
             if (this.currentPlayerTag !== player.getTag()) return;
-            // todo: validate move and update server map            
-            player.getOpponent().send('game:match-move:opponent', { fromId, toId });
 
-            this.requestNextMove();
+            if (this.validateAndMakeMove(player, fromId, toId)) {
+                player.getOpponent().send('game:match-move:opponent', { fromId, toId });
+
+                // todo: check game over - board is full
+
+                //if not gameover:
+                this.switchPlayer();
+
+                // todo: check game over - player has no own cells
+                // todo: check game over - player has no moves
+
+                //if still not gameover:
+                this.requestNextMove();
+            }
         })
     }
 
@@ -78,9 +89,41 @@ export class GameMatch {
     }
 
     requestNextMove() {
-        this.switchPlayer();
         this.currentPlayer().send('game:match-move:request');
         this.currentPlayer().getOpponent().send('game:match-move:pending');
+
+        // todo: start move/turn timer
+    }
+
+    validateAndMakeMove(player: Client, fromId: number, toId: number): boolean {
+        const srcCell = this.map.getCell(fromId);
+        const dstCell = this.map.getCell(toId);
+
+        if (!srcCell.isOccupied()) return false;
+        if (!dstCell.isEmpty()) return false;
+
+        const level = this.map.getCellNeighborLevel(srcCell.id, dstCell.id);
+        if (!level) return false;
+
+        if (srcCell.getOccupiedBy() !== player.getTag()) return false;
+
+        if (level === HexNeighborLevel.Near) {
+            this.map.occupyCell(dstCell.id, player.getTag());
+        }
+
+        if (level === HexNeighborLevel.Far) {
+            this.map.emptyCell(srcCell.id);
+            this.map.occupyCell(dstCell.id, player.getTag());
+        }
+
+        const hostileIds = this.map.getCellHostileNeighbors(dstCell.id);
+        if (hostileIds.length > 0) {
+            hostileIds.forEach(hostileId => {
+                this.map.occupyCell(hostileId, player.getTag())
+            });
+        }
+
+        return true;
     }
 
     private getRandomPlayerTag(): PlayerTag {

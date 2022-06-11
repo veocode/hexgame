@@ -218,21 +218,18 @@ export class HexMap {
 
     occupyCell(id: number, player: PlayerTag): boolean {
         const cell = this.cells[id];
-        if (!cell.isEmpty()) return false;
         cell.setOccupiedBy(player);
         return true;
     }
 
     freeCell(id: number): boolean {
         const cell = this.cells[id];
-        if (!cell.isOccupied()) return false;
         cell.setFreed();
         return true;
     }
 
     emptyCell(id: number): boolean {
         const cell = this.cells[id];
-        if (cell.isEmpty()) return false;
         cell.setEmpty();
         return true;
     }
