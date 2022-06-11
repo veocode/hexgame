@@ -27,7 +27,7 @@ export class HexMapCell {
     }
 
     setNone() {
-        this.state = HexCellState.Empty;
+        this.state = HexCellState.None;
         this.occupiedBy = null;
     }
 

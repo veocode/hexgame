@@ -1,6 +1,6 @@
-import { Point2D } from "../types/utils";
-import { HexCellHightlightType, HexMapCell } from "./hexmapcell";
 import { PlayerTag } from "./player";
+import { HexMapCell, HexCellHightlightType } from "./hexmapcell";
+import { Point2D } from './types';
 
 export enum HexNeighborLevel {
     Near = 1,
@@ -235,6 +235,30 @@ export class HexMap {
         if (cell.isEmpty()) return false;
         cell.setEmpty();
         return true;
+    }
+
+    serialize(): number[] {
+        const serializedMap: number[] = [];
+
+        this.cells.forEach(cell => {
+            let cellValue = 0;
+            if (cell.isEmpty()) cellValue = 1;
+            if (cell.isOccupiedBy(PlayerTag.Player1)) cellValue = 2;
+            if (cell.isOccupiedBy(PlayerTag.Player2)) cellValue = 3;
+            serializedMap.push(cellValue);
+        });
+
+        return serializedMap;
+    }
+
+    deserealize(serializedMap: number[]) {
+        serializedMap.forEach((cellValue, id) => {
+            const cell = this.getCell(id);
+            if (cellValue === 0) cell.setNone();
+            if (cellValue === 1) cell.setEmpty();
+            if (cellValue === 2) cell.setOccupiedBy(PlayerTag.Player1);
+            if (cellValue === 3) cell.setOccupiedBy(PlayerTag.Player2);
+        });
     }
 
 }

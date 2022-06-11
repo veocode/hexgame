@@ -1,5 +1,5 @@
 import React from 'react';
-import { HexMapCell } from '../../../game/hexmapcell';
+import { HexMapCell } from '../../../shared/hexmapcell';
 import { HexCell } from '../HexCell/HexCell';
 import './HexField.css';
 

@@ -1,6 +1,6 @@
 import React from 'react';
-import { HexCellHightlightType, HexMapCell } from '../../../game/hexmapcell';
-import { PlayerTag } from '../../../game/player';
+import { HexCellHightlightType, HexMapCell } from '../../../shared/hexmapcell';
+import { PlayerTag } from '../../../shared/player';
 import './HexCell.css';
 
 
