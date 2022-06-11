@@ -13,7 +13,6 @@ interface GameScreenProps {
 export const GameScreen: React.FC<GameScreenProps> = ({ game }) => {
     const [cells, setCells] = useState<HexMapCell[]>(game.getMap().getCells());
     const [stateMessage, setStateMessage] = useState<GameStateMessage>({ text: 'hexgrid', className: '' });
-    const [playerColors, setPlayerColors] = useState<PlayerColorsList>(game.getPlayerColors());
 
     game.whenMapUpdated((updatedCells: HexMapCell[]) => {
         setCells(updatedCells);
@@ -33,7 +32,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ game }) => {
                 height={game.getMap().getHeight()}
                 cells={cells}
                 onCellClick={id => game.onCellClick(id)}
-                playerColors={playerColors}
+                playerColors={game.getPlayerColors()}
             />
         </div>
     );

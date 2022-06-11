@@ -18,11 +18,6 @@ export class GameManager {
 
     bindClientEvents(client: Client) {
         client.on('game:search-request', () => {
-            client.send('game:search-response', {
-                isSearching: true,
-                playersOnline: this.clients.count()
-            })
-
             this.searchGameForClient(client);
         });
     }
@@ -36,9 +31,9 @@ export class GameManager {
             opponentClient = otherClient;
         });
 
-        if (!opponentClient) { console.log('No Opponents Found, Please wait..........'); }
-        else {
+        if (opponentClient) {
             console.log(`Found Opponent: ${opponentClient.nickname} for client ${client.nickname}`);
+
             client.setOpponent(opponentClient);
             opponentClient.setOpponent(client);
 

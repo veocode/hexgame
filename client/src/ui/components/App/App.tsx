@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
-import './App.css';
-import { HexField } from '../GameScreen/HexField/HexField';
-import { Game, GameState, GameStateMessage } from '../../../game/game';
-import { HexMapCell } from '../../../shared/hexmapcell';
+import { Game, GameState } from '../../../game/game';
 import { MessageScreen } from '../MessageScreen/MessageScreen';
 import { LoginScreen } from '../LoginScreen/LoginScreen';
 import { GameScreen } from '../GameScreen/GameScreen';
+import './App.css';
 
 interface AppProps {
   game: Game,
@@ -21,11 +19,11 @@ export const App: React.FC<AppProps> = ({ game }) => {
   let childComponents;
 
   if (state === GameState.LoggedOut) {
-    childComponents = <LoginScreen game={game} />
+    childComponents = <LoginScreen game={game} />;
   }
 
   if (state === GameState.SearchingGame) {
-    childComponents = <MessageScreen text='Идёт поиск соперника...' />;
+    childComponents = <MessageScreen text='Поиск противника...' />;
   }
 
   if (state === GameState.Started) {

@@ -64,10 +64,6 @@ export class Game {
     }
 
     bindSocketEvents() {
-        this.socket.on('game:search-response', (...args: any[]) => {
-            console.log('search response', ...args);
-        })
-
         this.socket.on('game:match-start', ({ playerTag, map }) => {
             this.setStarted();
             this.player.setTag(playerTag);
@@ -155,11 +151,7 @@ export class Game {
         }
 
         if (cell.isEmpty() && this.selectedCell) {
-            // const isMoveSuccess = 
             await this.makeMove(this.selectedCell.id, cell.id);
-            // if (isMoveSuccess) {
-            //     this.player.setTag(this.player.getTag() === 1 ? 2 : 1);
-            // }
             this.selectedCell = null;
         }
 
