@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { Game, GameState, GameStateMessage } from '../../../game/game';
+import { Game, GameStateMessage } from '../../../game/game';
 import { HexMapCell } from '../../../shared/hexmapcell';
 import { HexField } from './HexField/HexField';
 import { StatePanel } from './StatePanel/StatePanel';
 import './GameScreen.css';
-import { PlayerColorsList } from '../../../shared/player';
 
 interface GameScreenProps {
     game: Game,
@@ -12,7 +11,7 @@ interface GameScreenProps {
 
 export const GameScreen: React.FC<GameScreenProps> = ({ game }) => {
     const [cells, setCells] = useState<HexMapCell[]>(game.getMap().getCells());
-    const [stateMessage, setStateMessage] = useState<GameStateMessage>({ text: 'hexgrid', className: '' });
+    const [stateMessage, setStateMessage] = useState<GameStateMessage>({ text: '', className: '' });
 
     game.whenMapUpdated((updatedCells: HexMapCell[]) => {
         setCells(updatedCells);

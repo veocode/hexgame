@@ -7,7 +7,7 @@ export enum GameState {
     LoggedOut = 0,
     SearchingGame,
     Started,
-    Finished
+    Over
 }
 
 enum GameMoveState {
@@ -21,10 +21,15 @@ type MapUpdatedCallback = (cells: HexMapCell[]) => void
 type StateUpdatedCallback = (state: GameState) => void;
 type StateMessageUpdatedCallback = (stateMessage: GameStateMessage) => void;
 
+export interface GameResult {
+    isWinner: boolean,
+    scores: { [key: number]: number }
+}
+
 export interface GameStateMessage {
     text: string,
     className?: string
-};
+}
 
 export class Game {
 
@@ -39,6 +44,7 @@ export class Game {
     private state: GameState = GameState.LoggedOut;
     private moveState: GameMoveState = GameMoveState.OpponentMove;
     private selectedCell: HexMapCell | null = null;
+    private result: GameResult | null = null;
 
     private callbacks: {
         MapUpdated?: MapUpdatedCallback | null,
@@ -84,11 +90,20 @@ export class Game {
         this.socket.on('game:match-move:opponent', async ({ fromId, toId }) => {
             await this.makeMove(fromId, toId, true);
         })
+
+        this.socket.on('game:match-over', ({ isWinner, scores }) => {
+            this.setOver();
+            this.result = {
+                isWinner,
+                scores
+            };
+        })
     }
 
-    searchAndStart(nickname: string) {
+    searchAndStart(nickname?: string) {
+        if (nickname) this.connect(nickname);
+
         this.setSearchingGame();
-        this.connect(nickname);
         this.socket.emit('game:search-request');
     }
 
@@ -324,6 +339,19 @@ export class Game {
         this.updateStateMessage({
             text: 'Ход противника',
         })
+    }
+
+    setOver() {
+        this.setState(GameState.Over);
+    }
+
+    isOver() {
+        return this.state === GameState.Over;
+    }
+
+    getResult(): GameResult | null {
+        if (!this.isOver()) return null;
+        return this.result;
     }
 
 }

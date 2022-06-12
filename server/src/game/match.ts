@@ -3,14 +3,15 @@ import { HexMapCell } from '../shared/hexmapcell';
 import { PlayerTag } from '../shared/player';
 import { Client } from './client';
 
-type PlayerList = { [key: number]: Client };
+type MatchPlayerList = { [key: number]: Client };
+type MatchScoreList = { [key: number]: number };
 
 const MaxPlayers: number = 2;
 
 export class GameMatch {
 
     private map: HexMap;
-    private players: PlayerList = {};
+    private players: MatchPlayerList = {};
     private currentPlayerTag: PlayerTag = PlayerTag.Player1;
 
     constructor() {
@@ -22,7 +23,7 @@ export class GameMatch {
             const chance = Math.random();
             if (chance >= 0.15) {
                 cell.setEmpty();
-                if (chance >= 0.9) {
+                if (chance >= 0.5) {
                     const randomPlayer = [PlayerTag.Player1, PlayerTag.Player2][Math.floor(Math.random() * 2)];
                     cell.setOccupiedBy(randomPlayer);
                 }
@@ -49,15 +50,10 @@ export class GameMatch {
             if (this.validateAndMakeMove(player, fromId, toId)) {
                 player.getOpponent().send('game:match-move:opponent', { fromId, toId });
 
-                // todo: check game over - board is full
-
-                //if not gameover:
+                if (!this.mapHasEmptyCells()) return this.finish();
                 this.switchPlayer();
 
-                // todo: check game over - player has no own cells
-                // todo: check game over - player has no moves
-
-                //if still not gameover:
+                if (!this.playerHasMoves(this.currentPlayerTag)) return this.finish();
                 this.requestNextMove();
             }
         })
@@ -65,6 +61,29 @@ export class GameMatch {
 
     unbindPlayerEvents(player: Client) {
         player.off('game:match-move:response');
+    }
+
+    finish() {
+        const scores = this.getPlayerScores();
+        let winnerTag: number = 0;
+
+        if (scores[PlayerTag.Player1] != scores[PlayerTag.Player2]) {
+            winnerTag = scores[PlayerTag.Player1] > scores[PlayerTag.Player2]
+                ? PlayerTag.Player1
+                : PlayerTag.Player2
+        }
+
+        console.log('GAME OVER', scores);
+        console.log('Winner', winnerTag);
+
+        this.forEachPlayer(player => {
+            player.send('game:match-over', {
+                isWinner: winnerTag === player.getTag(),
+                scores
+            })
+
+            player.setIdle();
+        });
     }
 
     getPlayersCount(): number {
@@ -85,7 +104,7 @@ export class GameMatch {
             });
         });
 
-        this.requestNextMove();
+        setTimeout(() => this.requestNextMove(), 250);
     }
 
     requestNextMove() {
@@ -124,6 +143,43 @@ export class GameMatch {
         }
 
         return true;
+    }
+
+    mapHasEmptyCells(): boolean {
+        let hasEmpty = false;
+        this.map.getCells().forEach(cell => {
+            if (hasEmpty) return;
+            hasEmpty = cell.isEmpty();
+        });
+        return hasEmpty;
+    }
+
+    playerHasMoves(player: PlayerTag): boolean {
+        let hasMoves = false;
+        this.map.getCells().forEach(cell => {
+            if (hasMoves) return;
+            if (!cell.isOccupiedBy(player)) return;
+
+            const emptyNeighbors = this.map.getCellEmptyNeighbors(cell.id);
+            const hasNear = emptyNeighbors[HexNeighborLevel.Near].length > 0;
+            const hasFar = emptyNeighbors[HexNeighborLevel.Far].length > 0;
+            hasMoves = hasNear || hasFar;
+        });
+
+        return hasMoves;
+    }
+
+    getPlayerScores(): MatchScoreList {
+        const scores = {}
+        scores[PlayerTag.Player1] = 0;
+        scores[PlayerTag.Player2] = 0;
+
+        this.map.getCells().forEach(cell => {
+            if (!cell.isOccupied()) return;
+            scores[cell.getOccupiedBy()] += 1;
+        });
+
+        return scores;
     }
 
     private getRandomPlayerTag(): PlayerTag {

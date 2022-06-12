@@ -4,6 +4,7 @@ import { MessageScreen } from '../MessageScreen/MessageScreen';
 import { LoginScreen } from '../LoginScreen/LoginScreen';
 import { GameScreen } from '../GameScreen/GameScreen';
 import './App.css';
+import { ResultScreen } from '../ResultScreen/ResultScreen';
 
 interface AppProps {
   game: Game,
@@ -28,6 +29,10 @@ export const App: React.FC<AppProps> = ({ game }) => {
 
   if (state === GameState.Started) {
     childComponents = <GameScreen game={game} />;
+  }
+
+  if (state === GameState.Over) {
+    childComponents = <ResultScreen game={game} />;
   }
 
   return (
