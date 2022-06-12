@@ -1,13 +1,13 @@
 .hex-field {
-    --hex-height: 6vw;
+    --hex-height: 11vw;
     --hex-width: calc(var(--hex-height) * 0.87);
     margin: 0 auto;
     display: inline-block;
 }
 
-@media (min-width: 1200px) {
+@media (min-width: 768px) {
     .hex-field {
-        --hex-height: 10vh;
+        --hex-height: 11vh;
         --hex-width: calc(var(--hex-height) * 0.87);
     }
 }

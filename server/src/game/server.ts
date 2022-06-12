@@ -23,7 +23,6 @@ export class GameServer {
         this.socketServer = new SocketIOServer(this.httpServer, {
             cors: {
                 origin: Config.sockets.corsOrigin,
-                methods: ["GET", "POST"]
             }
         });
     }

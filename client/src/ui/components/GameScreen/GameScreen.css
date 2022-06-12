@@ -1,43 +1,13 @@
-.login-screen {
-    position: relative;
+.game-screen {
     width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
 }
 
-.login-screen h1 {
-    font-weight: lighter;
-    color: #FFF;
-    margin: 0;
-}
-
-.login-screen .login-form {
+.game-screen .game-field {
     flex-grow: 1;
     display: flex;
-    align-items: center;
     justify-content: center;
-}
-
-.login-screen .login-form .inputs {
-    display: flex;
-    flex-direction: column;
-}
-
-.login-screen .login-form .inputs input {
-    background-color: #506D8E;
-    border: none;
-    padding: 10px 15px;
-    text-align: center;
-    font-size: 24px;
-    font-weight: lighter;
-    color: #76a0cf;
-    border-radius: 10px;
-    margin-bottom: 10px;
-    outline: none;
-}
-
-.login-screen .login-form .inputs input:focus {
-    background-color: #567496;
-    color: #FFF;
+    align-items: center;
 }

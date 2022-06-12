@@ -61,7 +61,8 @@ export class Game {
 
     connect(nickname: string) {
         this.socket.on("connect_error", e => {
-            console.log('error', e);
+            alert(e.message);
+            this.setLoggedOut();
         });
 
         this.socket.auth = { nickname };

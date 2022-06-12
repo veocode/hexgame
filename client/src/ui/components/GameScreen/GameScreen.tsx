@@ -26,13 +26,15 @@ export const GameScreen: React.FC<GameScreenProps> = ({ game }) => {
             <StatePanel
                 stateMessage={stateMessage}
             />,
-            <HexField
-                width={game.getMap().getWidth()}
-                height={game.getMap().getHeight()}
-                cells={cells}
-                onCellClick={id => game.onCellClick(id)}
-                playerColors={game.getPlayerColors()}
-            />
+            <div className='game-field'>
+                <HexField
+                    width={game.getMap().getWidth()}
+                    height={game.getMap().getHeight()}
+                    cells={cells}
+                    onCellClick={id => game.onCellClick(id)}
+                    playerColors={game.getPlayerColors()}
+                />
+            </div>
         </div>
     );
 };
