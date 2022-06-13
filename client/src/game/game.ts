@@ -244,14 +244,13 @@ export class Game {
             return this.onSandboxCellClick(cell);
         }
 
-        this.map.resetHighlight();
-
         if (!this.isMyMove()) {
             this.redrawMap();
             return;
         }
 
         if (cell.isNone() || (!cell.isEmpty() && !cell.isOccupiedBy(this.player.getTag()))) {
+            this.map.resetHighlight();
             this.selectedCell = null;
         }
 
@@ -262,6 +261,7 @@ export class Game {
         }
 
         if (cell.isEmpty() && this.selectedCell) {
+            this.map.resetHighlight();
             await this.makeMove(this.selectedCell.id, cell.id);
             this.selectedCell = null;
         }

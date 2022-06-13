@@ -11,7 +11,7 @@
 }
 
 .sandbox-screen .toolbar .tool-button {
-    margin-right: 10px;
+    margin-right: 5px;
 }
 
 .sandbox-screen .toolbar .tool-button:last-child {
@@ -19,5 +19,5 @@
 }
 
 .sandbox-screen .toolbar .tool-button.special {
-    margin-left: 40px;
+    margin-left: 10px;
 }

@@ -1,7 +1,13 @@
 import { HexMap, HexNeighborLevel } from '../shared/hexmap';
-import { HexMapCell } from '../shared/hexmapcell';
 import { PlayerHasNoMovesReasons, PlayerTag } from '../shared/player';
 import { Client } from './client';
+
+const MaxPlayers: number = 2;
+
+const Delay = {
+    noMovesFillPerCell: 120,
+    betweenMoves: 800
+}
 
 type MatchPlayerList = { [key: number]: Client };
 type MatchScoreList = {
@@ -10,8 +16,6 @@ type MatchScoreList = {
         score: number
     }
 };
-
-const MaxPlayers: number = 2;
 
 type MatchOverCallback = () => void;
 
@@ -29,28 +33,6 @@ export class GameMatch {
         this.map = new HexMap();
         this.map.deserealize(serializedMap);
     }
-
-    // createMap(): HexMap {
-    //     let isD = 0;
-    //     return new HexMap((cell: HexMapCell) => {
-    //         const chance = Math.random();
-    //         if (chance >= 0.15) {
-    //             cell.setEmpty();
-
-    //             if (chance >= 0.65) {
-    //                 const randomPlayer = [PlayerTag.Player1, PlayerTag.Player2][Math.floor(Math.random() * 2)];
-
-    //                 if (randomPlayer == PlayerTag.Player1 || isD < 2) {
-    //                     cell.setOccupiedBy(randomPlayer);
-    //                 }
-
-    //                 if (randomPlayer === PlayerTag.Player2) {
-    //                     isD += 1;
-    //                 }
-    //             }
-    //         }
-    //     });
-    // }
 
     addPlayer(player: Client) {
         const count = this.getPlayersCount();
@@ -95,7 +77,7 @@ export class GameMatch {
                     if (!this.playerHasMoves(this.currentPlayerTag)) return this.finishWithNoMoves(PlayerHasNoMovesReasons.NoMoves);
 
                     this.requestNextMove();
-                }, 1000);
+                }, Delay.betweenMoves);
             }
         });
 
@@ -112,7 +94,6 @@ export class GameMatch {
 
     sendScoreToPlayers(): MatchScoreList {
         const scores = this.getPlayerScores();
-        console.log('sendScoreToPlayers', scores);
         this.forEachPlayer(player => player?.send('game:match:scores', { scores }));
         return scores;
     }
@@ -136,16 +117,18 @@ export class GameMatch {
             });
         });
 
-        setTimeout(() => this.requestNextMove(), 1000);
+        setTimeout(() => this.requestNextMove(), Delay.betweenMoves);
     }
 
     finish() {
         const scores = this.getPlayerScores();
-        let winnerTag: number = 0;
-        let isWithdraw = scores[PlayerTag.Player1].score === scores[PlayerTag.Player2].score;
+        const scorePlayer1 = scores[PlayerTag.Player1].score;
+        const scorePlayer2 = scores[PlayerTag.Player2].score;
+        const isWithdraw = scorePlayer1 === scorePlayer2;
 
-        if (!isWithdraw && scores[PlayerTag.Player1].score != scores[PlayerTag.Player2].score) {
-            winnerTag = scores[PlayerTag.Player1].score > scores[PlayerTag.Player2].score
+        let winnerTag: number = 0;
+        if (!isWithdraw) {
+            winnerTag = scorePlayer1 > scorePlayer2
                 ? PlayerTag.Player1
                 : PlayerTag.Player2
         }
@@ -153,18 +136,17 @@ export class GameMatch {
         this.forEachPlayer(player => {
             if (!player) return;
 
-            const matchResult = {
-                isWinner: winnerTag === player.getTag(),
-                isWithdraw,
-                scores
-            };
-
-            player.send('game:match:over', matchResult)
+            this.unbindPlayerEvents(player);
 
             player.setIdle();
             player.setOpponent(null);
 
-            this.unbindPlayerEvents(player);
+            const matchResult = {
+                isWinner: !isWithdraw && winnerTag === player.getTag(),
+                isWithdraw,
+                scores
+            };
+            player.send('game:match:over', matchResult)
         });
 
         this.currentPlayerTag = 0;
@@ -173,8 +155,9 @@ export class GameMatch {
 
     finishWithNoMoves(reasonType: string) {
         const loserTag = this.currentPlayerTag;
-        this.switchPlayer();
-        const winnerTag = this.currentPlayerTag;
+        const winnerTag = loserTag === PlayerTag.Player2
+            ? PlayerTag.Player1
+            : PlayerTag.Player2;
 
         this.forEachPlayer((player: Client) => {
             if (!player) return;
@@ -185,8 +168,6 @@ export class GameMatch {
         })
 
         let emptyCellsCount = 0;
-        const animationDelayPerCell = 120;
-
         this.map.getCells().forEach(cell => {
             if (cell.isEmpty()) {
                 emptyCellsCount++;
@@ -194,9 +175,7 @@ export class GameMatch {
             }
         })
 
-        setTimeout(() => {
-            this.finish();
-        }, emptyCellsCount * animationDelayPerCell);
+        setTimeout(() => this.finish(), emptyCellsCount * Delay.noMovesFillPerCell);
     }
 
     requestNextMove() {

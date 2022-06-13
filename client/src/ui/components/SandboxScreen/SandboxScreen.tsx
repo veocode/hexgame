@@ -43,8 +43,11 @@ export const SandboxScreen: React.FC<GameScreenProps> = ({ game }) => {
                 <div className='toolbar'>
                     {toolButtons}
 
-                    <button className='tool-button special' onClick={() => console.log('MAP', game.getMap().serialize())}>
-                        Экспорт в консоль
+                    <button className='tool-button special' onClick={() => console.log(game.getMap().serialize())}>
+                        Экспорт F12
+                    </button>
+                    <button className='tool-button special' onClick={() => game.setLoggedOut()}>
+                        Выход
                     </button>
                 </div>
             </div>

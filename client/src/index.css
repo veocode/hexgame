@@ -31,6 +31,12 @@ div {
   user-select: none;
 }
 
+@keyframes pulse {
+  50% {
+    transform: scale(90%);
+  }
+}
+
 @keyframes growIn {
   from {
     transform: scale(0);
