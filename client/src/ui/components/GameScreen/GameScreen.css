@@ -21,7 +21,6 @@
     height: 100%;
     background: radial-gradient(circle, rgba(57, 62, 70, 0.5) 100%, rgba(57, 62, 70, 0) 0%);
     animation: growIn .65s ease-in;
-    border-radius: 50%;
 }
 
 .game-screen .result-box {

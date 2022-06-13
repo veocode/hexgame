@@ -1,18 +1,25 @@
 import { io, Socket } from "socket.io-client";
 import { HexCellHightlightType, HexMapCell } from "../shared/hexmapcell";
 import { HexMap, HexNeighborLevel } from '../shared/hexmap';
-import { Player, PlayerColorsList, PlayerTag } from '../shared/player';
+import { Player, PlayerColorsList, PlayerHasNoMovesReasons, PlayerTag } from '../shared/player';
 
 export enum GameState {
     LoggedOut = 0,
     SearchingGame,
     Started,
-    Over
+    Over,
+    Sandbox,
 }
 
 enum GameMoveState {
     MyMove = 0,
     OpponentMove
+}
+
+export enum SandboxTools {
+    EmptyNone = 9,
+    Player1,
+    Player2
 }
 
 const cellAnimationTime: number = 400;
@@ -28,7 +35,7 @@ export type GameScoreList = {
     }
 };
 
-type ServerScoreList = {
+export type ServerScoreList = {
     [key: number]: {
         nickname: string,
         score: number
@@ -37,6 +44,7 @@ type ServerScoreList = {
 
 export interface GameResult {
     isWinner: boolean,
+    isWithdraw: boolean,
     scores: ServerScoreList
 }
 
@@ -67,6 +75,8 @@ export class Game {
     private result: GameResult | null = null;
     private scores: GameScoreList | null = null;
 
+    private sandboxTool: SandboxTools = SandboxTools.EmptyNone;
+
     private callbacks: {
         MapUpdated?: MapUpdatedCallback | null,
         StateUpdated?: StateUpdatedCallback | null,
@@ -83,18 +93,21 @@ export class Game {
     }
 
     connect(nickname: string) {
+        this.socket.auth = { nickname };
+        this.socket.connect();
+    }
+
+    bindSocketEvents() {
         this.socket.on("connect_error", e => {
             alert(e.message);
             this.setLoggedOut();
         });
 
-        this.socket.auth = { nickname };
+        this.socket.on("disconnect", () => {
+            this.setLoggedOut();
+        });
 
-        this.socket.connect();
-    }
-
-    bindSocketEvents() {
-        this.socket.on('game:match-start', ({ playerTag, map, scores }) => {
+        this.socket.on('game:match:start', ({ playerTag, map, scores }) => {
             this.setStarted();
             this.player.setTag(playerTag);
             this.map.deserealize(map);
@@ -102,34 +115,66 @@ export class Game {
             this.updateMatchScores(scores);
         })
 
-        this.socket.on('game:match-move:request', () => {
+        this.socket.on('game:match:move-request', () => {
             this.setMyMove();
         })
 
-        this.socket.on('game:match-move:pending', () => {
+        this.socket.on('game:match:move-pending', () => {
             this.setOpponentMove();
             this.map.resetHighlight();
             this.redrawMap();
         })
 
-        this.socket.on('game:match-move:opponent', async ({ fromId, toId }) => {
+        this.socket.on('game:match:move-by-opponent', async ({ fromId, toId }) => {
             this.map.resetHighlight();
             await this.makeMove(fromId, toId, true);
         })
 
-        this.socket.on('game:match-move:cell-selected', async ({ id }) => {
+        this.socket.on('game:match:move-cell-selected', async ({ id }) => {
             this.map.resetHighlight();
             if (id) this.map.getCell(id).setHighlightType(HexCellHightlightType.Center);
             this.redrawMap();
         })
 
-        this.socket.on('game:match-scores', ({ scores }) => {
+        this.socket.on('game:match:no-moves', async ({ loserTag, reasonType }) => {
+            this.map.resetHighlight();
+
+            const reasons: { [key: string]: string } = {}
+            reasons[PlayerHasNoMovesReasons.Left] = '🔌 Соперник покинул игру';
+            reasons[PlayerHasNoMovesReasons.Eliminated] = '☠️ Соперник уничтожен!';
+            reasons[PlayerHasNoMovesReasons.NoMoves] = '🔒 Сопернику некуда ходить!';
+
+            const winnerTag = loserTag === this.player.getTag() ? this.player.getOpponentTag() : this.player.getTag();
+            const stateText = loserTag === this.player.getTag()
+                ? '🔴 Не осталось ходов'
+                : reasons[reasonType];
+
+            this.updateStateMessage({ text: stateText });
+
+            setTimeout(() => {
+                const emptyCells = this.getMap().getCells().filter(cell => cell.isEmpty());
+                this.shuffleArray(emptyCells);
+
+                const occupyNextCell = () => {
+                    if (emptyCells.length == 0) return;
+                    const cell = emptyCells.pop();
+                    cell?.setOccupiedBy(winnerTag);
+                    this.redrawMap();
+                    setTimeout(() => occupyNextCell(), 100);
+                }
+
+                occupyNextCell();
+            }, 500);
+        })
+
+        this.socket.on('game:match:scores', ({ scores }) => {
             this.updateMatchScores(scores);
         })
 
-        this.socket.on('game:match-over', ({ isWinner, scores }) => {
+        this.socket.on('game:match:over', ({ isWinner, isWithdraw, scores }) => {
             this.setOver({
                 isWinner,
+                isWithdraw,
                 scores
             });
         })
@@ -140,6 +185,18 @@ export class Game {
 
         this.setSearchingGame();
         this.socket.emit('game:search-request');
+    }
+
+    startSandbox() {
+        this.setSandbox();
+    }
+
+    getSandboxTool(): SandboxTools {
+        return this.sandboxTool;
+    }
+
+    setSandboxTool(tool: number) {
+        this.sandboxTool = tool;
     }
 
     getPlayerColors(): PlayerColorsList {
@@ -183,6 +240,10 @@ export class Game {
 
         const cell = this.map.getCell(id);
 
+        if (this.isSandbox()) {
+            return this.onSandboxCellClick(cell);
+        }
+
         this.map.resetHighlight();
 
         if (!this.isMyMove()) {
@@ -206,7 +267,33 @@ export class Game {
         }
 
         if (this.selectedCell === null) {
-            this.socket.emit('game:match-move:cell-selected', { id: 0 });
+            this.socket.emit('game:match:move-cell-selected', { id: null });
+        }
+
+        this.redrawMap();
+    }
+
+    onSandboxCellClick(cell: HexMapCell) {
+
+        if (this.sandboxTool === SandboxTools.EmptyNone) {
+            if (cell.isOccupied()) cell.setEmpty();
+            if (cell.isEmpty() || cell.isNone()) cell.toggleNoneEmpty();
+        }
+
+        if (this.sandboxTool === SandboxTools.Player1 && !cell.isNone()) {
+            if (cell.isOccupiedBy(PlayerTag.Player1)) {
+                cell.setEmpty();
+            } else {
+                cell.setOccupiedBy(PlayerTag.Player1);
+            }
+        }
+
+        if (this.sandboxTool === SandboxTools.Player2 && !cell.isNone()) {
+            if (cell.isOccupiedBy(PlayerTag.Player2)) {
+                cell.setEmpty();
+            } else {
+                cell.setOccupiedBy(PlayerTag.Player2);
+            }
         }
 
         this.redrawMap();
@@ -218,7 +305,7 @@ export class Game {
         if (this.selectedCell) this.map.resetHighlight();
         this.selectedCell = cell;
         this.map.highlightCellNeighbors(cell.id);
-        this.socket.emit('game:match-move:cell-selected', { id: cell.id });
+        this.socket.emit('game:match:move-cell-selected', { id: cell.id });
     }
 
     makeMove(fromId: number, toId: number, isOpponent: boolean = false): Promise<boolean> {
@@ -235,7 +322,7 @@ export class Game {
             const player = srcCell.getOccupiedBy();
             if (!player) return resolve(false);
 
-            if (!isOpponent) this.socket.emit('game:match-move:response', { fromId, toId });
+            if (!isOpponent) this.socket.emit('game:match:move-response', { fromId, toId });
 
             if (level === HexNeighborLevel.Near) {
                 await this.occupyCellByPlayer(dstCell.id, player);
@@ -376,6 +463,14 @@ export class Game {
         this.setState(GameState.SearchingGame);
     }
 
+    isSandbox(): boolean {
+        return this.state === GameState.Sandbox;
+    }
+
+    setSandbox() {
+        this.setState(GameState.Sandbox);
+    }
+
     isStarted() {
         return this.state === GameState.Started;
     }
@@ -424,6 +519,13 @@ export class Game {
     getResult(): GameResult | null {
         if (!this.isOver()) return null;
         return this.result;
+    }
+
+    shuffleArray(array: any[]) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
     }
 
 }

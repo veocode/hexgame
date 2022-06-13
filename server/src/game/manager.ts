@@ -1,9 +1,11 @@
 import { Client, ClientList } from "./client";
 import { GameMatch } from "./match";
+import { Maps } from "./maps";
 
 export class GameManager {
 
     private clients: ClientList = new ClientList;
+    private matches: GameMatch[] = [];
 
     addClient(client: Client) {
         this.clients.add(client);
@@ -14,6 +16,11 @@ export class GameManager {
     removeClient(client: Client) {
         this.clients.remove(client);
         console.log(`Client left: ${client.nickname}, Players Online: ${this.clients.count()}`)
+
+        const activeMatch = client.getMatch();
+        if (activeMatch) {
+            activeMatch.removePlayer(client);
+        }
     }
 
     bindClientEvents(client: Client) {
@@ -32,16 +39,33 @@ export class GameManager {
         });
 
         if (opponentClient) {
-            console.log(`Found Opponent: ${opponentClient.nickname} for client ${client.nickname}`);
+            const match = new GameMatch(this.getRandomMap());
 
             client.setOpponent(opponentClient);
-            opponentClient.setOpponent(client);
+            client.setMatch(match);
 
-            const match = new GameMatch();
+            opponentClient.setOpponent(client);
+            opponentClient.setMatch(match);
+
             match.addPlayer(client);
             match.addPlayer(opponentClient);
             match.start();
+
+            match.whenOver(() => this.removeMatch(match));
+            this.addMatch(match);
         }
     }
 
+    addMatch(match: GameMatch) {
+        this.matches.push(match);
+    }
+
+    removeMatch(match: GameMatch) {
+        const index = this.matches.indexOf(match);
+        if (index >= 0) this.matches.splice(index);
+    }
+
+    private getRandomMap(): number[] {
+        return Maps[Math.floor(Math.random() * Maps.length)];
+    }
 }

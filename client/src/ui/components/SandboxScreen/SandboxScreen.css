@@ -1,0 +1,23 @@
+.sandbox-screen .hex-none {
+    opacity: .25;
+    cursor: pointer;
+}
+
+.sandbox-screen .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.sandbox-screen .toolbar .tool-button {
+    margin-right: 10px;
+}
+
+.sandbox-screen .toolbar .tool-button:last-child {
+    margin: 0;
+}
+
+.sandbox-screen .toolbar .tool-button.special {
+    margin-left: 40px;
+}

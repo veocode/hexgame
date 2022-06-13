@@ -16,6 +16,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ game }) => {
         game.searchAndStart(nickname);
     };
 
+    const onSandboxClick = () => {
+        game.startSandbox();
+    }
+
     return (
         <div className='login-screen'>
             <div className='login-form'>
@@ -23,6 +27,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ game }) => {
                     <h1><b>hex</b>game</h1>
                     <input type='text' defaultValue={nickname} ref={nicknameInput} />
                     <button onClick={() => onPlayClick()}>Играть</button>
+                    <button onClick={() => onSandboxClick()}>Редактор карт</button>
                 </div>
             </div>
         </div>

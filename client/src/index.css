@@ -26,6 +26,11 @@ code {
     monospace;
 }
 
+h1,
+div {
+  user-select: none;
+}
+
 @keyframes growIn {
   from {
     transform: scale(0);

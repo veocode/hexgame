@@ -3,6 +3,7 @@ import { Game, GameState } from '../../../game/game';
 import { MessageScreen } from '../MessageScreen/MessageScreen';
 import { LoginScreen } from '../LoginScreen/LoginScreen';
 import { GameScreen } from '../GameScreen/GameScreen';
+import { SandboxScreen } from '../SandboxScreen/SandboxScreen';
 import './App.css';
 
 interface AppProps {
@@ -23,11 +24,16 @@ export const App: React.FC<AppProps> = ({ game }) => {
   }
 
   if (state === GameState.SearchingGame) {
-    childComponents = <MessageScreen text='🌐 Поиск противника...' />;
+    childComponents = <MessageScreen text='🌐 Поиск соперника...' />;
   }
 
   if (state === GameState.Started || state === GameState.Over) {
     childComponents = <GameScreen game={game} />;
+  }
+
+
+  if (state === GameState.Sandbox) {
+    childComponents = <SandboxScreen game={game} />;
   }
 
   return (

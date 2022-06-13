@@ -15,28 +15,18 @@ export const GameScreen: React.FC<GameScreenProps> = ({ game }) => {
     const [matchScores, setMatchScores] = useState<GameScoreList | null>(game.getScores());
     const [gameResult, setGameResult] = useState<GameResult | null>(null);
 
-    game.whenMapUpdated((updatedCells: HexMapCell[]) => {
-        setCells(updatedCells);
-    });
-
-    game.whenStateMessageUpdated((stateMessage: GameStateMessage) => {
-        setStateMessage({ ...stateMessage });
-    });
-
-    game.whenMatchScoreUpdated((scores: GameScoreList) => {
-        console.log('whenMatchScoreUpdated', scores);
-        setMatchScores(scores);
-    });
-
-    game.whenMatchOver((result: GameResult) => {
-        setGameResult(result);
-    });
+    game.whenMapUpdated(setCells);
+    game.whenStateMessageUpdated(setStateMessage);
+    game.whenMatchScoreUpdated(setMatchScores);
+    game.whenMatchOver(setGameResult);
 
     const resultBox = gameResult ? (
         <div className='result-wrap'>
             <div className='result-box'>
                 <div className='message'>
-                    {gameResult?.isWinner ? '👑 Вы победили!' : '⭕️ Вы проиграли!'}
+                    {gameResult.isWithdraw
+                        ? '🏳️ Ничья!'
+                        : (gameResult.isWinner ? '👑 Вы победили!' : '⭕️ Вы проиграли!')}
                 </div>
                 <div className='button'>
                     <button onClick={() => game.searchAndStart()}>Играть еще раз</button>

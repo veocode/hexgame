@@ -1,4 +1,5 @@
 import { Socket } from "socket.io";
+import { GameMatch } from "./match";
 
 export class ClientList {
 
@@ -41,8 +42,10 @@ export class Client {
     public readonly nickname: string;
 
     private tag: number = 0;
-    private opponent: Client;
     private state: ClientState = ClientState.Idle;
+
+    private opponent: Client;
+    private match: GameMatch;
 
     constructor(private readonly socket: Socket) {
         this.id = socket.id;
@@ -57,13 +60,21 @@ export class Client {
         this.tag = tag;
     }
 
-    getOpponent(): Client {
+    getOpponent(): Client | null {
         return this.opponent;
     }
 
-    setOpponent(client: Client) {
-        this.setInGame();
+    setOpponent(client: Client | null) {
+        if (client) this.setInGame();
         this.opponent = client;
+    }
+
+    getMatch(): GameMatch | null {
+        return this.match;
+    }
+
+    setMatch(match: GameMatch | null) {
+        this.match = match;
     }
 
     on(eventName: string, callback: (...args: any[]) => void) {
