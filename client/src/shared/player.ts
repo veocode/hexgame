@@ -17,4 +17,10 @@ export class Player {
         this.tag = tag;
     }
 
+    getOpponentTag() {
+        return this.getTag() === PlayerTag.Player1
+            ? PlayerTag.Player2
+            : PlayerTag.Player1;
+    }
+
 }

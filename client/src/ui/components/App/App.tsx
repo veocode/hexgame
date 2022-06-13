@@ -4,7 +4,6 @@ import { MessageScreen } from '../MessageScreen/MessageScreen';
 import { LoginScreen } from '../LoginScreen/LoginScreen';
 import { GameScreen } from '../GameScreen/GameScreen';
 import './App.css';
-import { ResultScreen } from '../ResultScreen/ResultScreen';
 
 interface AppProps {
   game: Game,
@@ -24,15 +23,11 @@ export const App: React.FC<AppProps> = ({ game }) => {
   }
 
   if (state === GameState.SearchingGame) {
-    childComponents = <MessageScreen text='Поиск противника...' />;
+    childComponents = <MessageScreen text='🌐 Поиск противника...' />;
   }
 
-  if (state === GameState.Started) {
+  if (state === GameState.Started || state === GameState.Over) {
     childComponents = <GameScreen game={game} />;
-  }
-
-  if (state === GameState.Over) {
-    childComponents = <ResultScreen game={game} />;
   }
 
   return (

@@ -4,7 +4,12 @@ import { PlayerTag } from '../shared/player';
 import { Client } from './client';
 
 type MatchPlayerList = { [key: number]: Client };
-type MatchScoreList = { [key: number]: number };
+type MatchScoreList = {
+    [key: number]: {
+        nickname: string,
+        score: number
+    }
+};
 
 const MaxPlayers: number = 2;
 
@@ -23,7 +28,7 @@ export class GameMatch {
             const chance = Math.random();
             if (chance >= 0.15) {
                 cell.setEmpty();
-                if (chance >= 0.5) {
+                if (chance >= 0.2) {
                     const randomPlayer = [PlayerTag.Player1, PlayerTag.Player2][Math.floor(Math.random() * 2)];
                     cell.setOccupiedBy(randomPlayer);
                 }
@@ -50,40 +55,26 @@ export class GameMatch {
             if (this.validateAndMakeMove(player, fromId, toId)) {
                 player.getOpponent().send('game:match-move:opponent', { fromId, toId });
 
+                const scores = this.getPlayerScores();
+                player.send('game:match-scores', { scores });
+                player.getOpponent().send('game:match-scores', { scores });
+
                 if (!this.mapHasEmptyCells()) return this.finish();
                 this.switchPlayer();
 
                 if (!this.playerHasMoves(this.currentPlayerTag)) return this.finish();
                 this.requestNextMove();
             }
-        })
+        });
+
+        player.on('game:match-move:cell-selected', ({ id }) => {
+            console.log('cell-selected', id);
+            player.getOpponent().send('game:match-move:cell-selected', { id });
+        });
     }
 
     unbindPlayerEvents(player: Client) {
         player.off('game:match-move:response');
-    }
-
-    finish() {
-        const scores = this.getPlayerScores();
-        let winnerTag: number = 0;
-
-        if (scores[PlayerTag.Player1] != scores[PlayerTag.Player2]) {
-            winnerTag = scores[PlayerTag.Player1] > scores[PlayerTag.Player2]
-                ? PlayerTag.Player1
-                : PlayerTag.Player2
-        }
-
-        console.log('GAME OVER', scores);
-        console.log('Winner', winnerTag);
-
-        this.forEachPlayer(player => {
-            player.send('game:match-over', {
-                isWinner: winnerTag === player.getTag(),
-                scores
-            })
-
-            player.setIdle();
-        });
     }
 
     getPlayersCount(): number {
@@ -100,11 +91,32 @@ export class GameMatch {
         this.forEachPlayer((player: Client) => {
             player.send('game:match-start', {
                 playerTag: player.getTag(),
-                map: this.map.serialize()
+                map: this.map.serialize(),
+                scores: this.getPlayerScores()
             });
         });
 
         setTimeout(() => this.requestNextMove(), 250);
+    }
+
+    finish() {
+        const scores = this.getPlayerScores();
+        let winnerTag: number = 0;
+
+        if (scores[PlayerTag.Player1] != scores[PlayerTag.Player2]) {
+            winnerTag = scores[PlayerTag.Player1] > scores[PlayerTag.Player2]
+                ? PlayerTag.Player1
+                : PlayerTag.Player2
+        }
+
+        this.forEachPlayer(player => {
+            player.send('game:match-over', {
+                isWinner: winnerTag === player.getTag(),
+                scores
+            })
+
+            player.setIdle();
+        });
     }
 
     requestNextMove() {
@@ -171,12 +183,18 @@ export class GameMatch {
 
     getPlayerScores(): MatchScoreList {
         const scores = {}
-        scores[PlayerTag.Player1] = 0;
-        scores[PlayerTag.Player2] = 0;
+
+        const tags = [PlayerTag.Player1, PlayerTag.Player2];
+        tags.forEach((tag: PlayerTag) => {
+            scores[tag] = {
+                nickname: this.players[tag].nickname,
+                score: 0
+            };
+        })
 
         this.map.getCells().forEach(cell => {
             if (!cell.isOccupied()) return;
-            scores[cell.getOccupiedBy()] += 1;
+            scores[cell.getOccupiedBy()].score += 1;
         });
 
         return scores;

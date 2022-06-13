@@ -1,23 +1,32 @@
 import React from 'react';
-import { GameStateMessage } from '../../../../game/game';
+import { GameScoreList, GameStateMessage } from '../../../../game/game';
+import { PlayerTag } from '../../../../shared/player';
+import { ScoreCounter } from '../ScoreCounter/StatePanel';
 import './StatePanel.css';
 
 interface StatePanelProps {
-    stateMessage: GameStateMessage
+    stateMessage: GameStateMessage,
+    scores: GameScoreList | null
 };
 
-export const StatePanel: React.FC<StatePanelProps> = ({ stateMessage }) => {
+export const StatePanel: React.FC<StatePanelProps> = ({ stateMessage, scores }) => {
     return (
         <div className='state-panel'>
-            <div className='col icon'>
-                <div className={stateMessage.className}></div>
+            <ScoreCounter
+                orientation='left'
+                nickname={scores?.own.nickname || ''}
+                score={scores?.own.score || 0}
+            />
+            <div className='center'>
+                <div className='message'>
+                    {stateMessage.text || '...'}
+                </div>
             </div>
-            <div className='col message'>
-                {stateMessage.text}
-            </div>
-            <div className='col timer'>
-                <div className='timer-counter'></div>
-            </div>
+            <ScoreCounter
+                orientation='right'
+                nickname={scores?.opponent.nickname || ''}
+                score={scores?.opponent.score || 0}
+            />
         </div>
     );
 };

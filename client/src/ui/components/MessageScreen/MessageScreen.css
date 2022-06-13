@@ -9,4 +9,5 @@
     font-size: 32px;
     font-weight: lighter;
     color: #FFF;
+    animation: blinkFade 1s infinite;
 }

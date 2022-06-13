@@ -18,11 +18,11 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ game }) => {
 
     return (
         <div className='login-screen'>
-            <h1>hexgame</h1>
             <div className='login-form'>
                 <div className='inputs'>
+                    <h1><b>hex</b>game</h1>
                     <input type='text' defaultValue={nickname} ref={nicknameInput} />
-                    <button onClick={() => onPlayClick()}>Play</button>
+                    <button onClick={() => onPlayClick()}>Играть</button>
                 </div>
             </div>
         </div>

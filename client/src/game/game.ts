@@ -1,5 +1,5 @@
 import { io, Socket } from "socket.io-client";
-import { HexMapCell } from "../shared/hexmapcell";
+import { HexCellHightlightType, HexMapCell } from "../shared/hexmapcell";
 import { HexMap, HexNeighborLevel } from '../shared/hexmap';
 import { Player, PlayerColorsList, PlayerTag } from '../shared/player';
 
@@ -17,19 +17,39 @@ enum GameMoveState {
 
 const cellAnimationTime: number = 400;
 
-type MapUpdatedCallback = (cells: HexMapCell[]) => void
-type StateUpdatedCallback = (state: GameState) => void;
-type StateMessageUpdatedCallback = (stateMessage: GameStateMessage) => void;
+export type GameScoreList = {
+    own: {
+        nickname: string,
+        score: number
+    },
+    opponent: {
+        nickname: string,
+        score: number
+    }
+};
+
+type ServerScoreList = {
+    [key: number]: {
+        nickname: string,
+        score: number
+    }
+};
 
 export interface GameResult {
     isWinner: boolean,
-    scores: { [key: number]: number }
+    scores: ServerScoreList
 }
 
 export interface GameStateMessage {
     text: string,
     className?: string
 }
+
+type MapUpdatedCallback = (cells: HexMapCell[]) => void
+type StateUpdatedCallback = (state: GameState) => void;
+type StateMessageUpdatedCallback = (stateMessage: GameStateMessage) => void;
+type MatchScoreUpdatedCallback = (scores: GameScoreList) => void;
+type MatchOverCallback = (result: GameResult) => void;
 
 export class Game {
 
@@ -45,11 +65,14 @@ export class Game {
     private moveState: GameMoveState = GameMoveState.OpponentMove;
     private selectedCell: HexMapCell | null = null;
     private result: GameResult | null = null;
+    private scores: GameScoreList | null = null;
 
     private callbacks: {
         MapUpdated?: MapUpdatedCallback | null,
         StateUpdated?: StateUpdatedCallback | null,
-        StateMessageUpdated?: StateMessageUpdatedCallback | null
+        StateMessageUpdated?: StateMessageUpdatedCallback | null,
+        MatchScoreUpdated?: MatchScoreUpdatedCallback | null,
+        MatchOver?: MatchOverCallback | null
     } = {};
 
     constructor() {
@@ -71,11 +94,12 @@ export class Game {
     }
 
     bindSocketEvents() {
-        this.socket.on('game:match-start', ({ playerTag, map }) => {
+        this.socket.on('game:match-start', ({ playerTag, map, scores }) => {
             this.setStarted();
             this.player.setTag(playerTag);
             this.map.deserealize(map);
             this.redrawMap();
+            this.updateMatchScores(scores);
         })
 
         this.socket.on('game:match-move:request', () => {
@@ -89,15 +113,25 @@ export class Game {
         })
 
         this.socket.on('game:match-move:opponent', async ({ fromId, toId }) => {
+            this.map.resetHighlight();
             await this.makeMove(fromId, toId, true);
         })
 
+        this.socket.on('game:match-move:cell-selected', async ({ id }) => {
+            this.map.resetHighlight();
+            if (id) this.map.getCell(id).setHighlightType(HexCellHightlightType.Center);
+            this.redrawMap();
+        })
+
+        this.socket.on('game:match-scores', ({ scores }) => {
+            this.updateMatchScores(scores);
+        })
+
         this.socket.on('game:match-over', ({ isWinner, scores }) => {
-            this.setOver();
-            this.result = {
+            this.setOver({
                 isWinner,
                 scores
-            };
+            });
         })
     }
 
@@ -171,6 +205,10 @@ export class Game {
             this.selectedCell = null;
         }
 
+        if (this.selectedCell === null) {
+            this.socket.emit('game:match-move:cell-selected', { id: 0 });
+        }
+
         this.redrawMap();
     }
 
@@ -180,6 +218,7 @@ export class Game {
         if (this.selectedCell) this.map.resetHighlight();
         this.selectedCell = cell;
         this.map.highlightCellNeighbors(cell.id);
+        this.socket.emit('game:match-move:cell-selected', { id: cell.id });
     }
 
     makeMove(fromId: number, toId: number, isOpponent: boolean = false): Promise<boolean> {
@@ -292,6 +331,31 @@ export class Game {
         }
     }
 
+    updateMatchScores(scores: ServerScoreList) {
+        const gameScores = {
+            own: { ...scores[this.player.getTag()] },
+            opponent: { ...scores[this.player.getOpponentTag()] },
+        }
+
+        this.scores = gameScores;
+
+        if (this.callbacks.MatchScoreUpdated) {
+            this.callbacks.MatchScoreUpdated(gameScores);
+        }
+    }
+
+    whenMatchScoreUpdated(callback: MatchScoreUpdatedCallback) {
+        this.callbacks.MatchScoreUpdated = callback;
+    }
+
+    getScores(): GameScoreList | null {
+        return this.scores;
+    }
+
+    whenMatchOver(callback: MatchOverCallback) {
+        this.callbacks.MatchOver = callback;
+    }
+
     getState(): GameState {
         return this.state;
     }
@@ -327,7 +391,7 @@ export class Game {
     setMyMove() {
         this.moveState = GameMoveState.MyMove;
         this.updateStateMessage({
-            text: 'Ваш ход',
+            text: '🟢 Ваш ход',
         })
     }
 
@@ -338,12 +402,19 @@ export class Game {
     setOpponentMove() {
         this.moveState = GameMoveState.OpponentMove;
         this.updateStateMessage({
-            text: 'Ход противника',
+            text: '⏳ Ходит противник',
         })
     }
 
-    setOver() {
+    setOver(result: GameResult) {
         this.setState(GameState.Over);
+        if (this.callbacks.MatchOver) {
+            this.callbacks.MatchOver(result);
+        }
+        this.updateStateMessage({
+            text: 'Игра окончена',
+        });
+        this.updateMatchScores(result.scores);
     }
 
     isOver() {

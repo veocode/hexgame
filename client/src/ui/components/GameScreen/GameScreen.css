@@ -8,6 +8,36 @@
 .game-screen .game-field {
     flex-grow: 1;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    position: relative;
+    height: 100%;
+}
+
+.game-screen .result-wrap {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(57, 62, 70, 0.5) 100%, rgba(57, 62, 70, 0) 0%);
+    animation: growIn .65s ease-in;
+    border-radius: 50%;
+}
+
+.game-screen .result-box {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    background: rgba(23, 30, 39, 0.85);
+    padding: 2vw;
+    width: 50%;
+    transform: translate(50%, -50%);
+    border-radius: 10px;
+}
+
+.game-screen .result-box .message {
+    font-size: 24px;
+    color: #FFF;
+    font-weight: lighter;
+    margin-bottom: 15px;
 }

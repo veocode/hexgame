@@ -1,0 +1,45 @@
+.score-counter {
+    display: flex;
+    --icon-size: 32px;
+}
+
+.score-counter .icon {
+    width: var(--icon-size);
+    height: var(--icon-size);
+    line-height: var(--icon-size);
+    text-align: center;
+    background: url(../../../images/hex-own.svg) no-repeat center;
+    background-size: contain;
+}
+
+.score-counter .score {
+    font-weight: bold;
+    line-height: var(--icon-size);
+    font-size: 24px;
+    color: #31A2D3;
+}
+
+.score-counter .nickname {
+    line-height: var(--icon-size);
+    padding-left: 10px;
+    font-weight: lighter;
+    font-size: 18px;
+    opacity: .75;
+}
+
+.score-counter.right {
+    flex-direction: row-reverse;
+}
+
+.score-counter.right .icon {
+    background: url(../../../images/hex-enemy.svg) no-repeat center;
+}
+
+.score-counter.right .score {
+    color: #F85050;
+}
+
+.score-counter.right .nickname {
+    padding-left: 0;
+    padding-right: 10px;
+}

@@ -9,7 +9,7 @@
 .login-screen h1 {
     font-weight: lighter;
     color: #FFF;
-    margin: 0;
+    letter-spacing: 4px;
 }
 
 .login-screen .login-form {

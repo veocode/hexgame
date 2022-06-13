@@ -4,4 +4,14 @@
     border-radius: 8px;
     margin-bottom: 2vh;
     color: #FFF;
+    display: flex;
+    cursor: default;
+    user-select: none;
+}
+
+.state-panel .center {
+    flex-grow: 1;
+    line-height: 32px;
+    font-size: 18px;
+    font-weight: bold;
 }
