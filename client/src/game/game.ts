@@ -2,6 +2,9 @@ import { io, Socket } from "socket.io-client";
 import { HexCellHightlightType, HexMapCell } from "../shared/hexmapcell";
 import { HexMap, HexNeighborLevel } from '../shared/hexmap';
 import { Player, PlayerColorsList, PlayerHasNoMovesReasons, PlayerTag } from '../shared/player';
+import { getLocaleTexts } from "./locales";
+
+const texts = getLocaleTexts();
 
 export enum GameState {
     LoggedOut = 0,
@@ -82,8 +85,8 @@ export class Game {
         MatchOver?: MatchOverCallback | null
     } = {};
 
-    constructor() {
-        const wsUrl: string | undefined = process.env.SERVER_WS_URL || 'https://playhex.online:3010';
+    constructor(host: string) {
+        const wsUrl = `https://${host}:3010`;
 
         this.socket = io(wsUrl, {
             reconnection: false,
@@ -144,13 +147,13 @@ export class Game {
             this.map.resetHighlight();
 
             const reasons: { [key: string]: string } = {}
-            reasons[PlayerHasNoMovesReasons.Left] = '🔌 Соперник покинул игру';
-            reasons[PlayerHasNoMovesReasons.Eliminated] = '☠️ Соперник уничтожен!';
-            reasons[PlayerHasNoMovesReasons.NoMoves] = '🔒 Сопернику некуда ходить!';
+            reasons[PlayerHasNoMovesReasons.Left] = texts.OpponentLeft;
+            reasons[PlayerHasNoMovesReasons.Eliminated] = texts.OpponentEliminated;
+            reasons[PlayerHasNoMovesReasons.NoMoves] = texts.OpponentNoMoves;
 
             const winnerTag = loserTag === this.player.getTag() ? this.player.getOpponentTag() : this.player.getTag();
             const stateText = loserTag === this.player.getTag()
-                ? '🔴 Не осталось ходов'
+                ? texts.NoMoves
                 : reasons[reasonType];
 
             this.updateStateMessage({ text: stateText });
@@ -490,7 +493,7 @@ export class Game {
     setMyMove() {
         this.moveState = GameMoveState.MyMove;
         this.updateStateMessage({
-            text: '🟢 Ваш ход',
+            text: texts.YourTurn,
         })
     }
 
@@ -501,7 +504,7 @@ export class Game {
     setOpponentMove() {
         this.moveState = GameMoveState.OpponentMove;
         this.updateStateMessage({
-            text: '⏳ Ходит противник',
+            text: texts.OppoentTurn,
         })
     }
 
@@ -511,7 +514,7 @@ export class Game {
             this.callbacks.MatchOver(result);
         }
         this.updateStateMessage({
-            text: 'Игра окончена',
+            text: texts.MatchOver,
         });
         this.updateMatchScores(result.scores);
     }

@@ -4,7 +4,7 @@ import { Game } from './game/game';
 import './index.css';
 import { App } from './ui/components/App/App';
 
-const game: Game = new Game();
+const game: Game = new Game(window.location.hostname);
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

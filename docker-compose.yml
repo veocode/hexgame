@@ -30,7 +30,5 @@ services:
     ports:
       - 80:80
       - 443:443
-    environment:
-      SERVER_WS_URL: ${SERVER_WS_URL}
     depends_on:
       - server

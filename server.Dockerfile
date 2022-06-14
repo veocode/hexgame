@@ -11,6 +11,3 @@ COPY --from=deps /opt/app/node_modules ./node_modules
 COPY --from=deps /opt/app/package.json ./package.json
 COPY --from=deps /opt/app/package-lock.json ./package-lock.json
 RUN npm install -g forever
-
-RUN pwd
-RUN ls -l

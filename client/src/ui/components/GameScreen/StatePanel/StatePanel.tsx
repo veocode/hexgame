@@ -1,6 +1,5 @@
 import React from 'react';
 import { GameScoreList, GameStateMessage } from '../../../../game/game';
-import { PlayerTag } from '../../../../shared/player';
 import { ScoreCounter } from '../ScoreCounter/StatePanel';
 import './StatePanel.css';
 

@@ -3,7 +3,10 @@ import { Game, GameResult, GameScoreList, GameStateMessage } from '../../../game
 import { HexMapCell } from '../../../shared/hexmapcell';
 import { HexField } from './HexField/HexField';
 import { StatePanel } from './StatePanel/StatePanel';
+import { getLocaleTexts } from '../../../game/locales';
 import './GameScreen.css';
+
+const texts = getLocaleTexts();
 
 interface GameScreenProps {
     game: Game,
@@ -25,11 +28,11 @@ export const GameScreen: React.FC<GameScreenProps> = ({ game }) => {
             <div className='result-box'>
                 <div className='message'>
                     {gameResult.isWithdraw
-                        ? '🏳️ Ничья!'
-                        : (gameResult.isWinner ? '👑 Вы победили!' : '⭕️ Вы проиграли!')}
+                        ? texts.MatchWithdraw
+                        : (gameResult.isWinner ? texts.MatchWon : texts.MatchLost)}
                 </div>
                 <div className='button'>
-                    <button onClick={() => game.searchAndStart()}>Играть еще раз</button>
+                    <button onClick={() => game.searchAndStart()}>{texts.PlayAgain}</button>
                 </div>
             </div>
         </div>

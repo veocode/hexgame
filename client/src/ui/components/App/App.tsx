@@ -4,11 +4,14 @@ import { MessageScreen } from '../MessageScreen/MessageScreen';
 import { LoginScreen } from '../LoginScreen/LoginScreen';
 import { GameScreen } from '../GameScreen/GameScreen';
 import { SandboxScreen } from '../SandboxScreen/SandboxScreen';
+import { getLocaleTexts } from '../../../game/locales';
 import './App.css';
 
 interface AppProps {
   game: Game,
 };
+
+const texts = getLocaleTexts();
 
 export const App: React.FC<AppProps> = ({ game }) => {
   const [state, setState] = useState<GameState>(game.getState());
@@ -24,7 +27,7 @@ export const App: React.FC<AppProps> = ({ game }) => {
   }
 
   if (state === GameState.SearchingGame) {
-    childComponents = <MessageScreen text='🌐 Поиск соперника...' />;
+    childComponents = <MessageScreen text={texts.SearchingOpponent} />;
   }
 
   if (state === GameState.Started || state === GameState.Over) {
