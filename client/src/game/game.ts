@@ -83,7 +83,7 @@ export class Game {
     } = {};
 
     constructor() {
-        const wsUrl: string | undefined = process.env.SERVER_WS_URL || 'https://localhost:3010';
+        const wsUrl: string | undefined = process.env.SERVER_WS_URL || 'https://playhex.online:3010';
 
         this.socket = io(wsUrl, {
             reconnection: false,
