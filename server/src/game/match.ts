@@ -267,7 +267,6 @@ export class GameMatch {
             scores[cell.getOccupiedBy()].score += 1;
         });
 
-        console.log('getPlayerScores', scores);
         return scores;
     }
 

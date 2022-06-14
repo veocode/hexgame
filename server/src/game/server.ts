@@ -1,7 +1,6 @@
 import * as express from 'express'
 import { Server as SocketIOServer } from 'socket.io'
 import * as https from 'https'
-import * as cors from 'cors'
 import { Config } from '../config';
 import { GameManager } from '../game/manager';
 import { Client } from '../game/client';
@@ -16,8 +15,6 @@ export class GameServer {
     private socketServer: SocketIOServer;
 
     constructor() {
-        this.express.use(cors());
-
         this.httpsServer = https.createServer({
             "key": readFileSync(Config.ssl.keyFile),
             "cert": readFileSync(Config.ssl.certFile),
@@ -27,13 +24,14 @@ export class GameServer {
         this.bindSocketServerEvents();
 
         const port = Config.sockets.port;
-        console.log('Server Configuration: ', Config);
-        console.log(`Server listening...`);
+        console.log('Server Configuration: ', Config, '\n');
+        console.log(`Server listening at port ${port}...`);
         this.httpsServer.listen(port);
     }
 
     createSocketServer() {
         this.socketServer = new SocketIOServer(this.httpsServer, {
+            transports: ['websocket', 'polling'],
             cors: {
                 origin: Config.sockets.corsOrigin,
                 methods: ['OPTIONS', 'GET', 'POST']
@@ -50,10 +48,6 @@ export class GameServer {
             socket.on("disconnect", () => {
                 this.gameManager.removeClient(client);
             });
-        });
-
-        this.socketServer.on('error', e => {
-            console.log('error', e);
         });
     }
 
