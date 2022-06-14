@@ -62,6 +62,7 @@ check() {
 update() {
     down
     git pull
+    install
     up
     log
 }
