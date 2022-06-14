@@ -21,11 +21,17 @@ class GameServer {
         this.createSocketServer();
         this.bindSocketServerEvents();
         const port = config_1.Config.sockets.port;
-        console.log(`Server listening on port ${port}...`);
+        console.log('Server Configuration: ', config_1.Config);
+        console.log(`Server listening...`);
         this.httpsServer.listen(port);
     }
     createSocketServer() {
-        this.socketServer = new socket_io_1.Server(this.httpsServer);
+        this.socketServer = new socket_io_1.Server(this.httpsServer, {
+            cors: {
+                origin: config_1.Config.sockets.corsOrigin,
+                methods: ['OPTIONS', 'GET', 'POST']
+            }
+        });
     }
     bindSocketServerEvents() {
         this.socketServer.on('connection', socket => {
