@@ -8,7 +8,7 @@ const env = (name, defaultValue) => {
 exports.Config = {
     sockets: {
         port: env('SERVER_WS_PORT', 3010),
-        corsOrigin: env('SERVER_CORS_ORIGIN', '*'),
+        corsOrigin: env('SERVER_CORS_ORIGIN', 'localhost:3000'),
     },
     ssl: {
         certFile: env('SERVER_WS_CERT_FILE', '../docker/certs/server.crt'),

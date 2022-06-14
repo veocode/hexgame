@@ -37,8 +37,18 @@ class Client {
         this.socket = socket;
         this.tag = 0;
         this.state = ClientState.Idle;
-        this.id = socket.id;
-        this.nickname = socket.handshake.auth.nickname;
+        this.id = socket
+            ? socket.id
+            : this.getId();
+        this.nickname = socket
+            ? socket.handshake.auth.nickname
+            : this.getNickname();
+    }
+    getId() {
+        return this.id;
+    }
+    getNickname() {
+        return this.nickname;
     }
     getTag() {
         return this.tag;

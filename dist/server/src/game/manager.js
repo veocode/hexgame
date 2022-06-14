@@ -4,6 +4,7 @@ exports.GameManager = void 0;
 const client_1 = require("./client");
 const match_1 = require("./match");
 const maps_1 = require("./maps");
+const botclient_1 = require("./botclient");
 class GameManager {
     constructor() {
         this.clients = new client_1.ClientList;
@@ -36,17 +37,27 @@ class GameManager {
             opponentClient = otherClient;
         });
         if (opponentClient) {
-            const match = new match_1.GameMatch(this.getRandomMap());
-            client.setOpponent(opponentClient);
-            client.setMatch(match);
-            opponentClient.setOpponent(client);
-            opponentClient.setMatch(match);
-            match.addPlayer(client);
-            match.addPlayer(opponentClient);
-            match.start();
-            match.whenOver(() => this.removeMatch(match));
-            this.addMatch(match);
+            return this.createMatch(client, opponentClient);
         }
+        setTimeout(() => {
+            if (client.isSearchingGame()) {
+                client.setInGame();
+                const botOpponent = new botclient_1.BotClient(null);
+                this.createMatch(client, botOpponent);
+            }
+        }, 3000);
+    }
+    createMatch(player1, player2) {
+        const match = new match_1.GameMatch(this.getRandomMap());
+        player1.setOpponent(player2);
+        player1.setMatch(match);
+        player2.setOpponent(player1);
+        player2.setMatch(match);
+        match.addPlayer(player1);
+        match.addPlayer(player2);
+        match.start();
+        match.whenOver(() => this.removeMatch(match));
+        this.addMatch(match);
     }
     addMatch(match) {
         this.matches.push(match);

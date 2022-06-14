@@ -85,6 +85,20 @@ class HexMap {
         });
         return hostileIds;
     }
+    getCellAllyNeighbors(id) {
+        const cell = this.cells[id];
+        if (!cell.isOccupied)
+            return [];
+        const occupiedBy = cell.getOccupiedBy();
+        const nearestNeighborIds = this.getCellNearestNeighborIds(id);
+        const allyIds = [];
+        nearestNeighborIds.forEach(nearId => {
+            if (this.cells[nearId].isOccupiedBy(occupiedBy)) {
+                allyIds.push(nearId);
+            }
+        });
+        return allyIds;
+    }
     getCellEmptyNeighbors(id) {
         const emptyNeighborsList = {};
         emptyNeighborsList[HexNeighborLevel.Near] = [];

@@ -16,6 +16,9 @@ class GameMatch {
         this.map = new hexmap_1.HexMap();
         this.map.deserealize(serializedMap);
     }
+    getMap() {
+        return this.map;
+    }
     addPlayer(player) {
         const count = this.getPlayersCount();
         if (count === MaxPlayers)
