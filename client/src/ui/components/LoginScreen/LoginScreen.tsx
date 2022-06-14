@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { Game } from '../../../game/game';
-import { getBriefLocalesList, getLocaleTexts, getUserLang } from '../../../game/locales';
+import { getLocaleTexts } from '../../../game/locales';
 import { LocaleSelector } from './LocaleSelector/LocaleSelector';
 import './LoginScreen.css';
 
