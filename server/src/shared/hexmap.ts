@@ -105,6 +105,23 @@ export class HexMap {
         return hostileIds;
     }
 
+    getCellAllyNeighbors(id: number): number[] {
+        const cell = this.cells[id];
+        if (!cell.isOccupied) return [];
+
+        const occupiedBy = cell.getOccupiedBy();
+        const nearestNeighborIds = this.getCellNearestNeighborIds(id);
+        const allyIds: number[] = [];
+
+        nearestNeighborIds.forEach(nearId => {
+            if (this.cells[nearId].isOccupiedBy(occupiedBy)) {
+                allyIds.push(nearId);
+            }
+        });
+
+        return allyIds;
+    }
+
     getCellEmptyNeighbors(id: number): HexNeighborsByLevel {
         const emptyNeighborsList: HexNeighborsByLevel = {};
         emptyNeighborsList[HexNeighborLevel.Near] = [];

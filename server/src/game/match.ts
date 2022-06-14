@@ -34,6 +34,10 @@ export class GameMatch {
         this.map.deserealize(serializedMap);
     }
 
+    getMap(): HexMap {
+        return this.map;
+    }
+
     addPlayer(player: Client) {
         const count = this.getPlayersCount();
         if (count === MaxPlayers) return;

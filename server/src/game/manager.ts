@@ -1,6 +1,7 @@
 import { Client, ClientList } from "./client";
 import { GameMatch } from "./match";
 import { Maps } from "./maps";
+import { BotClient } from "./botclient";
 
 export class GameManager {
 
@@ -39,21 +40,33 @@ export class GameManager {
         });
 
         if (opponentClient) {
-            const match = new GameMatch(this.getRandomMap());
-
-            client.setOpponent(opponentClient);
-            client.setMatch(match);
-
-            opponentClient.setOpponent(client);
-            opponentClient.setMatch(match);
-
-            match.addPlayer(client);
-            match.addPlayer(opponentClient);
-            match.start();
-
-            match.whenOver(() => this.removeMatch(match));
-            this.addMatch(match);
+            return this.createMatch(client, opponentClient);
         }
+
+        setTimeout(() => {
+            if (client.isSearchingGame()) {
+                client.setInGame();
+                const botOpponent = new BotClient(null);
+                this.createMatch(client, botOpponent);
+            }
+        }, 3000);
+    }
+
+    createMatch(player1: Client, player2: Client) {
+        const match = new GameMatch(this.getRandomMap());
+
+        player1.setOpponent(player2);
+        player1.setMatch(match);
+
+        player2.setOpponent(player1);
+        player2.setMatch(match);
+
+        match.addPlayer(player1);
+        match.addPlayer(player2);
+        match.start();
+
+        match.whenOver(() => this.removeMatch(match));
+        this.addMatch(match);
     }
 
     addMatch(match: GameMatch) {

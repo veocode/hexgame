@@ -141,6 +141,7 @@ export class Game {
         this.socket.on('game:match:move-cell-selected', async ({ id }) => {
             this.map.resetHighlight();
             if (id) this.map.getCell(id).setHighlightType(HexCellHightlightType.Center);
+            console.log('game:match:move-cell-selected', id);
             this.redrawMap();
         })
 
@@ -253,7 +254,6 @@ export class Game {
         }
 
         if (!this.isMyMove()) {
-            this.redrawMap();
             return;
         }
 

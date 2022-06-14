@@ -41,15 +41,27 @@ export class Client {
     public readonly id: string;
     public readonly nickname: string;
 
-    private tag: number = 0;
-    private state: ClientState = ClientState.Idle;
+    protected tag: number = 0;
+    protected state: ClientState = ClientState.Idle;
 
-    private opponent: Client;
-    private match: GameMatch;
+    protected opponent: Client;
+    protected match: GameMatch;
 
-    constructor(private readonly socket: Socket) {
-        this.id = socket.id;
-        this.nickname = socket.handshake.auth.nickname;
+    constructor(private readonly socket: Socket | null) {
+        this.id = socket
+            ? socket.id
+            : this.getId();
+        this.nickname = socket
+            ? socket.handshake.auth.nickname
+            : this.getNickname();
+    }
+
+    getId(): string {
+        return this.id;
+    }
+
+    getNickname(): string {
+        return this.nickname;
     }
 
     getTag(): number {
