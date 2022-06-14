@@ -27,12 +27,18 @@ export class GameServer {
         this.bindSocketServerEvents();
 
         const port = Config.sockets.port;
-        console.log(`Server listening on port ${port}...`);
+        console.log('Server Configuration: ', Config);
+        console.log(`Server listening...`);
         this.httpsServer.listen(port);
     }
 
     createSocketServer() {
-        this.socketServer = new SocketIOServer(this.httpsServer);
+        this.socketServer = new SocketIOServer(this.httpsServer, {
+            cors: {
+                origin: Config.sockets.corsOrigin,
+                methods: ['OPTIONS', 'GET', 'POST']
+            }
+        });
     }
 
     bindSocketServerEvents() {
