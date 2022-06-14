@@ -9,9 +9,13 @@ services:
       dockerfile: ./server.Dockerfile
     volumes:
       - ./docker/certs:/opt/app/certs
-      - ./dist/server:/opt/app/src
+      - ./dist/server/src:/opt/app/src
     ports:
-      - 3010:3010
+      - ${SERVER_WS_PORT}:${SERVER_WS_PORT}
+    environment:
+      SERVER_WS_PORT: ${SERVER_WS_PORT}
+      SERVER_WS_CERT_FILE: ${SERVER_WS_CERT_FILE}
+      SERVER_WS_KEY_FILE: ${SERVER_WS_KEY_FILE}
     working_dir: /opt/app
     command: node ./src/index.js
 
@@ -25,5 +29,7 @@ services:
     ports:
       - 80:80
       - 443:443
+    environment:
+      SERVER_WS_URL: ${SERVER_WS_URL}
     depends_on:
       - server

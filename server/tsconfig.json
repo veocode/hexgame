@@ -2,7 +2,7 @@
     "compilerOptions": {
         "target": "es2016",
         "module": "commonjs",
-        "outDir": "../dist/server/src",
+        "outDir": "../dist/server",
         "resolveJsonModule": true,
         "sourceMap": true
     },

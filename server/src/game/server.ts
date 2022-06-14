@@ -1,28 +1,35 @@
 import { Server as SocketIOServer } from 'socket.io'
-import * as http from 'http'
+import * as https from 'https'
 import { Config } from '../config';
 import { GameManager } from '../game/manager';
 import { Client } from '../game/client';
+import { readFileSync } from 'fs';
 
 export class GameServer {
 
     private gameManager: GameManager = new GameManager();
-    private httpServer: http.Server = http.createServer();
+    private httpsServer: https.Server;
     private socketServer: SocketIOServer;
 
     constructor() {
+        this.httpsServer = https.createServer({
+            "key": readFileSync(Config.ssl.keyFile),
+            "cert": readFileSync(Config.ssl.certFile),
+        });
+
         this.createSocketServer();
         this.bindSocketServerEvents();
 
         const port = Config.sockets.port;
         console.log(`Server listening on port ${port}...`);
-        this.httpServer.listen(port);
+        this.httpsServer.listen(port);
     }
 
     createSocketServer() {
-        this.socketServer = new SocketIOServer(this.httpServer, {
+        this.socketServer = new SocketIOServer(this.httpsServer, {
             cors: {
                 origin: Config.sockets.corsOrigin,
+                methods: ['GET', 'POST', 'OPTIONS'],
             }
         });
     }

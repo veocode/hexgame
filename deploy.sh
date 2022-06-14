@@ -25,6 +25,13 @@ install() {
     echo "Done!"
 }
 
+update() {
+    down
+    git pull
+    build
+    up
+}
+
 up(){
     docker-compose up -d
 }

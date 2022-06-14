@@ -5,7 +5,11 @@ const env = (name, defaultValue) => {
 
 export const Config = {
     sockets: {
-        port: env('SOCKET_PORT', 3010),
-        corsOrigin: env('SOCKET_CORS_ORIGIN', '*'),
+        port: env('SERVER_WS_PORT', 3010),
+        corsOrigin: env('SERVER_CORS_ORIGIN', '*'),
+    },
+    ssl: {
+        certFile: env('SERVER_WS_CERT_FILE', '../docker/certs/server.crt'),
+        keyFile: env('SERVER_WS_KEY_FILE', '../docker/certs/server.key')
     },
 }

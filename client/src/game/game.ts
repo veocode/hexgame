@@ -61,10 +61,7 @@ type MatchOverCallback = (result: GameResult) => void;
 
 export class Game {
 
-    private socket: Socket = io('http://localhost:3010', {
-        reconnection: false,
-        autoConnect: false
-    });
+    private socket: Socket;
 
     private map: HexMap;
     private player: Player;
@@ -86,6 +83,13 @@ export class Game {
     } = {};
 
     constructor() {
+        const wsUrl: string | undefined = process.env.SERVER_WS_URL || 'https://localhost:3010';
+
+        this.socket = io(wsUrl, {
+            reconnection: false,
+            autoConnect: false
+        });
+
         this.bindSocketEvents();
 
         this.map = this.createMap();
@@ -156,7 +160,7 @@ export class Game {
                 this.shuffleArray(emptyCells);
 
                 const occupyNextCell = () => {
-                    if (emptyCells.length == 0) return;
+                    if (emptyCells.length === 0) return;
                     const cell = emptyCells.pop();
                     cell?.setOccupiedBy(winnerTag);
                     this.redrawMap();
