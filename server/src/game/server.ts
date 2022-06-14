@@ -27,6 +27,7 @@ export class GameServer {
 
     createSocketServer() {
         this.socketServer = new SocketIOServer(this.httpsServer, {
+            transports: ['websocket', 'polling'],
             cors: {
                 origin: Config.sockets.corsOrigin,
                 methods: ['GET', 'POST', 'OPTIONS'],

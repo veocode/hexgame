@@ -90,7 +90,8 @@ export class Game {
 
         this.socket = io(wsUrl, {
             reconnection: false,
-            autoConnect: false
+            autoConnect: false,
+            transports: ['websocket', 'polling'],
         });
 
         this.bindSocketEvents();
