@@ -33,7 +33,7 @@ update() {
 }
 
 up(){
-    docker-compose up -d $ARGS
+    docker-compose up -d
 }
 
 down(){
@@ -62,7 +62,7 @@ check() {
 update() {
     down
     git pull
-    up --build
+    docker-compose up -d --build
     log
 }
 
