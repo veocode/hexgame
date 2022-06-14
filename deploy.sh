@@ -32,13 +32,6 @@ install() {
     echo "Done!"
 }
 
-update() {
-    down
-    git pull
-    build
-    up
-}
-
 up(){
     docker-compose up -d
 }
@@ -70,7 +63,8 @@ update() {
     down
     git pull
     docker-compose up -d --build
-    log
+    logs
+    echo "Update Done!"
 }
 
 COMMAND=${1:-"help"}
