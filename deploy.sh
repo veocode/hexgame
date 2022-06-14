@@ -22,6 +22,10 @@ build-push() {
     git push
 }
 
+build-docker() {
+    docker-compose build
+}
+
 install() {
     echo "Installing root dependencies..."
     npm install
