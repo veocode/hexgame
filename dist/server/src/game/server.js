@@ -1,8 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GameServer = void 0;
+const express = require("express");
 const socket_io_1 = require("socket.io");
 const https = require("https");
+const cors = require("cors");
 const config_1 = require("../config");
 const manager_1 = require("../game/manager");
 const client_1 = require("../game/client");
@@ -10,10 +12,12 @@ const fs_1 = require("fs");
 class GameServer {
     constructor() {
         this.gameManager = new manager_1.GameManager();
+        this.express = express();
+        this.express.use(cors());
         this.httpsServer = https.createServer({
             "key": (0, fs_1.readFileSync)(config_1.Config.ssl.keyFile),
             "cert": (0, fs_1.readFileSync)(config_1.Config.ssl.certFile),
-        });
+        }, this.express);
         this.createSocketServer();
         this.bindSocketServerEvents();
         const port = config_1.Config.sockets.port;
