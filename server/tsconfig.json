@@ -2,14 +2,17 @@
     "compilerOptions": {
         "target": "es2016",
         "module": "commonjs",
-        "outDir": "../dist/server",
+        "outDir": "../dist/server/src",
+        "resolveJsonModule": true,
         "sourceMap": true
     },
     "files": [
         "./node_modules/@types/node/index.d.ts"
     ],
     "include": [
-        "src/**/*.ts"
+        "src/**/*.ts",
+        "./package.json",
+        "./package-lock.json",
     ],
     "exclude": [
         "node_modules"

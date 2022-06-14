@@ -1,0 +1,29 @@
+version: "3.1"
+
+services:
+
+  server:
+    container_name: hex-server
+    build:
+      context: .
+      dockerfile: ./server.Dockerfile
+    volumes:
+      - ./docker/certs:/opt/app/certs
+      - ./dist/server:/opt/app/src
+    ports:
+      - 3010:3010
+    working_dir: /opt/app
+    command: node ./src/index.js
+
+  client:
+    container_name: hex-client
+    image: nginx:alpine
+    volumes:
+      - ./dist/client:/opt/client/html:ro
+      - ./docker/conf/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/certs:/opt/client/certs:ro
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - server

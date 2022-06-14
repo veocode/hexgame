@@ -1,19 +1,19 @@
 {
   "files": {
-    "main.css": "/static/css/main.3f92a825.css",
-    "main.js": "/static/js/main.7cc1c448.js",
+    "main.css": "/static/css/main.ed802cb8.css",
+    "main.js": "/static/js/main.e15ebfe2.js",
+    "static/media/hex-own.svg": "/static/media/hex-own.573e291101023f52a1f0.svg",
+    "static/media/hex-enemy.svg": "/static/media/hex-enemy.fd1e347ff97c7aa4ff99.svg",
+    "static/media/hex.svg": "/static/media/hex.37e9c211116b7cc99926.svg",
     "static/media/hex-green.svg": "/static/media/hex-green.0962815b2091db32ea32.svg",
     "static/media/hex-orange.svg": "/static/media/hex-orange.73ac61beec9ed16d74f4.svg",
-    "static/media/hex.svg": "/static/media/hex.908d65d0096b546b9af8.svg",
     "index.html": "/index.html",
-    "static/media/hex-blue.svg": "/static/media/hex-blue.8fe4c79351d1f9c0f58d.svg",
-    "static/media/hex-red.svg": "/static/media/hex-red.42aff674c6eb95aa99b2.svg",
     "static/media/hex-white.svg": "/static/media/hex-white.b5c579227633e3face22.svg",
-    "main.3f92a825.css.map": "/static/css/main.3f92a825.css.map",
-    "main.7cc1c448.js.map": "/static/js/main.7cc1c448.js.map"
+    "main.ed802cb8.css.map": "/static/css/main.ed802cb8.css.map",
+    "main.e15ebfe2.js.map": "/static/js/main.e15ebfe2.js.map"
   },
   "entrypoints": [
-    "static/css/main.3f92a825.css",
-    "static/js/main.7cc1c448.js"
+    "static/css/main.ed802cb8.css",
+    "static/js/main.e15ebfe2.js"
   ]
 }

@@ -1,1 +1,3 @@
 node_modules
+docker/certs/server.crt
+docker/certs/server.key
