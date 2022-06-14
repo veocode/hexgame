@@ -1,0 +1,28 @@
+.locale-selector {
+    position: absolute;
+    z-index: 100;
+    right: 0;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.locale-selector button {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    margin-bottom: 5px;
+    background: none;
+    border: solid 2px #505762;
+    box-shadow: none;
+}
+
+.locale-selector button:hover {
+    background: none;
+    border: solid 2px #5e6674;
+}
+
+.locale-selector button.active {
+    background: #505762;
+}

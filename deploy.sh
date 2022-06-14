@@ -47,7 +47,7 @@ down(){
 restart(){
     down
     up
-    log
+    logs
 }
 
 log() {
