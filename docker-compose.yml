@@ -16,6 +16,7 @@ services:
       SERVER_WS_PORT: ${SERVER_WS_PORT}
       SERVER_WS_CERT_FILE: ${SERVER_WS_CERT_FILE}
       SERVER_WS_KEY_FILE: ${SERVER_WS_KEY_FILE}
+      SERVER_CORS_ORIGIN: ${SERVER_CORS_ORIGIN}
     working_dir: /opt/app
     command: node ./src/index.js
 

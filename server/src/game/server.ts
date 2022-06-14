@@ -30,6 +30,7 @@ export class GameServer {
             cors: {
                 origin: Config.sockets.corsOrigin,
                 methods: ['GET', 'POST', 'OPTIONS'],
+                credentials: true
             }
         });
     }
