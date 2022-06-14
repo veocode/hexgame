@@ -15,6 +15,13 @@ build() {
     npm run build
 }
 
+build-push() {
+    build
+    git add .
+    git commit -m 'built dist'
+    git push
+}
+
 install() {
     echo "Installing root dependencies..."
     npm install

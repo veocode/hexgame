@@ -221,7 +221,6 @@ class GameMatch {
                 return;
             scores[cell.getOccupiedBy()].score += 1;
         });
-        console.log('getPlayerScores', scores);
         return scores;
     }
     getRandomPlayerTag() {
