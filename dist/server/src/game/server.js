@@ -25,6 +25,7 @@ class GameServer {
             cors: {
                 origin: config_1.Config.sockets.corsOrigin,
                 methods: ['GET', 'POST', 'OPTIONS'],
+                credentials: true
             }
         });
     }
