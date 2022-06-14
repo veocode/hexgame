@@ -21,14 +21,7 @@ class GameServer {
         this.httpsServer.listen(port);
     }
     createSocketServer() {
-        this.socketServer = new socket_io_1.Server(this.httpsServer, {
-            transports: ['websocket', 'polling'],
-            cors: {
-                origin: config_1.Config.sockets.corsOrigin,
-                methods: ['GET', 'POST', 'OPTIONS'],
-                credentials: true
-            }
-        });
+        this.socketServer = new socket_io_1.Server(this.httpsServer);
     }
     bindSocketServerEvents() {
         this.socketServer.on('connection', socket => {
