@@ -1,6 +1,6 @@
 @media (orientation:landscape) {
     .hex-field {
-        --hex-height: 8vw;
+        --hex-height: 7vw;
         --hex-width: calc(var(--hex-height) * 0.87);
     }
 
@@ -12,7 +12,7 @@
 
     @media (min-width: 768px) {
         .hex-field {
-            --hex-height: 6vw;
+            --hex-height: 4vw;
         }
     }
 
@@ -25,19 +25,19 @@
 
 @media screen and (orientation:portrait) {
     .hex-field {
-        --hex-height: 3vh;
+        --hex-height: 4vh;
         --hex-width: calc(var(--hex-height) * 0.87);
     }
 
     @media (min-width: 300px) {
         .hex-field {
-            --hex-height: 4vh;
+            --hex-height: 5vh;
         }
     }
 
     @media (min-width: 375px) {
         .hex-field {
-            --hex-height: 5vh;
+            --hex-height: 6vh;
         }
     }
 }
