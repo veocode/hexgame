@@ -1,9 +1,6 @@
-import { moveMessagePortToContext } from "worker_threads";
-import { HexMap, HexNeighborLevel } from "../shared/hexmap";
+import { HexNeighborLevel } from "../shared/hexmap";
 import { HexMapCell } from "../shared/hexmapcell";
-import { PlayerTag } from "../shared/player";
 import { Client } from "./client";
-import { GameMatch } from "./match";
 
 type SocketCallback = (...args: any[]) => void;
 type CallbackDict = { [eventName: string]: SocketCallback };
