@@ -1,25 +1,73 @@
-.hex-field {
-    --hex-height: 11vw;
-    --hex-width: calc(var(--hex-height) * 0.87);
-    margin: 0 auto;
-    display: inline-block;
-}
-
-@media (min-width: 768px) {
+@media (orientation:landscape) {
     .hex-field {
-        --hex-height: 11vh;
+        --hex-height: 8vw;
         --hex-width: calc(var(--hex-height) * 0.87);
     }
+
+    @media (min-width: 440px) {
+        .hex-field {
+            --hex-height: 7vw;
+        }
+    }
+
+    @media (min-width: 768px) {
+        .hex-field {
+            --hex-height: 6vw;
+        }
+    }
+
+    @media (min-width: 900px) {
+        .hex-field {
+            --hex-height: 5vw;
+        }
+    }
+}
+
+@media screen and (orientation:portrait) {
+    .hex-field {
+        --hex-height: 3vh;
+        --hex-width: calc(var(--hex-height) * 0.87);
+    }
+
+    @media (min-width: 300px) {
+        .hex-field {
+            --hex-height: 4vh;
+        }
+    }
+
+    @media (min-width: 375px) {
+        .hex-field {
+            --hex-height: 5vh;
+        }
+    }
+}
+
+.hex-field {
+    margin: 0 auto;
+    display: inline-block;
+    padding-left: calc(var(--hex-width)/3);
 }
 
 .hex-field .row {
     overflow: hidden;
     padding: 0;
     margin: 0;
+    margin-left: calc(var(--hex-width)/2);
 }
 
 .hex-field .row:nth-child(even) {
-    margin-left: calc(var(--hex-width)/2);
+    margin-left: calc(var(--hex-width)/2 + var(--hex-width)/2);
     margin-top: calc(-1 * var(--hex-height)/4);
     margin-bottom: calc(-1 * var(--hex-height)/4);
+}
+
+@media (max-width: 400px) {
+    .hex-field .row {
+        margin-left: 0;
+    }
+
+    .hex-field .row:nth-child(even) {
+        margin-left: calc(var(--hex-width)/2);
+
+    }
 }

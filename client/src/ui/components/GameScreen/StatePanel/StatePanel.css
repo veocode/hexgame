@@ -1,4 +1,8 @@
 .state-panel {
+    position: relative;
+}
+
+.state-panel .score-counters {
     background: #49505a;
     padding: 10px 15px;
     border-radius: 8px;
@@ -9,9 +13,29 @@
     user-select: none;
 }
 
-.state-panel .center {
+.state-panel .score-counters .separator {
     flex-grow: 1;
-    line-height: 32px;
-    font-size: 18px;
-    font-weight: bold;
+}
+
+.state-panel .state-message {
+    height: 40px;
+    font-size: 14px;
+    color: #FFF;
+    border: solid 2px #49505a;
+    padding: 10px 15px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+@media (min-width: 768px) {
+    .state-panel .state-message {
+        position: absolute;
+        transform: translate(-50%, 0);
+        left: 50%;
+        margin-top: 5px;
+        font-size: 18px;
+    }
 }
