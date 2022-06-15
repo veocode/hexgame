@@ -66,6 +66,14 @@ check() {
 update() {
     down
     git pull
+    up
+    logs
+    echo "Update Done!"
+}
+
+update-rebuild() {
+    down
+    git pull
     docker-compose up -d --build
     logs
     echo "Update Done!"
