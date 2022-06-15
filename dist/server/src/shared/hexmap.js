@@ -71,33 +71,48 @@ class HexMap {
             return HexNeighborLevel.Far;
         return null;
     }
-    getCellHostileNeighbors(id) {
+    getCellHostileNeighbors(id, hostileToTag = null) {
         const cell = this.cells[id];
         if (!cell.isOccupied)
             return [];
-        const occupiedBy = cell.getOccupiedBy();
+        if (!hostileToTag)
+            hostileToTag = cell.getOccupiedBy();
         const nearestNeighborIds = this.getCellNearestNeighborIds(id);
         const hostileIds = [];
         nearestNeighborIds.forEach(nearId => {
-            if (this.cells[nearId].isHostileTo(occupiedBy)) {
+            if (this.cells[nearId].isHostileTo(hostileToTag)) {
                 hostileIds.push(nearId);
             }
         });
         return hostileIds;
     }
-    getCellAllyNeighbors(id) {
+    getCellAllyNeighbors(id, allyToTag = null) {
         const cell = this.cells[id];
         if (!cell.isOccupied)
             return [];
-        const occupiedBy = cell.getOccupiedBy();
+        if (!allyToTag)
+            allyToTag = cell.getOccupiedBy();
         const nearestNeighborIds = this.getCellNearestNeighborIds(id);
         const allyIds = [];
         nearestNeighborIds.forEach(nearId => {
-            if (this.cells[nearId].isOccupiedBy(occupiedBy)) {
+            if (this.cells[nearId].isOccupiedBy(allyToTag)) {
                 allyIds.push(nearId);
             }
         });
         return allyIds;
+    }
+    isCellCanBeAttacked(id, attackedByTag) {
+        let isCanBeAttacked = false;
+        Object.values(this.getCellNeighbors(id)).forEach(neighborIds => {
+            if (isCanBeAttacked)
+                return;
+            neighborIds.forEach(neighborId => {
+                if (isCanBeAttacked)
+                    return;
+                isCanBeAttacked = this.cells[neighborId].isOccupiedBy(attackedByTag);
+            });
+        });
+        return isCanBeAttacked;
     }
     getCellEmptyNeighbors(id) {
         const emptyNeighborsList = {};
