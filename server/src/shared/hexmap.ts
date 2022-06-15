@@ -88,16 +88,16 @@ export class HexMap {
         return null;
     }
 
-    getCellHostileNeighbors(id: number): number[] {
+    getCellHostileNeighbors(id: number, hostileToTag: PlayerTag | null = null): number[] {
         const cell = this.cells[id];
         if (!cell.isOccupied) return [];
 
-        const occupiedBy = cell.getOccupiedBy();
+        if (!hostileToTag) hostileToTag = cell.getOccupiedBy();
         const nearestNeighborIds = this.getCellNearestNeighborIds(id);
         const hostileIds: number[] = [];
 
         nearestNeighborIds.forEach(nearId => {
-            if (this.cells[nearId].isHostileTo(occupiedBy)) {
+            if (this.cells[nearId].isHostileTo(hostileToTag)) {
                 hostileIds.push(nearId);
             }
         });
@@ -105,21 +105,33 @@ export class HexMap {
         return hostileIds;
     }
 
-    getCellAllyNeighbors(id: number): number[] {
+    getCellAllyNeighbors(id: number, allyToTag: PlayerTag | null = null): number[] {
         const cell = this.cells[id];
         if (!cell.isOccupied) return [];
 
-        const occupiedBy = cell.getOccupiedBy();
+        if (!allyToTag) allyToTag = cell.getOccupiedBy();
         const nearestNeighborIds = this.getCellNearestNeighborIds(id);
         const allyIds: number[] = [];
 
         nearestNeighborIds.forEach(nearId => {
-            if (this.cells[nearId].isOccupiedBy(occupiedBy)) {
+            if (this.cells[nearId].isOccupiedBy(allyToTag)) {
                 allyIds.push(nearId);
             }
         });
 
         return allyIds;
+    }
+
+    isCellCanBeAttacked(id: number, attackedByTag: PlayerTag): boolean {
+        let isCanBeAttacked: boolean = false;
+        Object.values(this.getCellNeighbors(id)).forEach(neighborIds => {
+            if (isCanBeAttacked) return;
+            neighborIds.forEach(neighborId => {
+                if (isCanBeAttacked) return;
+                isCanBeAttacked = this.cells[neighborId].isOccupiedBy(attackedByTag);
+            })
+        })
+        return isCanBeAttacked;
     }
 
     getCellEmptyNeighbors(id: number): HexNeighborsByLevel {

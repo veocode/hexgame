@@ -6,8 +6,8 @@
   "scripts": {
     "build": "tsc",
     "start": "node ../dist/server/src/index.js",
-    "dev-start": "ts-node src/index.ts",
-    "dev": "ts-node src/index.ts"
+    "dev-start": "nodemon src/index.ts",
+    "dev": "nodemon src/index.ts"
   },
   "author": "veocode",
   "license": "MIT",

@@ -78,15 +78,21 @@ export class BotClient extends Client {
     private onMatchMoveRequest() {
         const moves = this.getPossibleMoves();
 
+        if (moves.maxCaptureProfit) {
+            console.log('moves.maxCaptureProfit', moves.maxCaptureProfit, 'to', moves.maxCapture.toCell.id)
+        } else {
+            console.log('moves.maxCaptureProfit', 'none');
+        }
+
         if (moves.maxCapture && moves.maxCaptureProfit > 1) return this.makeMove(moves.maxCapture);
 
         if (moves.near.length > 0) return this.makeMove(this.shuffleArray(moves.near)[0]);
 
         if (moves.maxCapture && moves.maxCaptureProfit > 0) return this.makeMove(moves.maxCapture);
 
-        if (moves.minLose) return this.makeMove(moves.minLose);
-
         if (moves.maxCapture) return this.makeMove(moves.maxCapture);
+
+        if (moves.minLose) return this.makeMove(moves.minLose);
 
         if (moves.far.length > 0) return this.makeMove(this.shuffleArray(moves.far)[0]);
 
@@ -143,12 +149,14 @@ export class BotClient extends Client {
             const hasMoves = hasNear || hasFar;
 
             if (hasMoves) {
-                const ownToLoseInCounter = map.getCellAllyNeighbors(cell.id).length;
+                const ownToLoseInCounter = map.isCellCanBeAttacked(cell.id, this.getOpponent().getTag())
+                    ? map.getCellAllyNeighbors(cell.id, this.getTag()).length
+                    : 0;
 
                 levels.forEach(level => {
                     emptyNeighbors[level].forEach(emptyCellId => {
                         const emptyCell = map.getCell(emptyCellId);
-                        const hostileToCapture = map.getCellHostileNeighbors(emptyCellId).length;
+                        const hostileToCapture = map.getCellHostileNeighbors(emptyCellId, this.getTag()).length;
 
                         const move: PossibleMove = {
                             fromCell: cell,
@@ -161,7 +169,11 @@ export class BotClient extends Client {
                         moves.all.push(move);
                         move.isJump ? moves.far.push(move) : moves.near.push(move);
 
-                        const captureProfit = hostileToCapture - ownToLoseInCounter;
+                        const captureProfit = (hostileToCapture - ownToLoseInCounter) + (move.isJump ? 0 : 1);
+
+                        if (captureProfit) {
+                            console.log(`Cell ${emptyCellId} - captureProfit: ${captureProfit}`, map.getCellHostileNeighbors(emptyCellId, this.getTag()));
+                        }
 
                         if (captureProfit > 0 && captureProfit > maxCaptureProfit) {
                             maxCaptureProfit = captureProfit;
