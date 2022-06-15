@@ -78,11 +78,9 @@ export class BotClient extends Client {
     private onMatchMoveRequest() {
         const moves = this.getPossibleMoves();
 
-        if (moves.maxCapture && moves.maxCaptureProfit > 0) return this.makeMove(moves.maxCapture);
+        if (moves.maxCapture) return this.makeMove(moves.maxCapture);
 
         if (moves.near.length > 0) return this.makeMove(this.shuffleArray(moves.near)[0]);
-
-        if (moves.maxCapture) return this.makeMove(moves.maxCapture);
 
         if (moves.minLose) return this.makeMove(moves.minLose);
 
