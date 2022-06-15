@@ -42,6 +42,10 @@ export class BotClient extends Client {
 
     private callbacks: CallbackDict = {};
 
+    isBot(): boolean {
+        return true;
+    }
+
     getId(): string {
         if (this.botId) return this.botId;
         return this.botId = this.generateId();

@@ -56,6 +56,10 @@ export class Client {
             : this.getNickname();
     }
 
+    isBot(): boolean {
+        return false;
+    }
+
     getId(): string {
         return this.id;
     }
