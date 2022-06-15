@@ -18,6 +18,9 @@ class BotClient extends client_1.Client {
         this.botNickname = '';
         this.callbacks = {};
     }
+    isBot() {
+        return true;
+    }
     getId() {
         if (this.botId)
             return this.botId;

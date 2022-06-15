@@ -44,6 +44,9 @@ class Client {
             ? socket.handshake.auth.nickname
             : this.getNickname();
     }
+    isBot() {
+        return false;
+    }
     getId() {
         return this.id;
     }

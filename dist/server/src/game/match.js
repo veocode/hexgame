@@ -38,6 +38,9 @@ class GameMatch {
         }
         ;
     }
+    getPlayer(tag) {
+        return this.players[tag];
+    }
     bindPlayerEvents(player) {
         player.on('game:match:move-response', ({ fromId, toId }) => {
             var _a;
@@ -92,6 +95,18 @@ class GameMatch {
             });
         });
         setTimeout(() => this.requestNextMove(), Delay.betweenMoves);
+    }
+    terminate() {
+        this.forEachPlayer(player => {
+            if (!player)
+                return;
+            this.unbindPlayerEvents(player);
+            player.setIdle();
+            player.setOpponent(null);
+        });
+        this.currentPlayerTag = 0;
+        if (this.callbacks.Over)
+            this.callbacks.Over();
     }
     finish() {
         const scores = this.getPlayerScores();
