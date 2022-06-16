@@ -144,7 +144,7 @@ export class GameMatch {
         if (this.callbacks.Over) this.callbacks.Over();
     }
 
-    finish() {
+    finish(isNoMoves: boolean = false) {
         const scores = this.getPlayerScores();
         const scorePlayer1 = scores[PlayerTag.Player1].score;
         const scorePlayer2 = scores[PlayerTag.Player2].score;
@@ -168,6 +168,7 @@ export class GameMatch {
             const matchResult = {
                 isWinner: !isWithdraw && winnerTag === player.getTag(),
                 isWithdraw,
+                isNoMoves,
                 scores
             };
             player.send('game:match:over', matchResult)
@@ -199,7 +200,7 @@ export class GameMatch {
             }
         })
 
-        setTimeout(() => this.finish(), emptyCellsCount * Delay.noMovesFillPerCell);
+        setTimeout(() => this.finish(true), emptyCellsCount * Delay.noMovesFillPerCell + 1000);
     }
 
     requestNextMove() {

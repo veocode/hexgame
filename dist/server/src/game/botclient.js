@@ -9,7 +9,19 @@ const botNames = [
     'hexxer',
     'hexfan',
     'hexbro',
+    'hexman',
+    'hexdude',
     'hexmaster',
+    'hexrookie',
+    'hexsports',
+    'hexallday',
+    'hexonomical',
+    'hexomorfin',
+    'hexotoxin',
+    'hexonaut',
+    'hexlady',
+    'hexchick',
+    'hexhomie',
     'hexist',
     'hexoid',
     'hexxeh',
@@ -43,6 +55,11 @@ class BotClient extends client_1.Client {
         }
         return result;
     }
+    callback(eventName, data) {
+        if (eventName in this.callbacks) {
+            this.callbacks[eventName](data);
+        }
+    }
     on(eventName, callback) {
         this.callbacks[eventName] = callback;
     }
@@ -51,10 +68,10 @@ class BotClient extends client_1.Client {
     }
     send(eventName, data) {
         if (eventName === 'game:match:move-request') {
-            this.onMatchMoveRequest();
+            this.respondWithMove();
         }
     }
-    onMatchMoveRequest() {
+    respondWithMove() {
         const moves = this.getPossibleMoves();
         if (moves.maxCapture)
             return this.makeMove(moves.maxCapture);
@@ -65,11 +82,6 @@ class BotClient extends client_1.Client {
         if (moves.far.length > 0)
             return this.makeMove(this.shuffleArray(moves.far)[0]);
         return this.makeMove(this.shuffleArray(moves.all)[0]);
-    }
-    callback(eventName, data) {
-        if (eventName in this.callbacks) {
-            this.callbacks[eventName](data);
-        }
     }
     makeMove(move) {
         setTimeout(() => {
@@ -108,36 +120,37 @@ class BotClient extends client_1.Client {
             const hasNear = emptyNeighbors[hexmap_1.HexNeighborLevel.Near].length > 0;
             const hasFar = emptyNeighbors[hexmap_1.HexNeighborLevel.Far].length > 0;
             const hasMoves = hasNear || hasFar;
-            if (hasMoves) {
-                const ownToLoseInCounter = map.isCellCanBeAttacked(cell.id, this.getOpponent().getTag())
-                    ? map.getCellAllyNeighbors(cell.id, this.getTag()).length
-                    : 0;
-                levels.forEach(level => {
-                    emptyNeighbors[level].forEach(emptyCellId => {
-                        const emptyCell = map.getCell(emptyCellId);
-                        const hostileToCapture = map.getCellHostileNeighbors(emptyCellId, this.getTag()).length;
-                        const move = {
-                            fromCell: cell,
-                            toCell: emptyCell,
-                            hostileToCapture,
-                            ownToLoseInCounter,
-                            isJump: level === hexmap_1.HexNeighborLevel.Far,
-                        };
-                        moves.all.push(move);
-                        move.isJump ? moves.far.push(move) : moves.near.push(move);
-                        const loseCounter = move.isJump ? ownToLoseInCounter : 0;
-                        const captureProfit = (hostileToCapture - loseCounter) + (move.isJump ? 0 : 1);
-                        if (captureProfit > 0 && captureProfit > maxCaptureProfit) {
-                            maxCaptureProfit = captureProfit;
-                            moves.maxCapture = move;
-                        }
-                        if (loseCounter > 0 && loseCounter < minLose) {
-                            minLose = loseCounter;
-                            moves.minLose = move;
-                        }
-                    });
-                });
+            if (!hasMoves) {
+                return;
             }
+            const ownToLoseInCounter = map.isCellCanBeAttacked(cell.id, this.getOpponent().getTag())
+                ? map.getCellAllyNeighbors(cell.id, this.getTag()).length
+                : 0;
+            levels.forEach(level => {
+                emptyNeighbors[level].forEach(emptyCellId => {
+                    const emptyCell = map.getCell(emptyCellId);
+                    const hostileToCapture = map.getCellHostileNeighbors(emptyCellId, this.getTag()).length;
+                    const move = {
+                        fromCell: cell,
+                        toCell: emptyCell,
+                        hostileToCapture,
+                        ownToLoseInCounter,
+                        isJump: level === hexmap_1.HexNeighborLevel.Far,
+                    };
+                    moves.all.push(move);
+                    move.isJump ? moves.far.push(move) : moves.near.push(move);
+                    const loseCounter = move.isJump ? ownToLoseInCounter : 0;
+                    const captureProfit = (hostileToCapture - loseCounter) + (move.isJump ? 0 : 1);
+                    if (captureProfit > 0 && captureProfit > maxCaptureProfit) {
+                        maxCaptureProfit = captureProfit;
+                        moves.maxCapture = move;
+                    }
+                    if (loseCounter > 0 && loseCounter < minLose) {
+                        minLose = loseCounter;
+                        moves.minLose = move;
+                    }
+                });
+            });
         });
         moves.maxCaptureProfit = maxCaptureProfit;
         moves.minLoseCount = minLose;

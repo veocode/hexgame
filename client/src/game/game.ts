@@ -50,6 +50,7 @@ export type ServerScoreList = {
 export interface GameResult {
     isWinner: boolean,
     isWithdraw: boolean,
+    isNoMoves: boolean,
     scores: ServerScoreList
 }
 
@@ -198,11 +199,12 @@ export class Game {
             this.updateMatchScores(scores);
         })
 
-        this.socket.on('game:match:over', ({ isWinner, isWithdraw, scores }) => {
+        this.socket.on('game:match:over', ({ isWinner, isWithdraw, isNoMoves, scores }) => {
             this.turnTimer.stop();
             this.setOver({
                 isWinner,
                 isWithdraw,
+                isNoMoves,
                 scores
             });
         })
@@ -541,9 +543,11 @@ export class Game {
         if (this.callbacks.MatchOver) {
             this.callbacks.MatchOver(result);
         }
-        this.updateStateMessage({
-            text: texts.MatchOver,
-        });
+        if (!result.isNoMoves) {
+            this.updateStateMessage({
+                text: texts.MatchOver,
+            });
+        }
         this.updateMatchScores(result.scores);
     }
 

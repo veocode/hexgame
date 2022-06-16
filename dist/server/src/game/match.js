@@ -114,7 +114,7 @@ class GameMatch {
         if (this.callbacks.Over)
             this.callbacks.Over();
     }
-    finish() {
+    finish(isNoMoves = false) {
         const scores = this.getPlayerScores();
         const scorePlayer1 = scores[player_1.PlayerTag.Player1].score;
         const scorePlayer2 = scores[player_1.PlayerTag.Player2].score;
@@ -134,6 +134,7 @@ class GameMatch {
             const matchResult = {
                 isWinner: !isWithdraw && winnerTag === player.getTag(),
                 isWithdraw,
+                isNoMoves,
                 scores
             };
             player.send('game:match:over', matchResult);
@@ -162,7 +163,7 @@ class GameMatch {
                 cell.setOccupiedBy(winnerTag);
             }
         });
-        setTimeout(() => this.finish(), emptyCellsCount * Delay.noMovesFillPerCell);
+        setTimeout(() => this.finish(true), emptyCellsCount * Delay.noMovesFillPerCell + 1000);
     }
     requestNextMove() {
         const player = this.currentPlayer();
