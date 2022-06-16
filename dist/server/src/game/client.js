@@ -37,6 +37,7 @@ class Client {
         this.socket = socket;
         this.tag = 0;
         this.state = ClientState.Idle;
+        this.missedTurnsCount = 0;
         this.id = socket
             ? socket.id
             : this.getId();
@@ -82,6 +83,9 @@ class Client {
     send(eventName, ...args) {
         this.socket.emit(eventName, ...args);
     }
+    disconnect() {
+        this.socket.disconnect();
+    }
     setIdle() {
         this.state = ClientState.Idle;
     }
@@ -99,6 +103,24 @@ class Client {
     }
     isInGame() {
         return this.state === ClientState.InGame;
+    }
+    setTurnTimeout(callback, ms = 10000) {
+        this.stopTurnTimeout();
+        this.turnTimeout = setTimeout(() => callback(), ms);
+    }
+    stopTurnTimeout() {
+        if (this.turnTimeout)
+            clearTimeout(this.turnTimeout);
+        this.turnTimeout = null;
+    }
+    resetMissedTurns() {
+        this.missedTurnsCount = 0;
+    }
+    addMissedTurn() {
+        this.missedTurnsCount += 1;
+    }
+    getMissedTurns() {
+        return this.missedTurnsCount;
     }
 }
 exports.Client = Client;

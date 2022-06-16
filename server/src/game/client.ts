@@ -47,6 +47,9 @@ export class Client {
     protected opponent: Client;
     protected match: GameMatch;
 
+    protected turnTimeout: NodeJS.Timeout | null;
+    protected missedTurnsCount: number = 0;
+
     constructor(private readonly socket: Socket | null) {
         this.id = socket
             ? socket.id
@@ -105,6 +108,10 @@ export class Client {
         this.socket.emit(eventName, ...args);
     }
 
+    disconnect() {
+        this.socket.disconnect();
+    }
+
     setIdle() {
         this.state = ClientState.Idle;
     }
@@ -127,6 +134,28 @@ export class Client {
 
     isInGame(): boolean {
         return this.state === ClientState.InGame;
+    }
+
+    setTurnTimeout(callback: () => void, ms: number = 10000) {
+        this.stopTurnTimeout();
+        this.turnTimeout = setTimeout(() => callback(), ms);
+    }
+
+    stopTurnTimeout() {
+        if (this.turnTimeout) clearTimeout(this.turnTimeout);
+        this.turnTimeout = null;
+    }
+
+    resetMissedTurns() {
+        this.missedTurnsCount = 0;
+    }
+
+    addMissedTurn() {
+        this.missedTurnsCount += 1;
+    }
+
+    getMissedTurns(): number {
+        return this.missedTurnsCount;
     }
 
 }

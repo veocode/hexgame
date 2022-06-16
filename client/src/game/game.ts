@@ -3,6 +3,7 @@ import { HexCellHightlightType, HexMapCell } from "../shared/hexmapcell";
 import { HexMap, HexNeighborLevel } from '../shared/hexmap';
 import { Player, PlayerColorsList, PlayerHasNoMovesReasons, PlayerTag } from '../shared/player';
 import { getLocaleTexts } from "./locales";
+import Timer from "./timer";
 
 const texts = getLocaleTexts();
 
@@ -76,6 +77,9 @@ export class Game {
     private result: GameResult | null = null;
     private scores: GameScoreList | null = null;
 
+    private maxTurnTime: number = 30;
+    private turnTimer: Timer = new Timer();
+
     private sandboxTool: SandboxTools = SandboxTools.EmptyNone;
 
     private callbacks: {
@@ -116,7 +120,8 @@ export class Game {
             this.setLoggedOut();
         });
 
-        this.socket.on('game:match:start', ({ playerTag, map, scores }) => {
+        this.socket.on('game:match:start', ({ playerTag, map, scores, maxTurnTime }) => {
+            this.maxTurnTime = maxTurnTime;
             this.setStarted();
             this.player.setTag(playerTag);
             this.map.deserealize(map);
@@ -125,10 +130,22 @@ export class Game {
         })
 
         this.socket.on('game:match:move-request', () => {
+            this.turnTimer.start(this.maxTurnTime, () => {
+                this.updateStateMessage({
+                    text: this.turnTimer.formatLeft(texts.YourTurn),
+                })
+            });
+
             this.setMyMove();
         })
 
         this.socket.on('game:match:move-pending', () => {
+            this.turnTimer.start(this.maxTurnTime, () => {
+                this.updateStateMessage({
+                    text: this.turnTimer.formatLeft(texts.OpponentTurn),
+                })
+            });
+
             this.setOpponentMove();
             this.map.resetHighlight();
             this.redrawMap();
@@ -146,6 +163,7 @@ export class Game {
         })
 
         this.socket.on('game:match:no-moves', async ({ loserTag, reasonType }) => {
+            this.turnTimer.stop();
             this.map.resetHighlight();
 
             const reasons: { [key: string]: string } = {}
@@ -181,6 +199,7 @@ export class Game {
         })
 
         this.socket.on('game:match:over', ({ isWinner, isWithdraw, scores }) => {
+            this.turnTimer.stop();
             this.setOver({
                 isWinner,
                 isWithdraw,
@@ -502,7 +521,7 @@ export class Game {
     setMyMove() {
         this.moveState = GameMoveState.MyMove;
         this.updateStateMessage({
-            text: texts.YourTurn,
+            text: this.turnTimer.formatLeft(texts.YourTurn),
         })
     }
 
@@ -513,7 +532,7 @@ export class Game {
     setOpponentMove() {
         this.moveState = GameMoveState.OpponentMove;
         this.updateStateMessage({
-            text: texts.OppoentTurn,
+            text: this.turnTimer.formatLeft(texts.OpponentTurn),
         })
     }
 

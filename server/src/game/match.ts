@@ -3,6 +3,8 @@ import { PlayerHasNoMovesReasons, PlayerTag } from '../shared/player';
 import { Client } from './client';
 
 const MaxPlayers: number = 2;
+const MaxTurnTimeSeconds: number = 30;
+const MaxMissedTurnsCount: number = 3;
 
 const Delay = {
     noMovesFillPerCell: 120,
@@ -68,24 +70,12 @@ export class GameMatch {
 
     bindPlayerEvents(player: Client) {
         player.on('game:match:move-response', ({ fromId, toId }) => {
+            player.stopTurnTimeout();
             if (this.currentPlayerTag !== player.getTag()) return;
 
             if (this.validateAndMakeMove(player, fromId, toId)) {
                 player.getOpponent()?.send('game:match:move-by-opponent', { fromId, toId });
-
-                setTimeout(() => {
-                    const scores = this.sendScoreToPlayers();
-
-                    if (!this.mapHasEmptyCells()) return this.finish();
-
-                    this.switchPlayer();
-
-                    if (scores[this.currentPlayerTag].score === 0) return this.finishWithNoMoves(PlayerHasNoMovesReasons.Eliminated);
-                    if (!this.players[this.currentPlayerTag]) return this.finishWithNoMoves(PlayerHasNoMovesReasons.Left);
-                    if (!this.playerHasMoves(this.currentPlayerTag)) return this.finishWithNoMoves(PlayerHasNoMovesReasons.NoMoves);
-
-                    this.requestNextMove();
-                }, Delay.betweenMoves);
+                setTimeout(() => this.nextTurn(), Delay.betweenMoves);
             }
         });
 
@@ -93,6 +83,18 @@ export class GameMatch {
             if (this.currentPlayerTag !== player.getTag()) return;
             player.getOpponent()?.send('game:match:move-cell-selected', { id });
         });
+    }
+
+    nextTurn() {
+        const scores = this.sendScoreToPlayers();
+        if (!this.mapHasEmptyCells()) return this.finish();
+        this.switchPlayer();
+
+        if (scores[this.currentPlayerTag].score === 0) return this.finishWithNoMoves(PlayerHasNoMovesReasons.Eliminated);
+        if (!this.players[this.currentPlayerTag]) return this.finishWithNoMoves(PlayerHasNoMovesReasons.Left);
+        if (!this.playerHasMoves(this.currentPlayerTag)) return this.finishWithNoMoves(PlayerHasNoMovesReasons.NoMoves);
+
+        this.requestNextMove();
     }
 
     unbindPlayerEvents(player: Client) {
@@ -118,10 +120,12 @@ export class GameMatch {
         this.currentPlayerTag = this.getRandomPlayerTag();
 
         this.forEachPlayer((player: Client) => {
+            player.resetMissedTurns();
             player.send('game:match:start', {
                 playerTag: player.getTag(),
                 map: this.map.serialize(),
-                scores: this.getPlayerScores()
+                scores: this.getPlayerScores(),
+                maxTurnTime: MaxTurnTimeSeconds
             });
         });
 
@@ -199,9 +203,20 @@ export class GameMatch {
     }
 
     requestNextMove() {
-        this.currentPlayer().send('game:match:move-request');
-        this.currentPlayer().getOpponent().send('game:match:move-pending');
-        // todo: start move/turn timer
+        const player = this.currentPlayer();
+
+        player.send('game:match:move-request');
+        player.getOpponent().send('game:match:move-pending');
+
+        player.setTurnTimeout(() => {
+            player.stopTurnTimeout();
+            if (player.getTag() === this.currentPlayerTag) {
+                player.addMissedTurn();
+                if (player.getMissedTurns() == MaxMissedTurnsCount) player.disconnect();
+                this.nextTurn();
+            }
+
+        }, MaxTurnTimeSeconds * 1000);
     }
 
     validateAndMakeMove(player: Client, fromId: number, toId: number): boolean {

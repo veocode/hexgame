@@ -4,6 +4,8 @@ exports.GameMatch = void 0;
 const hexmap_1 = require("../shared/hexmap");
 const player_1 = require("../shared/player");
 const MaxPlayers = 2;
+const MaxTurnTimeSeconds = 30;
+const MaxMissedTurnsCount = 3;
 const Delay = {
     noMovesFillPerCell: 120,
     betweenMoves: 800
@@ -44,23 +46,12 @@ class GameMatch {
     bindPlayerEvents(player) {
         player.on('game:match:move-response', ({ fromId, toId }) => {
             var _a;
+            player.stopTurnTimeout();
             if (this.currentPlayerTag !== player.getTag())
                 return;
             if (this.validateAndMakeMove(player, fromId, toId)) {
                 (_a = player.getOpponent()) === null || _a === void 0 ? void 0 : _a.send('game:match:move-by-opponent', { fromId, toId });
-                setTimeout(() => {
-                    const scores = this.sendScoreToPlayers();
-                    if (!this.mapHasEmptyCells())
-                        return this.finish();
-                    this.switchPlayer();
-                    if (scores[this.currentPlayerTag].score === 0)
-                        return this.finishWithNoMoves(player_1.PlayerHasNoMovesReasons.Eliminated);
-                    if (!this.players[this.currentPlayerTag])
-                        return this.finishWithNoMoves(player_1.PlayerHasNoMovesReasons.Left);
-                    if (!this.playerHasMoves(this.currentPlayerTag))
-                        return this.finishWithNoMoves(player_1.PlayerHasNoMovesReasons.NoMoves);
-                    this.requestNextMove();
-                }, Delay.betweenMoves);
+                setTimeout(() => this.nextTurn(), Delay.betweenMoves);
             }
         });
         player.on('game:match:move-cell-selected', ({ id }) => {
@@ -69,6 +60,19 @@ class GameMatch {
                 return;
             (_a = player.getOpponent()) === null || _a === void 0 ? void 0 : _a.send('game:match:move-cell-selected', { id });
         });
+    }
+    nextTurn() {
+        const scores = this.sendScoreToPlayers();
+        if (!this.mapHasEmptyCells())
+            return this.finish();
+        this.switchPlayer();
+        if (scores[this.currentPlayerTag].score === 0)
+            return this.finishWithNoMoves(player_1.PlayerHasNoMovesReasons.Eliminated);
+        if (!this.players[this.currentPlayerTag])
+            return this.finishWithNoMoves(player_1.PlayerHasNoMovesReasons.Left);
+        if (!this.playerHasMoves(this.currentPlayerTag))
+            return this.finishWithNoMoves(player_1.PlayerHasNoMovesReasons.NoMoves);
+        this.requestNextMove();
     }
     unbindPlayerEvents(player) {
         player.off('game:match:move-response');
@@ -88,10 +92,12 @@ class GameMatch {
     start() {
         this.currentPlayerTag = this.getRandomPlayerTag();
         this.forEachPlayer((player) => {
+            player.resetMissedTurns();
             player.send('game:match:start', {
                 playerTag: player.getTag(),
                 map: this.map.serialize(),
-                scores: this.getPlayerScores()
+                scores: this.getPlayerScores(),
+                maxTurnTime: MaxTurnTimeSeconds
             });
         });
         setTimeout(() => this.requestNextMove(), Delay.betweenMoves);
@@ -159,9 +165,18 @@ class GameMatch {
         setTimeout(() => this.finish(), emptyCellsCount * Delay.noMovesFillPerCell);
     }
     requestNextMove() {
-        this.currentPlayer().send('game:match:move-request');
-        this.currentPlayer().getOpponent().send('game:match:move-pending');
-        // todo: start move/turn timer
+        const player = this.currentPlayer();
+        player.send('game:match:move-request');
+        player.getOpponent().send('game:match:move-pending');
+        player.setTurnTimeout(() => {
+            player.stopTurnTimeout();
+            if (player.getTag() === this.currentPlayerTag) {
+                player.addMissedTurn();
+                if (player.getMissedTurns() == MaxMissedTurnsCount)
+                    player.disconnect();
+                this.nextTurn();
+            }
+        }, MaxTurnTimeSeconds * 1000);
     }
     validateAndMakeMove(player, fromId, toId) {
         const srcCell = this.map.getCell(fromId);
