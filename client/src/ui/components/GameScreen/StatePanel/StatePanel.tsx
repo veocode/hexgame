@@ -4,18 +4,12 @@ import { ScoreCounter } from '../ScoreCounter/StatePanel';
 import './StatePanel.css';
 
 interface StatePanelProps {
-    stateMessage: GameStateMessage,
     scores: GameScoreList | null
 };
 
-export const StatePanel: React.FC<StatePanelProps> = ({ stateMessage, scores }) => {
+export const StatePanel: React.FC<StatePanelProps> = ({ scores }) => {
     return (
         <div className='state-panel'>
-            <div className='state-message'>
-                <div className='message'>
-                    {stateMessage.text || '...'}
-                </div>
-            </div>
             <div className='score-counters'>
                 <ScoreCounter
                     orientation='left'

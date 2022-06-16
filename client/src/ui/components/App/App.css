@@ -4,7 +4,8 @@
     position: relative;
     width: 100%;
     height: 100%;
-    padding: 1.5vw;
+    padding: 10px;
+    background: radial-gradient(#3e444d, #2d3138);
 }
 
 input[type=text] {

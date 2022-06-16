@@ -4,7 +4,7 @@
 
 .state-panel .score-counters {
     background: #49505a;
-    padding: 10px 15px;
+    padding: 5px 10px;
     border-radius: 8px;
     margin-bottom: 2vh;
     color: #FFF;
@@ -15,27 +15,4 @@
 
 .state-panel .score-counters .separator {
     flex-grow: 1;
-}
-
-.state-panel .state-message {
-    height: 40px;
-    font-size: 14px;
-    color: #FFF;
-    border: solid 2px #49505a;
-    padding: 10px 15px;
-    border-radius: 8px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 5px;
-}
-
-@media (min-width: 768px) {
-    .state-panel .state-message {
-        position: absolute;
-        transform: translate(-50%, 0);
-        left: 50%;
-        margin-top: 5px;
-        font-size: 18px;
-    }
 }
