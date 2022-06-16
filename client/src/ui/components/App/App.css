@@ -47,18 +47,40 @@ button.active {
     background: linear-gradient(#7285a3, #525b6d);
 }
 
-/* button {
-    background: #49505a;
+.button-fullscreen,
+.button-fullscreen:hover {
+    display: inline-block;
+    background: none;
     border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    color: #EEE;
-    cursor: pointer;
-    border-radius: 10px;
-    outline: none;
+    box-shadow: none;
 }
 
-button:hover {
-    opacity: 0.86;
-    color: #FFF;
-} */
+.button-fullscreen {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    left: 0;
+    bottom: 30px;
+}
+
+.button-fullscreen .icon {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    background: url(../../images/fullscreen.svg) no-repeat center;
+    background-size: contain;
+    opacity: 0.25;
+}
+
+@media (hover: hover) {
+    .button-fullscreen:hover .icon {
+        opacity: 0.4;
+    }
+}
+
+@media screen and (orientation:portrait) {
+    .button-fullscreen {
+        left: 50%;
+        margin-left: -15px;
+    }
+}

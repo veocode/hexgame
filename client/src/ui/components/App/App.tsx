@@ -42,6 +42,13 @@ export const App: React.FC<AppProps> = ({ game }) => {
   return (
     <div className='game-app'>
       {childComponents}
+      <button
+        className='button-fullscreen'
+        title='F11'
+        onClick={() => game.toggleFullScreen()}
+      >
+        <div className='icon'></div>
+      </button>
     </div>
   );
 };
