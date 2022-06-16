@@ -17,6 +17,7 @@
     font-size: 24px;
     color: #31A2D3;
     text-align: left;
+    line-height: var(--icon-size);
 }
 
 .score-counter .nickname {

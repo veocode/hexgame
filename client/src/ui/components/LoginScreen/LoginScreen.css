@@ -2,12 +2,17 @@
     position: relative;
     width: 100%;
     height: 100%;
+    overflow: hidden;
 }
 
 .login-screen h1 {
     font-weight: lighter;
-    color: #FFF;
+    color: #31A2D3;
     letter-spacing: 4px;
+}
+
+.login-screen h1 b {
+    color: #F85050;
 }
 
 .login-screen .login-bg {
@@ -16,8 +21,7 @@
     background-size: contain;
     width: 100%;
     height: 100%;
-    opacity: 0.075;
-    animation: pulse 5s infinite ease-in-out;
+    animation: pulseFade 8s infinite ease-in-out;
 }
 
 .login-screen .login-form {
@@ -40,10 +44,41 @@
     font-size: 24px;
 }
 
-.login-screen .login-form .inputs button {
-    margin-bottom: 25px;
+.login-screen .login-form .inputs .button-play {
+    background: linear-gradient(#2e9ac9, #1e617e);
+    color: #FFF;
+    font-weight: bold;
+    height: 40px;
+    margin-bottom: 20px;
 }
 
-.login-screen .login-form .inputs button:last-child {
-    opacity: 0.3;
+.login-screen .login-form .inputs .button-play:hover {
+    background: linear-gradient(#32A6D9, #24779b);
+}
+
+.footer {
+    display: block;
+    box-sizing: border-box;
+    position: absolute;
+    bottom: 70px;
+    text-align: center;
+    left: 50%;
+    transform: translate(-50%, 0);
+    color: #AAA;
+    opacity: .65;
+    width: 100%;
+}
+
+.footer a {
+    color: #AAA;
+}
+
+.footer a:hover {
+    color: #FFF;
+}
+
+@media (max-height: 478px) {
+    .footer {
+        display: none;
+    }
 }

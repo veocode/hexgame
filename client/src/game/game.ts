@@ -12,6 +12,7 @@ export enum GameState {
     Started,
     Over,
     Sandbox,
+    Tutorial
 }
 
 enum GameMoveState {
@@ -476,6 +477,14 @@ export class Game {
 
     setSandbox() {
         this.setState(GameState.Sandbox);
+    }
+
+    isTutorial(): boolean {
+        return this.state === GameState.Tutorial;
+    }
+
+    setTutorial() {
+        this.setState(GameState.Tutorial);
     }
 
     isStarted() {

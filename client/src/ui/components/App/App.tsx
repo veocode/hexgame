@@ -6,6 +6,7 @@ import { GameScreen } from '../GameScreen/GameScreen';
 import { SandboxScreen } from '../SandboxScreen/SandboxScreen';
 import { getLocaleTexts } from '../../../game/locales';
 import './App.css';
+import { TutorialScreen } from '../TutorialScreen/TutorialScreen';
 
 interface AppProps {
   game: Game,
@@ -34,6 +35,9 @@ export const App: React.FC<AppProps> = ({ game }) => {
     childComponents = <GameScreen game={game} />;
   }
 
+  if (state === GameState.Tutorial) {
+    childComponents = <TutorialScreen game={game} />;
+  }
 
   if (state === GameState.Sandbox) {
     childComponents = <SandboxScreen game={game} />;
@@ -42,13 +46,14 @@ export const App: React.FC<AppProps> = ({ game }) => {
   return (
     <div className='game-app'>
       {childComponents}
-      <button
-        className='button-fullscreen'
-        title='F11'
-        onClick={() => game.toggleFullScreen()}
-      >
-        <div className='icon'></div>
-      </button>
+      {(state !== GameState.Tutorial) ?
+        <button
+          className='button-fullscreen'
+          title='F11'
+          onClick={() => game.toggleFullScreen()}
+        >
+          <div className='icon'></div>
+        </button> : ''}
     </div>
   );
 };

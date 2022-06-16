@@ -1,0 +1,69 @@
+.tutorial-screen {
+    height: 100%;
+}
+
+.tutorial-screen .tutorial-panel {
+    height: 100%;
+    width: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.tutorial-screen .tutorial {
+    background: none;
+    color: #FFF;
+    font-size: 18px;
+    font-weight: lighter;
+    color: #a4aeb9;
+}
+
+.tutorial-screen h1 {
+    font-weight: lighter;
+    color: #FFF;
+}
+
+.tutorial-screen .tutorial section {
+    border: solid 1px #555b61;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 5px;
+    margin-right: 10px;
+}
+
+.tutorial-screen .tutorial .page {
+    float: left;
+    width: 400px;
+}
+
+.tutorial-screen .tutorial h3 {
+    font-weight: normal;
+    color: #FFF;
+    margin: 0;
+    margin-bottom: 10px;
+}
+
+.tutorial-screen .tutorial p {
+    margin: 0;
+    margin-bottom: 20px;
+}
+
+.tutorial-screen .tutorial .video-block {
+    margin: 0;
+    margin-bottom: 20px;
+}
+
+.tutorial-screen .tutorial p:last-child,
+.tutorial-screen .tutorial .video-block:last-child {
+    margin: 0;
+}
+
+@media (max-width:840px) {
+    .tutorial-screen .tutorial .page {
+        float: none;
+        margin: 0 auto;
+        width: 100%;
+        max-width: 400px;
+    }
+}

@@ -25,10 +25,6 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ game }) => {
         game.searchAndStart(nickname);
     };
 
-    const onSandboxClick = () => {
-        game.startSandbox();
-    }
-
     return (
         <div className='login-screen'>
             <div className='login-bg'></div>
@@ -36,10 +32,13 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ game }) => {
             <div className='login-form'>
                 <div className='inputs'>
                     <h1><b>hex</b>game</h1>
-                    <input type='text' defaultValue={nickname} ref={nicknameInput} />
-                    <button onClick={() => onPlayClick()}>{texts.Play}</button>
-                    <button onClick={() => onSandboxClick()}>{texts.PlaySandbox}</button>
+                    <input type='text' max={10} defaultValue={nickname} ref={nicknameInput} />
+                    <button onClick={() => onPlayClick()} className='button-play'>{texts.Play}</button>
+                    <button onClick={() => game.setTutorial()}>{texts.HowTo}</button>
                 </div>
+            </div>
+            <div className='footer'>
+                made with ❤️ by <a href="mailto:me@veocode.ru">veocode</a>
             </div>
         </div>
     );
