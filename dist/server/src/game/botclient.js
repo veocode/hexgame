@@ -4,12 +4,16 @@ exports.BotClient = void 0;
 const hexmap_1 = require("../shared/hexmap");
 const client_1 = require("./client");
 const botNames = [
-    'h3xk1ll3r',
     'hexmaniac',
-    'hellohex',
-    'hexcake',
-    'xehhex',
-    'whatahex',
+    'hexoholic',
+    'hexxer',
+    'hexfan',
+    'hexbro',
+    'hexmaster',
+    'hexist',
+    'hexoid',
+    'hexxeh',
+    'hexatoxx',
 ];
 class BotClient extends client_1.Client {
     constructor() {

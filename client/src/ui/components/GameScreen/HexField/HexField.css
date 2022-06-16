@@ -1,25 +1,55 @@
-.hex-field {
-    --hex-height: 11vw;
-    --hex-width: calc(var(--hex-height) * 0.87);
-    margin: 0 auto;
-    display: inline-block;
-}
-
-@media (min-width: 768px) {
+@media (orientation:landscape) {
     .hex-field {
-        --hex-height: 11vh;
+        --hex-height: calc((100vh - 60px) / 8);
         --hex-width: calc(var(--hex-height) * 0.87);
     }
+
+    @media (min-height: 700px) {
+        .hex-field {
+            --hex-height: calc((100vh - 60px) / 12);
+        }
+    }
+}
+
+@media (orientation: portrait) {
+    .hex-field {
+        --hex-height: calc((100vw - 30px) / 9);
+        --hex-width: calc(var(--hex-height) * 0.87);
+    }
+
+    @media (min-width: 700px) {
+        .hex-field {
+            --hex-height: calc((100vw - 20px) / 12);
+        }
+    }
+}
+
+.hex-field {
+    margin: 0 auto;
+    display: inline-block;
+    padding-left: calc(var(--hex-width)/3);
 }
 
 .hex-field .row {
     overflow: hidden;
     padding: 0;
     margin: 0;
+    margin-left: calc(var(--hex-width)/2);
 }
 
 .hex-field .row:nth-child(even) {
-    margin-left: calc(var(--hex-width)/2);
+    margin-left: calc(var(--hex-width)/2 + var(--hex-width)/2);
     margin-top: calc(-1 * var(--hex-height)/4);
     margin-bottom: calc(-1 * var(--hex-height)/4);
+}
+
+@media (max-width: 400px) {
+    .hex-field .row {
+        margin-left: 0;
+    }
+
+    .hex-field .row:nth-child(even) {
+        margin-left: calc(var(--hex-width)/2);
+
+    }
 }

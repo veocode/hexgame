@@ -14,16 +14,16 @@
 
 .score-counter .score {
     font-weight: bold;
-    line-height: var(--icon-size);
     font-size: 24px;
     color: #31A2D3;
+    text-align: left;
 }
 
 .score-counter .nickname {
     line-height: var(--icon-size);
     padding-left: 10px;
     font-weight: lighter;
-    font-size: 18px;
+    font-size: 14px;
     opacity: .75;
 }
 
@@ -37,9 +37,16 @@
 
 .score-counter.right .score {
     color: #F85050;
+    text-align: right;
 }
 
 .score-counter.right .nickname {
     padding-left: 0;
     padding-right: 10px;
+}
+
+@media (min-width: 768px) {
+    .score-counter .nickname {
+        font-size: 16px;
+    }
 }

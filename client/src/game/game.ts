@@ -140,8 +140,7 @@ export class Game {
 
         this.socket.on('game:match:move-cell-selected', async ({ id }) => {
             this.map.resetHighlight();
-            if (id) this.map.getCell(id).setHighlightType(HexCellHightlightType.Center);
-            console.log('game:match:move-cell-selected', id);
+            if (id) this.map.highlightCellNeighbors(id);
             this.redrawMap();
         })
 
@@ -533,6 +532,16 @@ export class Game {
         for (let i = array.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    toggleFullScreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
         }
     }
 

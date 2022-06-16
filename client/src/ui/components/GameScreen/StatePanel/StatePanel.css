@@ -1,6 +1,10 @@
 .state-panel {
+    position: relative;
+}
+
+.state-panel .score-counters {
     background: #49505a;
-    padding: 10px 15px;
+    padding: 5px 10px;
     border-radius: 8px;
     margin-bottom: 2vh;
     color: #FFF;
@@ -9,9 +13,6 @@
     user-select: none;
 }
 
-.state-panel .center {
+.state-panel .score-counters .separator {
     flex-grow: 1;
-    line-height: 32px;
-    font-size: 18px;
-    font-weight: bold;
 }

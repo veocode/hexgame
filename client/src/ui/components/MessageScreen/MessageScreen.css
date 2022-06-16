@@ -11,3 +11,9 @@
     color: #FFF;
     animation: blinkFade 1s infinite;
 }
+
+@media (max-width: 450px) {
+    .message-screen .message {
+        font-size: 24px;
+    }
+}

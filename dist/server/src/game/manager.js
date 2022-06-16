@@ -21,9 +21,11 @@ class GameManager {
         const activeMatch = client.getMatch();
         if (activeMatch) {
             activeMatch.removePlayer(client);
-            const remainingPlayer = activeMatch.getPlayer(client.getOpponent().getTag());
-            if (remainingPlayer && remainingPlayer.isBot()) {
-                activeMatch.terminate();
+            if (client.getOpponent()) {
+                const remainingPlayer = activeMatch.getPlayer(client.getOpponent().getTag());
+                if (remainingPlayer && remainingPlayer.isBot()) {
+                    activeMatch.terminate();
+                }
             }
         }
     }

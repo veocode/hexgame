@@ -41,10 +41,14 @@ export const GameScreen: React.FC<GameScreenProps> = ({ game }) => {
     return (
         <div className='game-screen'>
             <StatePanel
-                stateMessage={stateMessage}
                 scores={matchScores}
             />
             <div className='game-field'>
+                <div className='state-message'>
+                    <div className='message'>
+                        {stateMessage.text || '...'}
+                    </div>
+                </div>
                 <HexField
                     width={game.getMap().getWidth()}
                     height={game.getMap().getHeight()}

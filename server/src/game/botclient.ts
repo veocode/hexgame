@@ -24,12 +24,16 @@ type PossibleMoveList = {
 }
 
 const botNames = [
-    'h3xk1ll3r',
     'hexmaniac',
-    'hellohex',
-    'hexcake',
-    'xehhex',
-    'whatahex',
+    'hexoholic',
+    'hexxer',
+    'hexfan',
+    'hexbro',
+    'hexmaster',
+    'hexist',
+    'hexoid',
+    'hexxeh',
+    'hexatoxx',
 ];
 
 export class BotClient extends Client {
