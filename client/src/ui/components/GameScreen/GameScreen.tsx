@@ -58,13 +58,6 @@ export const GameScreen: React.FC<GameScreenProps> = ({ game }) => {
                 />
                 {resultBox}
             </div>
-            <button
-                className='button-fullscreen'
-                title='F11'
-                onClick={() => game.toggleFullScreen()}
-            >
-                <div className='icon'></div>
-            </button>
         </div>
     );
 };
