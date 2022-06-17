@@ -22,7 +22,8 @@
     padding: 20px;
     margin-bottom: 5px;
     margin-right: 10px;
-    width: 400px;
+    width: 95%;
+    max-width: 400px;
 }
 
 .management-screen section button {
@@ -31,6 +32,13 @@
 
 .management-screen section button:last-child {
     margin-right: 0;
+}
+
+.management-screen section h3 {
+    font-weight: normal;
+    color: #FFF;
+    margin: 0;
+    margin-bottom: 10px;
 }
 
 .management-screen .stat-table {
@@ -54,9 +62,11 @@
     text-align: right;
     flex-grow: 1;
     font-weight: lighter;
+    color: #a4aeb9;
 }
 
 .management-screen .stat-table .row .value {
-    width: 50%;
+    width: 30%;
     padding-left: 5px;
+    font-weight: bold;
 }

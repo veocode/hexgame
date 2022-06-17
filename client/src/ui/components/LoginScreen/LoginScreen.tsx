@@ -38,7 +38,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ game }) => {
                 </div>
             </div>
             <div className='footer'>
-                made with ❤️ by <a href="mailto:me@veocode.ru">veocode</a>
+                made with ❤️ by <a href="mailto:me@veocode.ru">veocode</a><br />
+                inspired by <a href='https://en.wikipedia.org/wiki/Hexxag%C5%8Dn' target='_blank'>Hexxagōn</a>
             </div>
         </div>
     );

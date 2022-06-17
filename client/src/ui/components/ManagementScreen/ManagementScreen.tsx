@@ -19,6 +19,7 @@ export const ManagementScreen: React.FC<ManagementScreenProps> = ({ game }) => {
             <div className='management-panel'>
                 <h1>Live Stats</h1>
                 <section>
+                    <h3>Summary</h3>
                     <div className='stat-table'>
                         <div className='row'>
                             <div className='name'>Players Online:</div>
