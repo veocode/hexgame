@@ -89,6 +89,9 @@ class GameMatch {
     forEachPlayer(callback) {
         Object.values(this.players).forEach(callback);
     }
+    hasActivePlayers() {
+        return this.players[player_1.PlayerTag.Player1] !== null || this.players[player_1.PlayerTag.Player2] !== null;
+    }
     start() {
         this.currentPlayerTag = this.getRandomPlayerTag();
         this.forEachPlayer((player) => {
@@ -167,6 +170,14 @@ class GameMatch {
     }
     requestNextMove() {
         const player = this.currentPlayer();
+        if (!player && !this.hasActivePlayers()) {
+            this.terminate();
+            return;
+        }
+        if (!player) {
+            this.finishWithNoMoves(player_1.PlayerHasNoMovesReasons.Left);
+            return;
+        }
         player.send('game:match:move-request');
         player.getOpponent().send('game:match:move-pending');
         player.setTurnTimeout(() => {

@@ -116,6 +116,10 @@ export class GameMatch {
         Object.values(this.players).forEach(callback);
     }
 
+    hasActivePlayers(): boolean {
+        return this.players[PlayerTag.Player1] !== null || this.players[PlayerTag.Player2] !== null;
+    }
+
     start() {
         this.currentPlayerTag = this.getRandomPlayerTag();
 
@@ -205,6 +209,16 @@ export class GameMatch {
 
     requestNextMove() {
         const player = this.currentPlayer();
+
+        if (!player && !this.hasActivePlayers()) {
+            this.terminate();
+            return
+        }
+
+        if (!player) {
+            this.finishWithNoMoves(PlayerHasNoMovesReasons.Left);
+            return;
+        }
 
         player.send('game:match:move-request');
         player.getOpponent().send('game:match:move-pending');
