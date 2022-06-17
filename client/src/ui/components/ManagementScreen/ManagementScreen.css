@@ -1,0 +1,62 @@
+.management-screen {
+    height: 100%;
+}
+
+.management-screen .management-panel {
+    height: 100%;
+    width: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.management-screen h1 {
+    font-weight: lighter;
+    color: #FFF;
+}
+
+.management-screen section {
+    border: solid 1px #555b61;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 5px;
+    margin-right: 10px;
+    width: 400px;
+}
+
+.management-screen section button {
+    margin-right: 10px;
+}
+
+.management-screen section button:last-child {
+    margin-right: 0;
+}
+
+.management-screen .stat-table {
+    display: flex;
+    flex-direction: column;
+}
+
+.management-screen .stat-table .row {
+    display: flex;
+    font-size: 18px;
+    color: #FFF;
+    padding: 10px 0;
+    border-bottom: dashed 1px #555b61;
+}
+
+.management-screen .stat-table .row:last-child {
+    border: none;
+}
+
+.management-screen .stat-table .row .name {
+    text-align: right;
+    flex-grow: 1;
+    font-weight: lighter;
+}
+
+.management-screen .stat-table .row .value {
+    width: 50%;
+    padding-left: 5px;
+}

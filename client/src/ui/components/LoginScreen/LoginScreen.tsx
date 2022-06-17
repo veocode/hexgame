@@ -22,7 +22,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ game }) => {
     const onPlayClick = () => {
         const nickname = nicknameInput.current?.value || 'unnamed';
         localStorage.setItem('hexgame:nickname', nickname);
-        game.searchAndStart(nickname);
+        game.connectAndStart(nickname);
     };
 
     return (

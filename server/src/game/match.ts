@@ -64,48 +64,24 @@ export class GameMatch {
         };
     }
 
+    hasBot(): boolean {
+        let hasBot = false;
+        this.forEachPlayer(player => { hasBot = hasBot || player.isBot(); });
+        return hasBot;
+    }
+
     getPlayer(tag: PlayerTag): Client | null {
         return this.players[tag];
     }
 
     bindPlayerEvents(player: Client) {
-        player.on('game:match:move-response', ({ fromId, toId }) => {
-            player.stopTurnTimeout();
-            if (this.currentPlayerTag !== player.getTag()) return;
-
-            if (this.validateAndMakeMove(player, fromId, toId)) {
-                player.getOpponent()?.send('game:match:move-by-opponent', { fromId, toId });
-                setTimeout(() => this.nextTurn(), Delay.betweenMoves);
-            }
-        });
-
-        player.on('game:match:move-cell-selected', ({ id }) => {
-            if (this.currentPlayerTag !== player.getTag()) return;
-            player.getOpponent()?.send('game:match:move-cell-selected', { id });
-        });
-    }
-
-    nextTurn() {
-        const scores = this.sendScoreToPlayers();
-        if (!this.mapHasEmptyCells()) return this.finish();
-        this.switchPlayer();
-
-        if (scores[this.currentPlayerTag].score === 0) return this.finishWithNoMoves(PlayerHasNoMovesReasons.Eliminated);
-        if (!this.players[this.currentPlayerTag]) return this.finishWithNoMoves(PlayerHasNoMovesReasons.Left);
-        if (!this.playerHasMoves(this.currentPlayerTag)) return this.finishWithNoMoves(PlayerHasNoMovesReasons.NoMoves);
-
-        this.requestNextMove();
+        player.on('game:match:move-response', ({ fromId, toId }) => this.onPlayerMoveResponse(player, fromId, toId));
+        player.on('game:match:move-cell-selected', ({ id }) => this.onPlayerCellSelected(player, id));
     }
 
     unbindPlayerEvents(player: Client) {
         player.off('game:match:move-response');
         player.off('game:match:move-cell-selected');
-    }
-
-    sendScoreToPlayers(): MatchScoreList {
-        const scores = this.getPlayerScores();
-        this.forEachPlayer(player => player?.send('game:match:scores', { scores }));
-        return scores;
     }
 
     getPlayersCount(): number {
@@ -207,6 +183,18 @@ export class GameMatch {
         setTimeout(() => this.finish(true), emptyCellsCount * Delay.noMovesFillPerCell + 1000);
     }
 
+    nextTurn() {
+        const scores = this.sendScoreToPlayers();
+        if (!this.mapHasEmptyCells()) return this.finish();
+        this.switchPlayer();
+
+        if (scores[this.currentPlayerTag].score === 0) return this.finishWithNoMoves(PlayerHasNoMovesReasons.Eliminated);
+        if (!this.players[this.currentPlayerTag]) return this.finishWithNoMoves(PlayerHasNoMovesReasons.Left);
+        if (!this.playerHasMoves(this.currentPlayerTag)) return this.finishWithNoMoves(PlayerHasNoMovesReasons.NoMoves);
+
+        this.requestNextMove();
+    }
+
     requestNextMove() {
         const player = this.currentPlayer();
 
@@ -223,15 +211,7 @@ export class GameMatch {
         player.send('game:match:move-request');
         player.getOpponent().send('game:match:move-pending');
 
-        player.setTurnTimeout(() => {
-            player.stopTurnTimeout();
-            if (player.getTag() === this.currentPlayerTag) {
-                player.addMissedTurn();
-                if (player.getMissedTurns() == MaxMissedTurnsCount) player.disconnect();
-                this.nextTurn();
-            }
-
-        }, MaxTurnTimeSeconds * 1000);
+        player.setTurnTimeout(() => this.onPlayerTurnTimeOut(player), MaxTurnTimeSeconds * 1000);
     }
 
     validateAndMakeMove(player: Client, fromId: number, toId: number): boolean {
@@ -263,6 +243,36 @@ export class GameMatch {
         }
 
         return true;
+    }
+
+    onPlayerMoveResponse(player: Client, fromId: number, toId: number) {
+        player.stopTurnTimeout();
+        if (this.currentPlayerTag !== player.getTag()) return;
+
+        if (this.validateAndMakeMove(player, fromId, toId)) {
+            player.getOpponent()?.send('game:match:move-by-opponent', { fromId, toId });
+            setTimeout(() => this.nextTurn(), Delay.betweenMoves);
+        }
+    }
+
+    onPlayerCellSelected(player: Client, cellId: number) {
+        if (this.currentPlayerTag !== player.getTag()) return;
+        player.getOpponent()?.send('game:match:move-cell-selected', { id: cellId });
+    }
+
+    onPlayerTurnTimeOut(player: Client) {
+        player.stopTurnTimeout();
+        if (player.getTag() === this.currentPlayerTag) {
+            player.addMissedTurn();
+            if (player.getMissedTurns() == MaxMissedTurnsCount) player.disconnect();
+            this.nextTurn();
+        }
+    }
+
+    sendScoreToPlayers(): MatchScoreList {
+        const scores = this.getPlayerScores();
+        this.forEachPlayer(player => player?.send('game:match:scores', { scores }));
+        return scores;
     }
 
     mapHasEmptyCells(): boolean {

@@ -7,6 +7,7 @@ import { SandboxScreen } from '../SandboxScreen/SandboxScreen';
 import { getLocaleTexts } from '../../../game/locales';
 import './App.css';
 import { TutorialScreen } from '../TutorialScreen/TutorialScreen';
+import { ManagementScreen } from '../ManagementScreen/ManagementScreen';
 
 interface AppProps {
   game: Game,
@@ -27,6 +28,10 @@ export const App: React.FC<AppProps> = ({ game }) => {
     childComponents = <LoginScreen game={game} />;
   }
 
+  if (state === GameState.Connecting) {
+    childComponents = <MessageScreen text={texts.Connecting} />;
+  }
+
   if (state === GameState.SearchingGame) {
     childComponents = <MessageScreen text={texts.SearchingOpponent} />;
   }
@@ -41,6 +46,10 @@ export const App: React.FC<AppProps> = ({ game }) => {
 
   if (state === GameState.Sandbox) {
     childComponents = <SandboxScreen game={game} />;
+  }
+
+  if (state === GameState.Management) {
+    childComponents = <ManagementScreen game={game} />;
   }
 
   return (

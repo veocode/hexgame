@@ -1,5 +1,5 @@
 import { io, Socket } from "socket.io-client";
-import { HexCellHightlightType, HexMapCell } from "../shared/hexmapcell";
+import { HexMapCell } from "../shared/hexmapcell";
 import { HexMap, HexNeighborLevel } from '../shared/hexmap';
 import { Player, PlayerColorsList, PlayerHasNoMovesReasons, PlayerTag } from '../shared/player';
 import { getLocaleTexts } from "./locales";
@@ -9,11 +9,13 @@ const texts = getLocaleTexts();
 
 export enum GameState {
     LoggedOut = 0,
+    Connecting,
     SearchingGame,
     Started,
     Over,
     Sandbox,
-    Tutorial
+    Tutorial,
+    Management
 }
 
 enum GameMoveState {
@@ -59,11 +61,20 @@ export interface GameStateMessage {
     className?: string
 }
 
+export interface GameServerStats {
+    players: number,
+    bots: number,
+    admins: number,
+    matches: number
+}
+
 type MapUpdatedCallback = (cells: HexMapCell[]) => void
 type StateUpdatedCallback = (state: GameState) => void;
 type StateMessageUpdatedCallback = (stateMessage: GameStateMessage) => void;
 type MatchScoreUpdatedCallback = (scores: GameScoreList) => void;
 type MatchOverCallback = (result: GameResult) => void;
+type StatsUpdatedCallback = (result: GameServerStats) => void;
+
 
 export class Game {
 
@@ -88,7 +99,8 @@ export class Game {
         StateUpdated?: StateUpdatedCallback | null,
         StateMessageUpdated?: StateMessageUpdatedCallback | null,
         MatchScoreUpdated?: MatchScoreUpdatedCallback | null,
-        MatchOver?: MatchOverCallback | null
+        MatchOver?: MatchOverCallback | null,
+        StatsUpdated?: StatsUpdatedCallback | null
     } = {};
 
     constructor(host: string) {
@@ -106,9 +118,17 @@ export class Game {
         this.player = this.createPlayer();
     }
 
-    connect(nickname: string) {
-        this.socket.auth = { nickname };
-        this.socket.connect();
+    connect(nickname: string): Promise<void> {
+        return new Promise<void>(resolve => {
+            this.setConnecting();
+            this.socket.auth = { nickname };
+            this.socket.connect();
+
+            this.socket.once('game:connected', ({ clientId, isAdmin }) => {
+                if (isAdmin) this.player.setAdmin();
+                resolve();
+            });
+        });
     }
 
     bindSocketEvents() {
@@ -208,13 +228,26 @@ export class Game {
                 scores
             });
         })
+
+        this.socket.on('game:stats', (stats: GameServerStats) => {
+            if (this.callbacks.StatsUpdated) this.callbacks.StatsUpdated(stats);
+        });
     }
 
-    searchAndStart(nickname?: string) {
-        if (nickname) this.connect(nickname);
+    async connectAndStart(nickname: string) {
+        await this.connect(nickname);
 
-        this.setSearchingGame();
-        this.socket.emit('game:search-request');
+        setTimeout(() => {
+            if (this.player.isAdmin()) {
+                return this.setManagement();
+            }
+
+            this.setSearchingGame();
+        }, 600);
+    }
+
+    async searchAndStart(nickname?: string) {
+        setTimeout(() => this.setSearchingGame(), 600);
     }
 
     startSandbox() {
@@ -426,6 +459,10 @@ export class Game {
         this.callbacks.MapUpdated = callback;
     }
 
+    whenStatsUpdated(callback: StatsUpdatedCallback) {
+        this.callbacks.StatsUpdated = callback;
+    }
+
     whenStateMessageUpdated(callback: StateMessageUpdatedCallback) {
         this.callbacks.StateMessageUpdated = callback;
     }
@@ -482,6 +519,15 @@ export class Game {
 
     setLoggedOut() {
         this.setState(GameState.LoggedOut);
+        if (this.socket.connected) this.socket.disconnect();
+    }
+
+    isConnecting(): boolean {
+        return this.state === GameState.Connecting;
+    }
+
+    setConnecting() {
+        this.setState(GameState.Connecting);
     }
 
     isSearchingGame(): boolean {
@@ -490,6 +536,7 @@ export class Game {
 
     setSearchingGame() {
         this.setState(GameState.SearchingGame);
+        this.socket.emit('game:search-request');
     }
 
     isSandbox(): boolean {
@@ -506,6 +553,15 @@ export class Game {
 
     setTutorial() {
         this.setState(GameState.Tutorial);
+    }
+
+    isManagement(): boolean {
+        return this.state === GameState.Management;
+    }
+
+    setManagement() {
+        this.setState(GameState.Management);
+        this.askForUpdatedStats();
     }
 
     isStarted() {
@@ -575,6 +631,10 @@ export class Game {
                 document.exitFullscreen();
             }
         }
+    }
+
+    askForUpdatedStats() {
+        this.socket.emit('game:stats-request');
     }
 
 }

@@ -14,6 +14,15 @@ export type PlayerColorsList = { [key: number]: string }
 export class Player {
 
     private tag: number = 0;
+    private isAdministrator: boolean = false;
+
+    isAdmin(): boolean {
+        return this.isAdministrator;
+    }
+
+    setAdmin() {
+        this.isAdministrator = true;
+    }
 
     getTag(): number {
         return this.tag;

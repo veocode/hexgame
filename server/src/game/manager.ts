@@ -3,37 +3,55 @@ import { GameMatch } from "./match";
 import { Maps } from "./maps";
 import { BotClient } from "./botclient";
 
+interface ServerStats {
+    players: number,
+    bots: number,
+    admins: number,
+    matches: number
+}
+
 export class GameManager {
 
+    private admins: ClientList = new ClientList;
     private clients: ClientList = new ClientList;
     private matches: GameMatch[] = [];
 
     addClient(client: Client) {
         this.clients.add(client);
+        if (client.isAdmin()) this.admins.add(client);
+
         this.bindClientEvents(client);
-        console.log(`Client connected: ${client.nickname}, Players Online: ${this.clients.count()}`)
+        this.sendStatsToAdmins();
     }
 
     removeClient(client: Client) {
-        this.clients.remove(client);
-        console.log(`Client left: ${client.nickname}, Players Online: ${this.clients.count()}`)
+        if (client.isAdmin()) this.admins.remove(client);
 
-        const activeMatch = client.getMatch();
-        if (activeMatch) {
-            activeMatch.removePlayer(client);
-            if (client.getOpponent()) {
-                const remainingPlayer = activeMatch.getPlayer(client.getOpponent().getTag());
-                if (remainingPlayer && remainingPlayer.isBot()) {
-                    activeMatch.terminate();
+        if (this.clients.remove(client)) {
+            const activeMatch = client.getMatch();
+            if (activeMatch) {
+                activeMatch.removePlayer(client);
+                if (client.getOpponent()) {
+                    const remainingPlayer = activeMatch.getPlayer(client.getOpponent().getTag());
+                    if (remainingPlayer && remainingPlayer.isBot()) {
+                        activeMatch.terminate();
+                    }
                 }
             }
         }
+
+        this.sendStatsToAdmins();
     }
 
     bindClientEvents(client: Client) {
         client.on('game:search-request', () => {
             this.searchGameForClient(client);
         });
+
+        client.on('game:stats-request', () => {
+            if (!client.isAdmin()) return;
+            this.sendStatsToAdmin(client);
+        })
     }
 
     searchGameForClient(client: Client) {
@@ -77,11 +95,40 @@ export class GameManager {
 
     addMatch(match: GameMatch) {
         this.matches.push(match);
+        this.sendStatsToAdmins();
     }
 
     removeMatch(match: GameMatch) {
         const index = this.matches.indexOf(match);
         if (index >= 0) this.matches.splice(index);
+        this.sendStatsToAdmins();
+    }
+
+    getStats(): ServerStats {
+        let adminCount = this.admins.count();
+        let playerCount = this.clients.count() - adminCount;
+
+        let botCount = 0;
+        this.matches.forEach(match => match.hasBot() && botCount++);
+
+        return {
+            players: playerCount,
+            bots: botCount,
+            admins: adminCount,
+            matches: this.matches.length
+        };
+    }
+
+    sendStatsToAdmins() {
+        const stats = this.getStats();
+        this.admins.forEach(admin => {
+            admin.send('game:stats', stats);
+        })
+    }
+
+    sendStatsToAdmin(admin: Client) {
+        if (!admin.isAdmin()) return;
+        admin.send('game:stats', this.getStats());
     }
 
     private getRandomMap(): number[] {

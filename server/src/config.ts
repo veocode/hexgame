@@ -12,4 +12,7 @@ export const Config = {
         certFile: env('SERVER_WS_CERT_FILE', '../docker/certs/server.crt'),
         keyFile: env('SERVER_WS_KEY_FILE', '../docker/certs/server.key')
     },
+    admin: {
+        nickname: 'veo#admin',
+    }
 }

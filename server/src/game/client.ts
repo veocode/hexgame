@@ -9,8 +9,12 @@ export class ClientList {
         this.clients[client.id] = client;
     }
 
-    remove(client: Client) {
-        delete this.clients[client.id];
+    remove(client: Client): boolean {
+        if (client.id in this.clients) {
+            delete this.clients[client.id];
+            return true;
+        }
+        return false;
     }
 
     includes(client: Client) {
@@ -19,6 +23,12 @@ export class ClientList {
 
     count() {
         return Object.keys(this.clients).length;
+    }
+
+    forEach(callback: (client: Client) => void) {
+        Object.values(this.clients).forEach(client => {
+            callback(client);
+        })
     }
 
     forEachExcept(exceptClient: Client, callback: (client: Client) => void) {
@@ -39,7 +49,6 @@ export enum ClientState {
 export class Client {
 
     public readonly id: string;
-    public readonly nickname: string;
 
     protected tag: number = 0;
     protected state: ClientState = ClientState.Idle;
@@ -50,13 +59,16 @@ export class Client {
     protected turnTimeout: NodeJS.Timeout | null;
     protected missedTurnsCount: number = 0;
 
-    constructor(private readonly socket: Socket | null) {
+    constructor(
+        private readonly socket: Socket | null,
+        public readonly nickname: string = '',
+        private readonly isAdministrator: boolean = false
+    ) {
         this.id = socket
             ? socket.id
             : this.getId();
-        this.nickname = socket
-            ? socket.handshake.auth.nickname
-            : this.getNickname();
+
+        if (!nickname) this.nickname = this.getNickname();
     }
 
     isBot(): boolean {
@@ -77,6 +89,10 @@ export class Client {
 
     setTag(tag: number) {
         this.tag = tag;
+    }
+
+    isAdmin(): boolean {
+        return this.isAdministrator;
     }
 
     getOpponent(): Client | null {
