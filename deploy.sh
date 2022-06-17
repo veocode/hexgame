@@ -3,10 +3,62 @@
 set -eu
 cd "$(dirname "$0")"
 
+DEPLOY_HOST="playhex"
+DEPLOY_PATH="/opt/hexgame"
+
 if [[ ${1:-help} == help ]]; then
-    echo "Usage: up, down, restart, log, logs, check"
+    echo "" 
+    echo "Usage:"
+    echo "  deploy.sh [command]"
+    echo ""
+    echo "Commands: "
+    echo "  Dev: "
+    echo "      install"
+    echo "      dev"
+    echo "      build"
+    echo "      build-push"
+    echo "      build-deploy"
+    echo ""
+    echo "  Production: "
+    echo "      update"
+    echo "      build-docker"
+    echo "      up"
+    echo "      down"
+    echo "      restart"
+    echo "      check"
+    echo "      log"
+    echo "      logs [-f]"
+    echo ""
     exit 1
 fi
+
+install() {
+    echo "Installing root dependencies..."
+    npm install
+    echo "Installing client dependencies..."
+    cd client && npm install
+    echo "Installing server dependencies..."
+    cd ../server && npm install
+    echo "Done!"
+}
+
+dev() {
+    npm run dev
+}
+
+up(){
+    docker-compose up -d
+}
+
+down(){
+    docker-compose down --remove-orphans && docker network prune -f
+}
+
+restart(){
+    down
+    up
+    logs
+}
 
 build() {
     echo "Building project..."
@@ -22,32 +74,17 @@ build-push() {
     git push
 }
 
+build-deploy() {
+    echo "Building and deploying to: "
+    echo "   Host: $DEPLOY_HOST"
+    echo "   Path: $DEPLOY_PATH"
+    echo ""
+    build push
+    ssh $DEPLOY_HOST "$DEPLOY_PATH/deploy.sh update"
+}
+
 build-docker() {
     docker-compose build
-}
-
-install() {
-    echo "Installing root dependencies..."
-    npm install
-    echo "Installing client dependencies..."
-    cd client && npm install
-    echo "Installing server dependencies..."
-    cd ../server && npm install
-    echo "Done!"
-}
-
-up(){
-    docker-compose up -d
-}
-
-down(){
-    docker-compose down --remove-orphans && docker network prune -f
-}
-
-restart(){
-    down
-    up
-    logs
 }
 
 log() {
