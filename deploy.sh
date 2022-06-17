@@ -79,7 +79,7 @@ build-deploy() {
     echo "   Host: $DEPLOY_HOST"
     echo "   Path: $DEPLOY_PATH"
     echo ""
-    build push
+    build-push
     ssh $DEPLOY_HOST "$DEPLOY_PATH/deploy.sh update"
 }
 

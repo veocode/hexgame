@@ -1,6 +1,6 @@
 {
     "name": "Play Hex",
-    "short_name": "playhex",
+    "short_name": "Play Hex",
     "icons": [
         {
             "src": "/android-chrome-192x192.png",
