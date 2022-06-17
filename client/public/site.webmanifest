@@ -1,6 +1,6 @@
 {
-    "name": "HexGame",
-    "short_name": "hexgame",
+    "name": "Play Hex",
+    "short_name": "playhex",
     "icons": [
         {
             "src": "/android-chrome-192x192.png",

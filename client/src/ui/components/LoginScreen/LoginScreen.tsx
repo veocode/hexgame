@@ -31,7 +31,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ game }) => {
             <LocaleSelector />
             <div className='login-form'>
                 <div className='inputs'>
-                    <h1><b>hex</b>game</h1>
+                    <h1>play<b>hex</b></h1>
                     <input type='text' maxLength={10} defaultValue={nickname} ref={nicknameInput} />
                     <button onClick={() => onPlayClick()} className='button-play'>{texts.Play}</button>
                     <button onClick={() => game.setTutorial()}>{texts.HowTo}</button>

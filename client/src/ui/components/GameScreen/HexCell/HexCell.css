@@ -14,16 +14,12 @@
     transition: opacity .3s;
 }
 
-@media (hover: hover) {
-    .hex:hover {
-        cursor: pointer;
-        opacity: 0.65;
-    }
+.hex:hover {
+    cursor: pointer;
 }
 
 .hex.hex-none {
-    opacity: 0;
-    cursor: default;
+    visibility: hidden;
 }
 
 .hex>.hex-child {
