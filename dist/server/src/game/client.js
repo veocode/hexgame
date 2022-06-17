@@ -9,13 +9,22 @@ class ClientList {
         this.clients[client.id] = client;
     }
     remove(client) {
-        delete this.clients[client.id];
+        if (client.id in this.clients) {
+            delete this.clients[client.id];
+            return true;
+        }
+        return false;
     }
     includes(client) {
         return client.id in this.clients;
     }
     count() {
         return Object.keys(this.clients).length;
+    }
+    forEach(callback) {
+        Object.values(this.clients).forEach(client => {
+            callback(client);
+        });
     }
     forEachExcept(exceptClient, callback) {
         Object.values(this.clients).forEach(client => {
@@ -33,17 +42,18 @@ var ClientState;
     ClientState[ClientState["InGame"] = 2] = "InGame";
 })(ClientState = exports.ClientState || (exports.ClientState = {}));
 class Client {
-    constructor(socket) {
+    constructor(socket, nickname = '', isAdministrator = false) {
         this.socket = socket;
+        this.nickname = nickname;
+        this.isAdministrator = isAdministrator;
         this.tag = 0;
         this.state = ClientState.Idle;
         this.missedTurnsCount = 0;
         this.id = socket
             ? socket.id
             : this.getId();
-        this.nickname = socket
-            ? socket.handshake.auth.nickname
-            : this.getNickname();
+        if (!nickname)
+            this.nickname = this.getNickname();
     }
     isBot() {
         return false;
@@ -59,6 +69,9 @@ class Client {
     }
     setTag(tag) {
         this.tag = tag;
+    }
+    isAdmin() {
+        return this.isAdministrator;
     }
     getOpponent() {
         return this.opponent;

@@ -40,48 +40,21 @@ class GameMatch {
         }
         ;
     }
+    hasBot() {
+        let hasBot = false;
+        this.forEachPlayer(player => { hasBot = hasBot || player.isBot(); });
+        return hasBot;
+    }
     getPlayer(tag) {
         return this.players[tag];
     }
     bindPlayerEvents(player) {
-        player.on('game:match:move-response', ({ fromId, toId }) => {
-            var _a;
-            player.stopTurnTimeout();
-            if (this.currentPlayerTag !== player.getTag())
-                return;
-            if (this.validateAndMakeMove(player, fromId, toId)) {
-                (_a = player.getOpponent()) === null || _a === void 0 ? void 0 : _a.send('game:match:move-by-opponent', { fromId, toId });
-                setTimeout(() => this.nextTurn(), Delay.betweenMoves);
-            }
-        });
-        player.on('game:match:move-cell-selected', ({ id }) => {
-            var _a;
-            if (this.currentPlayerTag !== player.getTag())
-                return;
-            (_a = player.getOpponent()) === null || _a === void 0 ? void 0 : _a.send('game:match:move-cell-selected', { id });
-        });
-    }
-    nextTurn() {
-        const scores = this.sendScoreToPlayers();
-        if (!this.mapHasEmptyCells())
-            return this.finish();
-        this.switchPlayer();
-        if (scores[this.currentPlayerTag].score === 0)
-            return this.finishWithNoMoves(player_1.PlayerHasNoMovesReasons.Eliminated);
-        if (!this.players[this.currentPlayerTag])
-            return this.finishWithNoMoves(player_1.PlayerHasNoMovesReasons.Left);
-        if (!this.playerHasMoves(this.currentPlayerTag))
-            return this.finishWithNoMoves(player_1.PlayerHasNoMovesReasons.NoMoves);
-        this.requestNextMove();
+        player.on('game:match:move-response', ({ fromId, toId }) => this.onPlayerMoveResponse(player, fromId, toId));
+        player.on('game:match:move-cell-selected', ({ id }) => this.onPlayerCellSelected(player, id));
     }
     unbindPlayerEvents(player) {
         player.off('game:match:move-response');
         player.off('game:match:move-cell-selected');
-    }
-    sendScoreToPlayers() {
-        const scores = this.getPlayerScores();
-        this.forEachPlayer(player => player === null || player === void 0 ? void 0 : player.send('game:match:scores', { scores }));
-        return scores;
     }
     getPlayersCount() {
         return Object.keys(this.players).length;
@@ -168,6 +141,19 @@ class GameMatch {
         });
         setTimeout(() => this.finish(true), emptyCellsCount * Delay.noMovesFillPerCell + 1000);
     }
+    nextTurn() {
+        const scores = this.sendScoreToPlayers();
+        if (!this.mapHasEmptyCells())
+            return this.finish();
+        this.switchPlayer();
+        if (scores[this.currentPlayerTag].score === 0)
+            return this.finishWithNoMoves(player_1.PlayerHasNoMovesReasons.Eliminated);
+        if (!this.players[this.currentPlayerTag])
+            return this.finishWithNoMoves(player_1.PlayerHasNoMovesReasons.Left);
+        if (!this.playerHasMoves(this.currentPlayerTag))
+            return this.finishWithNoMoves(player_1.PlayerHasNoMovesReasons.NoMoves);
+        this.requestNextMove();
+    }
     requestNextMove() {
         const player = this.currentPlayer();
         if (!player && !this.hasActivePlayers()) {
@@ -180,15 +166,7 @@ class GameMatch {
         }
         player.send('game:match:move-request');
         player.getOpponent().send('game:match:move-pending');
-        player.setTurnTimeout(() => {
-            player.stopTurnTimeout();
-            if (player.getTag() === this.currentPlayerTag) {
-                player.addMissedTurn();
-                if (player.getMissedTurns() == MaxMissedTurnsCount)
-                    player.disconnect();
-                this.nextTurn();
-            }
-        }, MaxTurnTimeSeconds * 1000);
+        player.setTurnTimeout(() => this.onPlayerTurnTimeOut(player), MaxTurnTimeSeconds * 1000);
     }
     validateAndMakeMove(player, fromId, toId) {
         const srcCell = this.map.getCell(fromId);
@@ -216,6 +194,36 @@ class GameMatch {
             });
         }
         return true;
+    }
+    onPlayerMoveResponse(player, fromId, toId) {
+        var _a;
+        player.stopTurnTimeout();
+        if (this.currentPlayerTag !== player.getTag())
+            return;
+        if (this.validateAndMakeMove(player, fromId, toId)) {
+            (_a = player.getOpponent()) === null || _a === void 0 ? void 0 : _a.send('game:match:move-by-opponent', { fromId, toId });
+            setTimeout(() => this.nextTurn(), Delay.betweenMoves);
+        }
+    }
+    onPlayerCellSelected(player, cellId) {
+        var _a;
+        if (this.currentPlayerTag !== player.getTag())
+            return;
+        (_a = player.getOpponent()) === null || _a === void 0 ? void 0 : _a.send('game:match:move-cell-selected', { id: cellId });
+    }
+    onPlayerTurnTimeOut(player) {
+        player.stopTurnTimeout();
+        if (player.getTag() === this.currentPlayerTag) {
+            player.addMissedTurn();
+            if (player.getMissedTurns() == MaxMissedTurnsCount)
+                player.disconnect();
+            this.nextTurn();
+        }
+    }
+    sendScoreToPlayers() {
+        const scores = this.getPlayerScores();
+        this.forEachPlayer(player => player === null || player === void 0 ? void 0 : player.send('game:match:scores', { scores }));
+        return scores;
     }
     mapHasEmptyCells() {
         let hasEmpty = false;
