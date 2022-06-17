@@ -1,26 +1,26 @@
 import React, { useState } from 'react';
-import { Game, SandboxTools } from '../../../game/game';
 import { getLocaleTexts } from '../../../game/locales';
+import { Sandbox, SandboxTool } from '../../../game/sandbox';
 import { HexMapCell } from '../../../shared/hexmapcell';
 import { HexField } from '../GameScreen/HexField/HexField';
 import './SandboxScreen.css';
 
 const texts = getLocaleTexts();
 
-interface GameScreenProps {
-    game: Game,
+interface SandboxScreenProps {
+    sandbox: Sandbox,
 };
 
-export const SandboxScreen: React.FC<GameScreenProps> = ({ game }) => {
-    const [cells, setCells] = useState<HexMapCell[]>(game.getMap().getCells());
-    const [activeTool, setActiveTool] = useState<SandboxTools>(game.getSandboxTool());
+export const SandboxScreen: React.FC<SandboxScreenProps> = ({ sandbox }) => {
+    const [cells, setCells] = useState<HexMapCell[]>(sandbox.getMap().getCells());
+    const [activeTool, setActiveTool] = useState<SandboxTool>(sandbox.getTool());
 
-    game.whenMapUpdated(setCells);
+    sandbox.whenMapUpdated(setCells);
 
     const tools: { id: number, title: string }[] = [
-        { id: SandboxTools.EmptyNone, title: texts.SandboxToolEmptyNone },
-        { id: SandboxTools.Player1, title: texts.SandboxToolPlayer1 },
-        { id: SandboxTools.Player2, title: texts.SandboxToolPlayer2 },
+        { id: SandboxTool.EmptyNone, title: texts.SandboxToolEmptyNone },
+        { id: SandboxTool.Player1, title: texts.SandboxToolPlayer1 },
+        { id: SandboxTool.Player2, title: texts.SandboxToolPlayer2 },
     ];
 
     let toolButtons: JSX.Element[] = [];
@@ -29,7 +29,7 @@ export const SandboxScreen: React.FC<GameScreenProps> = ({ game }) => {
             <button
                 key={index}
                 className={`tool-button ${activeTool === tool.id ? 'active' : ''}`}
-                onClick={() => { game.setSandboxTool(tool.id); setActiveTool(tool.id) }}
+                onClick={() => { sandbox.setTool(tool.id); setActiveTool(tool.id) }}
             >{tool.title}</button>
         )
     })
@@ -38,19 +38,19 @@ export const SandboxScreen: React.FC<GameScreenProps> = ({ game }) => {
         <div className='sandbox-screen'>
             <div className='game-field'>
                 <HexField
-                    width={game.getMap().getWidth()}
-                    height={game.getMap().getHeight()}
+                    width={sandbox.getMap().getWidth()}
+                    height={sandbox.getMap().getHeight()}
                     cells={cells}
-                    onCellClick={id => game.onCellClick(id)}
-                    playerColors={game.getPlayerColors()}
+                    onCellClick={id => sandbox.onCellClick(id)}
+                    playerColors={sandbox.getPlayerColors()}
                 />
                 <div className='toolbar'>
                     {toolButtons}
 
-                    <button className='tool-button special' onClick={() => console.log(game.getMap().serialize())}>
+                    <button className='tool-button special' onClick={() => console.log(sandbox.getMap().serialize())}>
                         {texts.SandboxExport}
                     </button>
-                    <button className='tool-button special' onClick={() => game.setLoggedOut()}>
+                    <button className='tool-button special' onClick={() => sandbox.getGame().setLoggedOut()}>
                         {texts.Quit}
                     </button>
                 </div>

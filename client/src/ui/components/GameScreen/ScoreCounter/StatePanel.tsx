@@ -1,5 +1,4 @@
 import React from 'react';
-import { GameStateMessage } from '../../../../game/game';
 import './ScoreCounter.css';
 
 interface ScoreCounterProps {

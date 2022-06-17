@@ -1,38 +1,38 @@
 import React, { useState } from 'react';
-import { Game, GameResult, GameScoreList, GameStateMessage } from '../../../game/game';
 import { HexMapCell } from '../../../shared/hexmapcell';
 import { HexField } from './HexField/HexField';
 import { StatePanel } from './StatePanel/StatePanel';
 import { getLocaleTexts } from '../../../game/locales';
 import './GameScreen.css';
+import { Match, MatchResult, MatchScoreDict, MatchStateMessage } from '../../../game/match';
 
 const texts = getLocaleTexts();
 
 interface GameScreenProps {
-    game: Game,
+    match: Match,
 };
 
-export const GameScreen: React.FC<GameScreenProps> = ({ game }) => {
-    const [cells, setCells] = useState<HexMapCell[]>(game.getMap().getCells());
-    const [stateMessage, setStateMessage] = useState<GameStateMessage>({ text: '', className: '' });
-    const [matchScores, setMatchScores] = useState<GameScoreList | null>(game.getScores());
-    const [gameResult, setGameResult] = useState<GameResult | null>(null);
+export const GameScreen: React.FC<GameScreenProps> = ({ match }) => {
+    const [cells, setCells] = useState<HexMapCell[]>(match.getMap().getCells());
+    const [stateMessage, setStateMessage] = useState<MatchStateMessage>({ text: '' });
+    const [matchScores, setMatchScores] = useState<MatchScoreDict | null>(match.getScores());
+    const [matchResult, setMatchResult] = useState<MatchResult | null>(null);
 
-    game.whenMapUpdated(setCells);
-    game.whenStateMessageUpdated(setStateMessage);
-    game.whenMatchScoreUpdated(setMatchScores);
-    game.whenMatchOver(setGameResult);
+    match.whenMapUpdated(setCells);
+    match.whenStateMessageUpdated(setStateMessage);
+    match.whenScoreUpdated(setMatchScores);
+    match.whenOver(setMatchResult);
 
-    const resultBox = gameResult ? (
+    const resultBox = matchResult ? (
         <div className='result-wrap'>
             <div className='result-box'>
                 <div className='message'>
-                    {gameResult.isWithdraw
+                    {matchResult.isWithdraw
                         ? texts.MatchWithdraw
-                        : (gameResult.isWinner ? texts.MatchWon : texts.MatchLost)}
+                        : (matchResult.isWinner ? texts.MatchWon : texts.MatchLost)}
                 </div>
                 <div className='button'>
-                    <button onClick={() => game.searchAndStart()}>{texts.PlayAgain}</button>
+                    <button onClick={() => match.getGame().searchAndStart()}>{texts.PlayAgain}</button>
                 </div>
             </div>
         </div>
@@ -50,11 +50,11 @@ export const GameScreen: React.FC<GameScreenProps> = ({ game }) => {
                     </div>
                 </div>
                 <HexField
-                    width={game.getMap().getWidth()}
-                    height={game.getMap().getHeight()}
+                    width={match.getMap().getWidth()}
+                    height={match.getMap().getHeight()}
                     cells={cells}
-                    onCellClick={id => game.onCellClick(id)}
-                    playerColors={game.getPlayerColors()}
+                    onCellClick={id => match.onCellClick(id)}
+                    playerColors={match.getPlayerColors()}
                 />
                 {resultBox}
             </div>

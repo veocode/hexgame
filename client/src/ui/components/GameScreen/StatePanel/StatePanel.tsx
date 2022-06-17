@@ -1,10 +1,10 @@
 import React from 'react';
-import { GameScoreList, GameStateMessage } from '../../../../game/game';
+import { MatchScoreList } from '../../../../game/match';
 import { ScoreCounter } from '../ScoreCounter/StatePanel';
 import './StatePanel.css';
 
 interface StatePanelProps {
-    scores: GameScoreList | null
+    scores: MatchScoreList | null
 };
 
 export const StatePanel: React.FC<StatePanelProps> = ({ scores }) => {

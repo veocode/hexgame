@@ -37,7 +37,8 @@ export const App: React.FC<AppProps> = ({ game }) => {
   }
 
   if (state === GameState.Started || state === GameState.Over) {
-    childComponents = <GameScreen game={game} />;
+    const match = game.getMatch();
+    if (match) childComponents = <GameScreen match={match} />;
   }
 
   if (state === GameState.Tutorial) {
@@ -45,7 +46,8 @@ export const App: React.FC<AppProps> = ({ game }) => {
   }
 
   if (state === GameState.Sandbox) {
-    childComponents = <SandboxScreen game={game} />;
+    const sandbox = game.getSandbox();
+    if (sandbox) childComponents = <SandboxScreen sandbox={sandbox} />;
   }
 
   if (state === GameState.Management) {

@@ -7,7 +7,7 @@ const MaxPlayers = 2;
 const MaxTurnTimeSeconds = 30;
 const MaxMissedTurnsCount = 3;
 const Delay = {
-    noMovesFillPerCell: 120,
+    noMovesFillPerCell: 200,
     betweenMoves: 800
 };
 class GameMatch {

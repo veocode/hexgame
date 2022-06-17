@@ -7,7 +7,7 @@ const MaxTurnTimeSeconds: number = 30;
 const MaxMissedTurnsCount: number = 3;
 
 const Delay = {
-    noMovesFillPerCell: 120,
+    noMovesFillPerCell: 200,
     betweenMoves: 800
 }
 
