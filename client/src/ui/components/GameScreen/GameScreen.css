@@ -15,6 +15,24 @@
     height: 100%;
 }
 
+.game-screen .emoji-selector {
+    position: relative;
+    top: 60px;
+}
+
+@media (orientation: landscape) {
+    .game-screen .emoji-selector {
+        position: absolute;
+        right: 10px;
+        bottom: 0;
+        left: auto;
+        top: 50%;
+        margin-top: -30px;
+        width: 250px;
+        text-align: right;
+    }
+}
+
 .game-screen .state-message {
     font-size: 16px;
     color: #FFF;

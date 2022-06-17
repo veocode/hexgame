@@ -4,7 +4,7 @@ exports.GameMatch = void 0;
 const hexmap_1 = require("../shared/hexmap");
 const player_1 = require("../shared/player");
 const MaxPlayers = 2;
-const MaxTurnTimeSeconds = 30;
+const MaxTurnTimeSeconds = 30000;
 const MaxMissedTurnsCount = 3;
 const Delay = {
     noMovesFillPerCell: 200,
@@ -51,16 +51,19 @@ class GameMatch {
     bindPlayerEvents(player) {
         player.on('game:match:move-response', ({ fromId, toId }) => this.onPlayerMoveResponse(player, fromId, toId));
         player.on('game:match:move-cell-selected', ({ id }) => this.onPlayerCellSelected(player, id));
+        player.on('game:match:emoji', ({ emoji }) => this.onPlayerEmoji(player, emoji));
     }
     unbindPlayerEvents(player) {
         player.off('game:match:move-response');
         player.off('game:match:move-cell-selected');
+        player.off('game:match:emoji');
     }
     getPlayersCount() {
         return Object.keys(this.players).length;
     }
     forEachPlayer(callback) {
-        Object.values(this.players).forEach(callback);
+        var _a;
+        (_a = Object.values(this.players)) === null || _a === void 0 ? void 0 : _a.forEach(callback);
     }
     hasActivePlayers() {
         return this.players[player_1.PlayerTag.Player1] !== null || this.players[player_1.PlayerTag.Player2] !== null;
@@ -219,6 +222,10 @@ class GameMatch {
                 player.disconnect();
             this.nextTurn();
         }
+    }
+    onPlayerEmoji(player, emoji) {
+        var _a;
+        (_a = player.getOpponent()) === null || _a === void 0 ? void 0 : _a.send('game:match:emoji', { emoji });
     }
     sendScoreToPlayers() {
         const scores = this.getPlayerScores();

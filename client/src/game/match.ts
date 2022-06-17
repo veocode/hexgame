@@ -4,8 +4,10 @@ import { Player, PlayerColorsList, PlayerHasNoMovesReasons, PlayerTag } from '..
 import { getLocaleTexts } from "./locales";
 import Timer from "./timer";
 import { Game } from "./game";
+import { EmojisByPlayersDict } from "../ui/components/GameScreen/EmojiDisplay/EmojiDisplay";
 
 const cellAnimationTime: number = 400;
+const emojiLifeTime = 2000;
 const texts = getLocaleTexts();
 
 enum MatchState {
@@ -54,6 +56,8 @@ type MapUpdatedCallback = (cells: HexMapCell[]) => void
 type StateMessageUpdatedCallback = (stateMessage: MatchStateMessage) => void;
 type ScoreUpdatedCallback = (scores: MatchScoreDict) => void;
 type OverCallback = (result: MatchResult) => void;
+type EmojisUpdatedCallback = (emojis: EmojisByPlayersDict) => void;
+type EmojisLockUpdatedCallback = (isLocked: boolean) => void;
 
 export type MatchScoreList = {
     own: {
@@ -71,6 +75,9 @@ export class Match {
     private map: HexMap;
     private player: Player;
 
+    private emojis: EmojisByPlayersDict = { 1: null, 2: null };
+    private isEmojisLocked: boolean = false;
+
     private state: MatchState = MatchState.OpponentMove;
     private selectedCell: HexMapCell | null = null;
     private scores: MatchScoreList | null = null;
@@ -84,6 +91,8 @@ export class Match {
         StateMessageUpdated?: StateMessageUpdatedCallback | null,
         ScoreUpdated?: ScoreUpdatedCallback | null,
         Over?: OverCallback | null,
+        EmojisUpdated?: EmojisUpdatedCallback | null,
+        EmojisLockUpdated?: EmojisLockUpdatedCallback | null
     } = {};
 
     constructor(
@@ -95,6 +104,8 @@ export class Match {
 
         this.player = game.getPlayer();
         this.player.setTag(options.playerTag);
+
+        this.maxTurnTime = options.maxTurnTime;
 
         this.updateScores(options.initialScores);
         this.bindSocketEvents();
@@ -182,6 +193,10 @@ export class Match {
                 isNoMoves,
                 scores
             });
+        })
+
+        this.game.socket.on('game:match:emoji', async ({ emoji }) => {
+            this.playerSetEmoji(this.player.getOpponentTag(), emoji);
         })
     }
 
@@ -421,6 +436,57 @@ export class Match {
             const j = Math.floor(Math.random() * (i + 1));
             [array[i], array[j]] = [array[j], array[i]];
         }
+    }
+
+    sendEmoji(emoji: string) {
+        this.game.socket.emit('game:match:emoji', { emoji });
+        this.playerSetEmoji(this.player.getTag(), emoji);
+        this.lockEmojis(true);
+    }
+
+    lockEmojis(isLocked: boolean) {
+        this.isEmojisLocked = isLocked;
+
+        if (isLocked) {
+            setTimeout(() => { this.lockEmojis(false); }, 3000);
+        }
+
+        if (this.callbacks.EmojisLockUpdated) {
+            this.callbacks.EmojisLockUpdated(this.isEmojisLocked);
+        }
+    }
+
+    isEmojisLockedForCooldown(): boolean {
+        return this.isEmojisLocked;
+    }
+
+    whenEmojisLockUpdated(callback: EmojisLockUpdatedCallback) {
+        this.callbacks.EmojisLockUpdated = callback;
+    }
+
+    getCurrentEmojis(): EmojisByPlayersDict {
+        return this.emojis;
+    }
+
+    playerSetEmoji(playerTag: PlayerTag, emoji: string) {
+        if (this.emojis[playerTag] !== null) return;
+        this.emojis[playerTag] = emoji;
+        this.updateEmojis();
+
+        setTimeout(() => {
+            this.emojis[playerTag] = null;
+            this.updateEmojis();
+        }, emojiLifeTime);
+    }
+
+    updateEmojis() {
+        if (this.callbacks.EmojisUpdated) {
+            this.callbacks.EmojisUpdated(this.emojis);
+        }
+    }
+
+    whenEmojisUpdated(callback: EmojisUpdatedCallback) {
+        this.callbacks.EmojisUpdated = callback;
     }
 
 }

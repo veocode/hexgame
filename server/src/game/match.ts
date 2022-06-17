@@ -3,7 +3,7 @@ import { PlayerHasNoMovesReasons, PlayerTag } from '../shared/player';
 import { Client } from './client';
 
 const MaxPlayers: number = 2;
-const MaxTurnTimeSeconds: number = 30;
+const MaxTurnTimeSeconds: number = 30000;
 const MaxMissedTurnsCount: number = 3;
 
 const Delay = {
@@ -77,11 +77,13 @@ export class GameMatch {
     bindPlayerEvents(player: Client) {
         player.on('game:match:move-response', ({ fromId, toId }) => this.onPlayerMoveResponse(player, fromId, toId));
         player.on('game:match:move-cell-selected', ({ id }) => this.onPlayerCellSelected(player, id));
+        player.on('game:match:emoji', ({ emoji }) => this.onPlayerEmoji(player, emoji));
     }
 
     unbindPlayerEvents(player: Client) {
         player.off('game:match:move-response');
         player.off('game:match:move-cell-selected');
+        player.off('game:match:emoji');
     }
 
     getPlayersCount(): number {
@@ -89,7 +91,7 @@ export class GameMatch {
     }
 
     forEachPlayer(callback: (player: Client) => void) {
-        Object.values(this.players).forEach(callback);
+        Object.values(this.players)?.forEach(callback);
     }
 
     hasActivePlayers(): boolean {
@@ -267,6 +269,10 @@ export class GameMatch {
             if (player.getMissedTurns() == MaxMissedTurnsCount) player.disconnect();
             this.nextTurn();
         }
+    }
+
+    onPlayerEmoji(player: Client, emoji: string) {
+        player.getOpponent()?.send('game:match:emoji', { emoji });
     }
 
     sendScoreToPlayers(): MatchScoreList {

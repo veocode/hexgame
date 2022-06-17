@@ -2,7 +2,7 @@
     display: block;
     width: var(--hex-width);
     height: var(--hex-height);
-    background: url(../../../images/hex.svg) no-repeat center;
+    background: url(../../../../images/hex.svg) no-repeat center;
     background-size: 95%;
     float: left;
     text-align: center;
@@ -39,25 +39,25 @@
 
 .hex>.highlight-white {
     animation: pulse 1.5s infinite ease-in-out;
-    background-image: url(../../../images/hex-white.svg);
+    background-image: url(../../../../images/hex-white.svg);
 }
 
 .hex>.highlight-green {
-    background-image: url(../../../images/hex-green.svg);
+    background-image: url(../../../../images/hex-green.svg);
 }
 
 .hex>.highlight-orange {
-    background-image: url(../../../images/hex-orange.svg);
+    background-image: url(../../../../images/hex-orange.svg);
 }
 
 .hex>.occupant-own {
     animation: growIn .4s ease-in-out;
-    background-image: url(../../../images/hex-own.svg);
+    background-image: url(../../../../images/hex-own.svg);
 }
 
 .hex>.occupant-enemy {
     animation: growIn .4s ease-in-out;
-    background-image: url(../../../images/hex-enemy.svg);
+    background-image: url(../../../../images/hex-enemy.svg);
 }
 
 .hex>.occupant-leave {

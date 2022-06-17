@@ -1,0 +1,38 @@
+.emoji-display {
+    width: 100%;
+    position: relative;
+}
+
+.emoji-display .emoji-bubble {
+    position: absolute;
+    top: -10px;
+    animation: blinkUpDown 1.2s infinite;
+}
+
+.emoji-display .emoji-bubble.left {
+    left: 20px;
+}
+
+.emoji-display .emoji-bubble.right {
+    right: 0;
+}
+
+.emoji-display .emoji-bubble .triangle {
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-bottom: 15px solid rgba(0, 0, 0, .45);
+    margin-left: 22px;
+}
+
+.emoji-display .emoji-bubble .body {
+    background: rgba(0, 0, 0, .45);
+    padding: 15px;
+    border-radius: 8px;
+    font-size: 32px;
+}
+
+.emoji-display .emoji-bubble .body .emoji {
+    animation: blinkGrow 1.2s infinite;
+}

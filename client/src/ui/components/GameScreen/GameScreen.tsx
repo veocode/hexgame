@@ -5,6 +5,8 @@ import { StatePanel } from './StatePanel/StatePanel';
 import { getLocaleTexts } from '../../../game/locales';
 import './GameScreen.css';
 import { Match, MatchResult, MatchScoreDict, MatchStateMessage } from '../../../game/match';
+import { EmojiSelector } from './EmojiSelector/EmojiSelector';
+import { EmojiDisplay, EmojisByPlayersDict } from './EmojiDisplay/EmojiDisplay';
 
 const texts = getLocaleTexts();
 
@@ -17,11 +19,16 @@ export const GameScreen: React.FC<GameScreenProps> = ({ match }) => {
     const [stateMessage, setStateMessage] = useState<MatchStateMessage>({ text: '' });
     const [matchScores, setMatchScores] = useState<MatchScoreDict | null>(match.getScores());
     const [matchResult, setMatchResult] = useState<MatchResult | null>(null);
+    const [emojis, setEmojis] = useState<EmojisByPlayersDict>(match.getCurrentEmojis());
+    const [isEmojisLocked, setEmojisLocked] = useState<boolean>(match.isEmojisLockedForCooldown());
 
     match.whenMapUpdated(setCells);
     match.whenStateMessageUpdated(setStateMessage);
     match.whenScoreUpdated(setMatchScores);
     match.whenOver(setMatchResult);
+
+    match.whenEmojisUpdated(setEmojis);
+    match.whenEmojisLockUpdated(setEmojisLocked);
 
     const resultBox = matchResult ? (
         <div className='result-wrap'>
@@ -43,6 +50,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ match }) => {
             <StatePanel
                 scores={matchScores}
             />
+            <EmojiDisplay emojis={emojis} />
             <div className='game-field'>
                 <div className='state-message'>
                     <div className='message'>
@@ -56,6 +64,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ match }) => {
                     onCellClick={id => match.onCellClick(id)}
                     playerColors={match.getPlayerColors()}
                 />
+                {!isEmojisLocked ? <EmojiSelector onSelected={emoji => match.sendEmoji(emoji)} /> : ''}
                 {resultBox}
             </div>
         </div>

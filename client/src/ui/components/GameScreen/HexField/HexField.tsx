@@ -1,7 +1,7 @@
 import React from 'react';
 import { HexMapCell } from '../../../../shared/hexmapcell';
 import { PlayerColorsList } from '../../../../shared/player';
-import { HexCell } from '../HexCell/HexCell';
+import { HexCell } from './HexCell/HexCell';
 import './HexField.css';
 
 

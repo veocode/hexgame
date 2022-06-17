@@ -1,5 +1,5 @@
 import React from 'react';
-import { HexCellHightlightType, HexMapCell } from '../../../../shared/hexmapcell';
+import { HexCellHightlightType, HexMapCell } from '../../../../../shared/hexmapcell';
 import './HexCell.css';
 
 
