@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import './EmojiSelector.css';
 
-const emojis: string[] = ['😀', '👍', '☹️', '😡'];
+const emojis: string[] = [
+    '👋', '👍', '😀', '😎',
+    '😛', '☹️', '😡', '😭',
+];
 
 enum State {
     Closed = 0,
@@ -54,7 +57,7 @@ export const EmojiSelector: React.FC<EmojiSelectorProps> = ({ onSelected }) => {
 
     return (
         <div className={classes.join(' ')}>
-            <button onClick={() => toggle()} >😀</button>
+            <button onClick={() => toggle()} ></button>
             <div className='emoji-overlay' onClick={() => toggle()}></div>
             <div className='emoji-bar'>
                 <div className='emoji-list'>

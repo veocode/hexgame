@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BotClient = void 0;
 const hexmap_1 = require("../shared/hexmap");
+const player_1 = require("../shared/player");
 const client_1 = require("./client");
 const botNames = [
     'hexmaniac',
@@ -70,11 +71,40 @@ class BotClient extends client_1.Client {
         if (eventName === 'game:match:move-request') {
             this.respondWithMove();
         }
+        if (eventName === 'game:match:start') {
+            this.sendEmoji('👋', 1000 + Math.random() * 500);
+        }
+        if (eventName === 'game:match:no-moves') {
+            const { loserTag, reasonType } = data;
+            if (reasonType !== player_1.PlayerHasNoMovesReasons.Left) {
+                this.sendEmoji('😛', 300 + Math.random() * 500);
+            }
+        }
+        if (eventName === 'game:match:over') {
+            const { isWinner } = data;
+            if (isWinner) {
+                this.sendEmoji(this.shuffleArray(['😎', '😀', '😛'])[0], 500);
+            }
+            else {
+                this.sendEmoji(this.shuffleArray(['👍', '☹️', '😡', '😭'])[0], 500);
+            }
+        }
+    }
+    sendEmoji(emoji, delay = 0) {
+        setTimeout(() => this.callback('game:match:emoji', { emoji }), delay);
     }
     respondWithMove() {
         const moves = this.getPossibleMoves();
-        if (moves.maxCapture)
+        if (moves.maxCapture) {
+            if (moves.maxCaptureProfit >= 4) {
+                this.sendEmoji('😎', 1200);
+            }
+            else if (moves.maxCaptureProfit >= 3) {
+                if (Math.random() >= .85)
+                    this.sendEmoji('😀', 1200);
+            }
             return this.makeMove(moves.maxCapture);
+        }
         if (moves.near.length > 0)
             return this.makeMove(this.shuffleArray(moves.near)[0]);
         if (moves.minLose)

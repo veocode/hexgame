@@ -16,8 +16,8 @@
 }
 
 .game-screen .emoji-selector {
-    position: relative;
-    top: 60px;
+    position: absolute;
+    bottom: 10%;
 }
 
 @media (orientation: landscape) {

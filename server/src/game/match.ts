@@ -3,7 +3,7 @@ import { PlayerHasNoMovesReasons, PlayerTag } from '../shared/player';
 import { Client } from './client';
 
 const MaxPlayers: number = 2;
-const MaxTurnTimeSeconds: number = 30000;
+const MaxTurnTimeSeconds: number = 30;
 const MaxMissedTurnsCount: number = 3;
 
 const Delay = {

@@ -14,7 +14,7 @@
 }
 
 .emoji-display .emoji-bubble.right {
-    right: 0;
+    right: 20px;
 }
 
 .emoji-display .emoji-bubble .triangle {
@@ -29,6 +29,7 @@
 .emoji-display .emoji-bubble .body {
     background: rgba(0, 0, 0, .45);
     padding: 15px;
+    padding-bottom: 25px;
     border-radius: 8px;
     font-size: 32px;
 }
