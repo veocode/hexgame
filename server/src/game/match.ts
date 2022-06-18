@@ -142,18 +142,18 @@ export class GameMatch {
         this.forEachPlayer(player => {
             if (!player) return;
 
-            this.unbindPlayerEvents(player);
-
-            player.setIdle();
-            player.setOpponent(null);
-
             const matchResult = {
                 isWinner: !isWithdraw && winnerTag === player.getTag(),
                 isWithdraw,
                 isNoMoves,
                 scores
             };
+
             player.send('game:match:over', matchResult)
+
+            player.setIdle();
+            player.setOpponent(null);
+            this.unbindPlayerEvents(player);
         });
 
         this.currentPlayerTag = 0;

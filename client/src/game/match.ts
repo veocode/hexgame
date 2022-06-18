@@ -187,6 +187,7 @@ export class Match {
 
         this.game.socket.on('game:match:over', ({ isWinner, isWithdraw, isNoMoves, scores }) => {
             this.turnTimer.stop();
+
             this.setOver({
                 isWinner,
                 isWithdraw,
@@ -198,6 +199,16 @@ export class Match {
         this.game.socket.on('game:match:emoji', async ({ emoji }) => {
             this.playerSetEmoji(this.player.getOpponentTag(), emoji);
         })
+    }
+
+    unbindSocketEvents() {
+        this.game.socket.off('game:match:move-request');
+        this.game.socket.off('game:match:move-pending');
+        this.game.socket.off('game:match:move-cell-selected');
+        this.game.socket.off('game:match:move-by-opponent');
+        this.game.socket.off('game:match:no-moves');
+        this.game.socket.off('game:match:scores');
+        this.game.socket.off('game:match:over');
     }
 
     getPlayerColors(): PlayerColorsList {
@@ -465,7 +476,7 @@ export class Match {
     }
 
     getCurrentEmojis(): EmojisByPlayersDict {
-        return this.emojis;
+        return { ...this.emojis };
     }
 
     playerSetEmoji(playerTag: PlayerTag, emoji: string) {

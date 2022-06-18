@@ -65,7 +65,7 @@ class BotClient extends client_1.Client {
         this.callbacks[eventName] = callback;
     }
     off(eventName) {
-        delete this.callbacks[eventName];
+        // delete this.callbacks[eventName];
     }
     send(eventName, data) {
         if (eventName === 'game:match:move-request') {
@@ -77,21 +77,23 @@ class BotClient extends client_1.Client {
         if (eventName === 'game:match:no-moves') {
             const { loserTag, reasonType } = data;
             if (reasonType !== player_1.PlayerHasNoMovesReasons.Left) {
-                this.sendEmoji('😛', 300 + Math.random() * 500);
-            }
-        }
-        if (eventName === 'game:match:over') {
-            const { isWinner } = data;
-            if (isWinner) {
-                this.sendEmoji(this.shuffleArray(['😎', '😀', '😛'])[0], 500);
-            }
-            else {
-                this.sendEmoji(this.shuffleArray(['👍', '☹️', '😡', '😭'])[0], 500);
+                if (loserTag === this.getTag()) {
+                    this.sendEmoji(this.shuffleArray(['👍', '☹️', '😡', '😭'])[0], 400);
+                }
+                else {
+                    this.sendEmoji(this.shuffleArray(['😎', '😀', '😛'])[0], 400);
+                }
             }
         }
     }
     sendEmoji(emoji, delay = 0) {
-        setTimeout(() => this.callback('game:match:emoji', { emoji }), delay);
+        var _a;
+        if (delay) {
+            setTimeout(() => { var _a; return (_a = this.getOpponent()) === null || _a === void 0 ? void 0 : _a.send('game:match:emoji', { emoji }); }, delay);
+        }
+        else {
+            (_a = this.getOpponent()) === null || _a === void 0 ? void 0 : _a.send('game:match:emoji', { emoji });
+        }
     }
     respondWithMove() {
         const moves = this.getPossibleMoves();

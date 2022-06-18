@@ -7,6 +7,7 @@
     position: absolute;
     top: -10px;
     animation: blinkUpDown 1.2s infinite;
+    z-index: 999;
 }
 
 .emoji-display .emoji-bubble.left {
@@ -29,7 +30,6 @@
 .emoji-display .emoji-bubble .body {
     background: rgba(0, 0, 0, .45);
     padding: 15px;
-    padding-bottom: 25px;
     border-radius: 8px;
     font-size: 32px;
 }

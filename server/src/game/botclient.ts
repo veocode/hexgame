@@ -90,7 +90,7 @@ export class BotClient extends Client {
     }
 
     off(eventName: string) {
-        delete this.callbacks[eventName];
+        // delete this.callbacks[eventName];
     }
 
     send(eventName, data: any) {
@@ -105,23 +105,21 @@ export class BotClient extends Client {
         if (eventName === 'game:match:no-moves') {
             const { loserTag, reasonType } = data;
             if (reasonType !== PlayerHasNoMovesReasons.Left) {
-                this.sendEmoji('😛', 300 + Math.random() * 500);
+                if (loserTag === this.getTag()) {
+                    this.sendEmoji(this.shuffleArray(['👍', '☹️', '😡', '😭'])[0], 400);
+                } else {
+                    this.sendEmoji(this.shuffleArray(['😎', '😀', '😛'])[0], 400);
+                }
             }
         }
-
-        if (eventName === 'game:match:over') {
-            const { isWinner } = data;
-            if (isWinner) {
-                this.sendEmoji(this.shuffleArray(['😎', '😀', '😛'])[0], 500);
-            } else {
-                this.sendEmoji(this.shuffleArray(['👍', '☹️', '😡', '😭'])[0], 500);
-            }
-        }
-
     }
 
     private sendEmoji(emoji: string, delay: number = 0) {
-        setTimeout(() => this.callback('game:match:emoji', { emoji }), delay);
+        if (delay) {
+            setTimeout(() => this.getOpponent()?.send('game:match:emoji', { emoji }), delay);
+        } else {
+            this.getOpponent()?.send('game:match:emoji', { emoji });
+        }
     }
 
     private respondWithMove() {

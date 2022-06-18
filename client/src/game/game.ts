@@ -96,6 +96,7 @@ export class Game {
 
             this.match.whenOver(() => {
                 this.setOver();
+                this.match?.unbindSocketEvents();
                 this.match = null;
             });
 
@@ -163,6 +164,7 @@ export class Game {
     setLoggedOut() {
         this.setState(GameState.LoggedOut);
         if (this.socket.connected) this.socket.disconnect();
+        if (this.match) this.match = null;
     }
 
     isConnecting(): boolean {
