@@ -9,6 +9,7 @@ services:
       dockerfile: ./server.Dockerfile
     volumes:
       - ./docker/certs:/opt/app/certs
+      - ./docker/logs:/opt/app/logs
       - ./dist/server/src:/opt/app/src
     ports:
       - ${SERVER_WS_PORT}:${SERVER_WS_PORT}
@@ -18,7 +19,7 @@ services:
       SERVER_WS_KEY_FILE: ${SERVER_WS_KEY_FILE}
       SERVER_CORS_ORIGIN: ${SERVER_CORS_ORIGIN}
     working_dir: /opt/app
-    command: forever ./src/index.js
+    command: forever ./src/index.js -l /opt/app/logs/server.log -o /opt/app/logs/server.out.log -e /opt/app/logs/server.err.log
 
   client:
     container_name: hex-client
