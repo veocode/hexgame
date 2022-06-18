@@ -18,7 +18,7 @@ services:
       SERVER_WS_KEY_FILE: ${SERVER_WS_KEY_FILE}
       SERVER_CORS_ORIGIN: ${SERVER_CORS_ORIGIN}
     working_dir: /opt/app
-    command: node ./src/index.js
+    command: forever start ./src/index.js
 
   client:
     container_name: hex-client

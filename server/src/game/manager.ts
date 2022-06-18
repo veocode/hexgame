@@ -33,7 +33,7 @@ export class GameManager {
                 activeMatch.removePlayer(client);
                 if (client.getOpponent()) {
                     const remainingPlayer = activeMatch.getPlayer(client.getOpponent().getTag());
-                    if (remainingPlayer && remainingPlayer.isBot()) {
+                    if (remainingPlayer?.isBot()) {
                         activeMatch.terminate();
                     }
                 }
