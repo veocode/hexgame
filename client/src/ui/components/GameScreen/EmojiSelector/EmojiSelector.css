@@ -14,7 +14,8 @@
 
 .emoji-selector {
     position: relative;
-    width: 100%;
+    width: 64px;
+    height: 64px;
 }
 
 .emoji-selector>button,
@@ -93,5 +94,4 @@
     .emoji-selector .emoji-list button:hover {
         background: #484e58;
     }
-
 }

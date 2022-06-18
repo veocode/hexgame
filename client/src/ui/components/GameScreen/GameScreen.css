@@ -31,6 +31,11 @@
         width: 250px;
         text-align: right;
     }
+
+    .game-screen .emoji-selector .emoji-bar {
+        left: auto;
+        right: 0;
+    }
 }
 
 .game-screen .state-message {
