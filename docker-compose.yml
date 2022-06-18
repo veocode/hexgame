@@ -19,7 +19,7 @@ services:
       SERVER_WS_KEY_FILE: ${SERVER_WS_KEY_FILE}
       SERVER_CORS_ORIGIN: ${SERVER_CORS_ORIGIN}
     working_dir: /opt/app
-    command: forever ./src/index.js -l /opt/app/logs/server.log -o /opt/app/logs/server.out.log -e /opt/app/logs/server.err.log
+    command: forever -l /opt/app/logs/server.log -o /opt/app/logs/server.out.log -e /opt/app/logs/server.err.log ./src/index.js
 
   client:
     container_name: hex-client
