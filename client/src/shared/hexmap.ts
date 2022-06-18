@@ -259,6 +259,7 @@ export class HexMap {
             if (cellValue === 2) cell.setOccupiedBy(PlayerTag.Player1);
             if (cellValue === 3) cell.setOccupiedBy(PlayerTag.Player2);
         });
+        return this;
     }
 
 }

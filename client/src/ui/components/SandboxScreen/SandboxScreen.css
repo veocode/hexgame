@@ -21,3 +21,7 @@
 .sandbox-screen .toolbar .tool-button.special {
     margin-left: 10px;
 }
+
+.sandbox-screen .hex.hex-none {
+    visibility: visible;
+}

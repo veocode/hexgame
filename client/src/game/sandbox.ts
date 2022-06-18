@@ -1,10 +1,19 @@
 import { HexMapCell } from "../shared/hexmapcell";
 import { HexMap } from '../shared/hexmap';
 import { PlayerColorsList, PlayerTag } from '../shared/player';
-import { getLocaleTexts } from "./locales";
 import { Game } from "./game";
 
-const texts = getLocaleTexts();
+const defaultMap: number[] = [
+    0, 1, 1, 1, 1, 1, 1, 1, 0,
+    1, 1, 1, 1, 1, 1, 1, 1, 0,
+    1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 0,
+    1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 0,
+    1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 0,
+    0, 1, 1, 1, 1, 1, 1, 1, 0
+];
 
 export enum SandboxTool {
     EmptyNone = 9,
@@ -47,16 +56,7 @@ export class Sandbox {
     }
 
     createMap(): HexMap {
-        return new HexMap((cell: HexMapCell) => {
-            const chance = Math.random();
-            if (chance >= 0.15) {
-                cell.setEmpty();
-                if (chance >= 0.9) {
-                    const randomPlayer = [PlayerTag.Player1, PlayerTag.Player2][Math.floor(Math.random() * 2)];
-                    cell.setOccupiedBy(randomPlayer);
-                }
-            }
-        });
+        return (new HexMap()).deserealize(defaultMap);
     }
 
     redrawMap() {
