@@ -34,8 +34,8 @@ services:
       SERVER_CORS_ORIGIN: ${SERVER_CORS_ORIGIN}
     working_dir: /opt/app
     command: forever -o /opt/app/logs/server.out.log -e /opt/app/logs/server.err.log ./src/index.js
-    depends_on:
-      - mongodb
+    # depends_on:
+    #   - mongodb
 
   client:
     container_name: hex-client
