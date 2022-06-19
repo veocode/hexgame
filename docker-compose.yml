@@ -6,7 +6,7 @@ services:
     container_name: hex-server
     build:
       context: .
-      dockerfile: ./server.Dockerfile
+      dockerfile: ./Dockerfile.server
     volumes:
       - ./docker/certs:/opt/app/certs
       - ./docker/logs:/opt/app/logs

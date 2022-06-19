@@ -1,0 +1,48 @@
+#
+# CACHE DEPENDENCIES
+#
+FROM node:lts-alpine AS deps
+RUN apk add --no-cache git
+
+WORKDIR /opt/app/builder
+COPY ./app/builder/package.json ./package.json
+COPY ./app/builder/package-lock.json ./package-lock.json
+RUN npm install
+
+WORKDIR /opt/app/client
+COPY ./app/client/.env ./.env
+COPY ./app/client/package.json ./package.json
+COPY ./app/client/package-lock.json ./package-lock.json
+COPY ./app/client/tsconfig.json ./tsconfig.json
+RUN npm install
+
+WORKDIR /opt/app/server
+COPY ./app/server/package.json ./package.json
+COPY ./app/server/package-lock.json ./package-lock.json
+COPY ./app/server/tsconfig.json ./tsconfig.json
+RUN npm install
+
+#
+# RUN IN SEPARATE IMAGE
+#
+FROM node:lts-alpine AS runner
+
+WORKDIR /opt/app/builder
+COPY --from=deps /opt/app/builder/node_modules ./node_modules
+COPY --from=deps /opt/app/builder/package.json ./package.json
+COPY --from=deps /opt/app/builder/package-lock.json ./package-lock.json
+
+WORKDIR /opt/app/client
+COPY --from=deps /opt/app/client/node_modules ./node_modules
+COPY --from=deps /opt/app/client/.env ./.env
+COPY --from=deps /opt/app/client/package.json ./package.json
+COPY --from=deps /opt/app/client/package-lock.json ./package-lock.json
+COPY --from=deps /opt/app/client/tsconfig.json ./tsconfig.json
+
+WORKDIR /opt/app/server
+COPY --from=deps /opt/app/server/node_modules ./node_modules
+COPY --from=deps /opt/app/server/package.json ./package.json
+COPY --from=deps /opt/app/server/package-lock.json ./package-lock.json
+COPY --from=deps /opt/app/server/tsconfig.json ./tsconfig.json
+
+WORKDIR /opt/app/builder

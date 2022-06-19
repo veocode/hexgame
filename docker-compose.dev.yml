@@ -1,0 +1,25 @@
+version: "3.1"
+
+services:
+
+  app:
+    container_name: hex-app
+    build:
+      context: .
+      dockerfile: ./Dockerfile.dev
+    volumes:
+      - ./docker/certs:/opt/app/certs
+      - ./dist:/opt/app/dist
+      - ./app/server/src:/opt/app/server/src
+      - ./app/client/src:/opt/app/client/src
+      - ./app/client/public:/opt/app/client/public
+    ports:
+      - 3000:3000
+      - 3010:3010
+    environment:
+      SERVER_WS_PORT: ${SERVER_WS_PORT}
+      SERVER_WS_CERT_FILE: /opt/app/certs/server.crt
+      SERVER_WS_KEY_FILE: /opt/app/certs/server.key
+      SERVER_CORS_ORIGIN: localhost:3000
+    working_dir: /opt/app/builder
+    command: npm run dev

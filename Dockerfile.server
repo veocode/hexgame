@@ -1,3 +1,6 @@
+#
+# CACHE DEPENDENCIES
+#
 FROM node:lts-alpine AS deps
 WORKDIR /opt/app
 RUN apk add --no-cache git
@@ -5,6 +8,9 @@ COPY ./dist/server/package-lock.json ./package-lock.json
 COPY ./dist/server/package.json ./package.json
 RUN npm install
 
+#
+# RUN IN SEPARATE IMAGE
+#
 FROM node:lts-alpine AS runner
 WORKDIR /opt/app
 COPY --from=deps /opt/app/node_modules ./node_modules
