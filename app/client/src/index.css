@@ -97,6 +97,18 @@ div {
   }
 }
 
+@keyframes growInExtra {
+  from {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(3);
+    opacity: .5;
+  }
+}
+
 @keyframes growOut {
   from {
     transform: scale(1);

@@ -21,17 +21,24 @@
     background-size: contain;
     width: 100%;
     height: 100%;
-    animation: pulseFade 8s infinite ease-in-out;
+    opacity: 0;
+    animation: growInExtra 12s infinite ease-in-out;
+}
+
+.login-screen .login-bg.bg-2 {
+    animation-delay: 4s;
+}
+
+.login-screen .login-bg.bg-3 {
+    animation-delay: 8s;
 }
 
 .login-screen .login-form {
-    position: absolute;
-    width: 100%;
     height: 100%;
-    flex-grow: 1;
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-top: -25px;
 }
 
 .login-screen .login-form .inputs {
@@ -42,6 +49,7 @@
 
 .login-screen .login-form .inputs input {
     font-size: 24px;
+    margin-bottom: 20px;
 }
 
 .login-screen .login-form .inputs .button-play {
@@ -49,7 +57,7 @@
     color: #FFF;
     font-weight: bold;
     height: 40px;
-    margin-bottom: 20px;
+    margin-bottom: 6px;
 }
 
 .login-screen .login-form .inputs .button-play:hover {

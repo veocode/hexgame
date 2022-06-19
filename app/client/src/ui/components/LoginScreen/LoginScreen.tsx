@@ -28,6 +28,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ game }) => {
     return (
         <div className='login-screen'>
             <div className='login-bg'></div>
+            <div className='login-bg bg-2'></div>
+            <div className='login-bg bg-3'></div>
             <LocaleSelector />
             <div className='login-form'>
                 <div className='inputs'>
