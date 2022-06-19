@@ -23,6 +23,7 @@
     height: 100%;
     opacity: 0;
     animation: growInExtra 12s infinite ease-in-out;
+    z-index: 1;
 }
 
 .login-screen .login-bg.bg-2 {
@@ -34,11 +35,13 @@
 }
 
 .login-screen .login-form {
+    position: relative;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-top: -25px;
+    z-index: 2;
 }
 
 .login-screen .login-form .inputs {
@@ -57,7 +60,7 @@
     color: #FFF;
     font-weight: bold;
     height: 40px;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
 }
 
 .login-screen .login-form .inputs .button-play:hover {
