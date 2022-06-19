@@ -36,14 +36,16 @@ install() {
     echo "Installing root dependencies..."
     npm install
     echo "Installing client dependencies..."
-    cd client && npm install
+    cd app/client && npm install
     echo "Installing server dependencies..."
     cd ../server && npm install
+    cd ..
     echo "Done!"
 }
 
 dev() {
-    npm run dev
+    cd ./app/builder
+    npm run dev 
 }
 
 up(){
@@ -64,7 +66,7 @@ build() {
     echo "Building project..."
     rm -rf ./dist/client/*
     rm -rf ./dist/server/*
-    npm run build
+    npm run build --prefix=./app/builder
 }
 
 build-push() {
