@@ -2,6 +2,20 @@ version: "3.1"
 
 services:
 
+  mongodb:
+    container_name: hex-mongo
+    image: mongo:${MONGODB_VERSION}
+    user: "1000:1000"
+    volumes:
+      - ./docker/conf/initmongo.js:/docker-entrypoint-initdb.d/initmongo.js
+      - ./storage/mongodb:/data/db
+    ports:
+      - ${MONGODB_PORT}:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGODB_DATABASE}
+
   server:
     container_name: hex-server
     build:
@@ -20,6 +34,8 @@ services:
       SERVER_CORS_ORIGIN: ${SERVER_CORS_ORIGIN}
     working_dir: /opt/app
     command: forever -o /opt/app/logs/server.out.log -e /opt/app/logs/server.err.log ./src/index.js
+    depends_on:
+      - mongodb
 
   client:
     container_name: hex-client

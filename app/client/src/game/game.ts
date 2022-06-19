@@ -1,13 +1,7 @@
 import { io, Socket } from "socket.io-client";
-import { HexMapCell } from "../shared/hexmapcell";
-import { HexMap, HexNeighborLevel } from '../shared/hexmap';
-import { Player, PlayerColorsList, PlayerHasNoMovesReasons, PlayerTag } from '../shared/player';
-import { getLocaleTexts } from "./locales";
-import Timer from "./timer";
+import { Player, PlayerTag } from '../shared/player';
 import { Match } from "./match";
 import { Sandbox } from "./sandbox";
-
-const texts = getLocaleTexts();
 
 export enum GameState {
     LoggedOut = 0,
@@ -69,7 +63,7 @@ export class Game {
             this.socket.auth = { nickname };
             this.socket.connect();
 
-            this.socket.once('game:connected', ({ clientId, isAdmin }) => {
+            this.socket.once('game:connected', ({ isAdmin }) => {
                 if (isAdmin) this.player.setAdmin();
                 resolve();
             });

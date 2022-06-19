@@ -33,10 +33,10 @@ if [[ ${1:-help} == help ]]; then
 fi
 
 install() {
-    echo "Installing root dependencies..."
-    npm install
+    echo "Installing builder dependencies..."
+    cd app/builder && npm install
     echo "Installing client dependencies..."
-    cd app/client && npm install
+    cd ../client && npm install
     echo "Installing server dependencies..."
     cd ../server && npm install
     cd ..
@@ -45,7 +45,8 @@ install() {
 
 dev() {
     docker-compose -f docker-compose.dev.yml down --remove-orphans && docker network prune -f
-    docker-compose -f docker-compose.dev.yml up $ARGS
+    docker-compose -f docker-compose.dev.yml up -d $ARGS
+    npm run dev --prefix=./app/builder
 }
 
 up(){

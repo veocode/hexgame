@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './EmojiDisplay.css';
 
 export interface EmojisByPlayersDict {

@@ -2,24 +2,29 @@ version: "3.1"
 
 services:
 
-  app:
-    container_name: hex-app
-    build:
-      context: .
-      dockerfile: ./Dockerfile.dev
+  mongodb:
+    container_name: hex-mongo-dev
+    image: mongo:${MONGODB_VERSION}
+    user: "1000:1000"
     volumes:
-      - ./docker/certs:/opt/app/certs
-      - ./dist:/opt/app/dist
-      - ./app/server/src:/opt/app/server/src
-      - ./app/client/src:/opt/app/client/src
-      - ./app/client/public:/opt/app/client/public
+      - ./docker/conf/initmongo.js:/docker-entrypoint-initdb.d/initmongo.js
+      - ./storage/mongodb:/data/db
     ports:
-      - 3000:3000
-      - 3010:3010
+      - ${MONGODB_PORT}:27017
     environment:
-      SERVER_WS_PORT: ${SERVER_WS_PORT}
-      SERVER_WS_CERT_FILE: /opt/app/certs/server.crt
-      SERVER_WS_KEY_FILE: /opt/app/certs/server.key
-      SERVER_CORS_ORIGIN: localhost:3000
-    working_dir: /opt/app/builder
-    command: npm run dev
+      MONGO_INITDB_ROOT_USERNAME: ${MONGODB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGODB_DATABASE}
+
+  mongo-admin:
+    container_name: hexgame-mongo-admin
+    image: mongo-express
+    restart: always
+    ports:
+      - 8080:8081
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGODB_USERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGODB_PASSWORD}
+      ME_CONFIG_MONGODB_URL: mongodb://${MONGODB_ROOT_USERNAME}:${MONGODB_ROOT_PASSWORD}@mongodb:${MONGODB_PORT}
+    depends_on:
+      - mongodb
