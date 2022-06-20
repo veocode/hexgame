@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.GameMatch = void 0;
 const hexmap_1 = require("../shared/hexmap");
 const player_1 = require("../shared/player");
+const client_1 = require("./client");
+const utils_1 = require("./utils");
 const MaxPlayers = 2;
 const MaxTurnTimeSeconds = 30;
 const MaxMissedTurnsCount = 3;
@@ -13,13 +15,20 @@ const Delay = {
 class GameMatch {
     constructor(serializedMap) {
         this.players = {};
+        this.spectators = new client_1.ClientList();
         this.currentPlayerTag = player_1.PlayerTag.Player1;
         this.callbacks = {};
+        this.id = (0, utils_1.generateId)();
         this.map = new hexmap_1.HexMap();
         this.map.deserealize(serializedMap);
     }
     getMap() {
         return this.map;
+    }
+    hasBot() {
+        let hasBot = false;
+        this.forEachPlayer(player => { hasBot = hasBot || player && player.isBot(); });
+        return hasBot;
     }
     addPlayer(player) {
         const count = this.getPlayersCount();
@@ -39,11 +48,6 @@ class GameMatch {
             }
         }
         ;
-    }
-    hasBot() {
-        let hasBot = false;
-        this.forEachPlayer(player => { hasBot = hasBot || player.isBot(); });
-        return hasBot;
     }
     getPlayer(tag) {
         return this.players[tag];
@@ -67,6 +71,24 @@ class GameMatch {
     }
     hasActivePlayers() {
         return this.players[player_1.PlayerTag.Player1] !== null || this.players[player_1.PlayerTag.Player2] !== null;
+    }
+    addSpectator(spectator) {
+        this.spectators.add(spectator);
+    }
+    removeSpectator(spectators) {
+        this.spectators.remove(spectators);
+    }
+    getSpectators() {
+        return this.spectators;
+    }
+    getSpectatorsCount() {
+        return this.spectators.count();
+    }
+    hasSpectators() {
+        return this.getSpectatorsCount() > 0;
+    }
+    forEachSpectator(callback) {
+        this.spectators.forEach(spectator => callback(spectator));
     }
     start() {
         this.currentPlayerTag = this.getRandomPlayerTag();
@@ -118,6 +140,12 @@ class GameMatch {
             player.setOpponent(null);
             this.unbindPlayerEvents(player);
         });
+        this.spectators.send('game:match:over', {
+            winner: winnerTag,
+            isWithdraw,
+            isNoMoves,
+            scores
+        });
         this.currentPlayerTag = 0;
         if (this.callbacks.Over)
             this.callbacks.Over();
@@ -134,6 +162,10 @@ class GameMatch {
                 loserTag,
                 reasonType
             });
+        });
+        this.spectators.send('game:match:no-moves', {
+            loserTag,
+            reasonType
         });
         let emptyCellsCount = 0;
         this.map.getCells().forEach(cell => {
@@ -168,6 +200,9 @@ class GameMatch {
             return;
         }
         player.send('game:match:move-request');
+        this.spectators.send('game:match:move-request', {
+            player: player.getTag()
+        });
         player.getOpponent().send('game:match:move-pending');
         player.setTurnTimeout(() => this.onPlayerTurnTimeOut(player), MaxTurnTimeSeconds * 1000);
     }
@@ -205,6 +240,11 @@ class GameMatch {
             return;
         if (this.validateAndMakeMove(player, fromId, toId)) {
             (_a = player.getOpponent()) === null || _a === void 0 ? void 0 : _a.send('game:match:move-by-opponent', { fromId, toId });
+            this.spectators.send('game:match:move-done', {
+                player: player.getTag(),
+                fromId,
+                toId
+            });
             setTimeout(() => this.nextTurn(), Delay.betweenMoves);
         }
     }
@@ -213,6 +253,10 @@ class GameMatch {
         if (this.currentPlayerTag !== player.getTag())
             return;
         (_a = player.getOpponent()) === null || _a === void 0 ? void 0 : _a.send('game:match:move-cell-selected', { id: cellId });
+        this.spectators.send('game:match:move-cell-selected', {
+            player: player.getTag(),
+            id: cellId
+        });
     }
     onPlayerTurnTimeOut(player) {
         player.stopTurnTimeout();
@@ -230,6 +274,7 @@ class GameMatch {
     sendScoreToPlayers() {
         const scores = this.getPlayerScores();
         this.forEachPlayer(player => player === null || player === void 0 ? void 0 : player.send('game:match:scores', { scores }));
+        this.spectators.send('game:match:scores', { scores });
         return scores;
     }
     mapHasEmptyCells() {

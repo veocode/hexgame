@@ -5,6 +5,7 @@ import { BotClient } from "./botclient";
 import { PlayerTag } from "../shared/player";
 
 interface ServerMatchDescription {
+    id: string,
     player1: string,
     player2: string
 }
@@ -29,7 +30,7 @@ export class GameManager {
 
     private admins: ClientList = new ClientList;
     private clients: ClientList = new ClientList;
-    private matches: GameMatch[] = [];
+    private matches: { [key: string]: GameMatch } = {};
 
     addClient(client: Client) {
         this.clients.add(client);
@@ -109,13 +110,14 @@ export class GameManager {
     }
 
     addMatch(match: GameMatch) {
-        this.matches.push(match);
+        this.matches[match.id] = match;
         this.sendStatsToAdmins();
     }
 
     removeMatch(match: GameMatch) {
-        const index = this.matches.indexOf(match);
-        if (index >= 0) this.matches.splice(index);
+        if (match.id in this.matches) {
+            delete this.matches[match.id];
+        }
         this.sendStatsToAdmins();
     }
 
@@ -130,10 +132,11 @@ export class GameManager {
             players.push(client.getNicknameWithIcon());
         })
 
-        this.matches.forEach(match => {
+        Object.values(this.matches).forEach(match => {
             if (match.hasBot()) botCount++;
 
             matches.push({
+                id: match.id,
                 player1: match.getPlayer(PlayerTag.Player1)?.getNicknameWithIcon(),
                 player2: match.getPlayer(PlayerTag.Player2)?.getNicknameWithIcon(false)
             });

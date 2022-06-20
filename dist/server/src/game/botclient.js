@@ -4,6 +4,7 @@ exports.BotClient = void 0;
 const hexmap_1 = require("../shared/hexmap");
 const player_1 = require("../shared/player");
 const client_1 = require("./client");
+const utils_1 = require("./utils");
 const botNames = [
     'hexmaniac',
     'hexoholic',
@@ -41,20 +42,12 @@ class BotClient extends client_1.Client {
     getId() {
         if (this.botId)
             return this.botId;
-        return this.botId = this.generateId();
+        return this.botId = (0, utils_1.generateId)();
     }
     getNickname() {
         if (this.botNickname)
             return this.botNickname;
         return this.botNickname = this.shuffleArray(botNames)[0];
-    }
-    generateId(length = 6) {
-        let result = '';
-        let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        for (var i = 0; i < length; i++) {
-            result += characters.charAt(Math.floor(Math.random() * characters.length));
-        }
-        return result;
     }
     callback(eventName, data) {
         if (eventName in this.callbacks) {

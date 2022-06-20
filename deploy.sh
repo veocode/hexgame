@@ -44,8 +44,8 @@ install() {
 }
 
 dev() {
-    docker-compose -f docker-compose.dev.yml down --remove-orphans && docker network prune -f
-    docker-compose -f docker-compose.dev.yml up -d $ARGS
+    # docker-compose -f docker-compose.dev.yml down --remove-orphans && docker network prune -f
+    # docker-compose -f docker-compose.dev.yml up -d $ARGS
     npm run dev --prefix=./app/builder
 }
 

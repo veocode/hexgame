@@ -10,7 +10,7 @@ class GameManager {
     constructor() {
         this.admins = new client_1.ClientList;
         this.clients = new client_1.ClientList;
-        this.matches = [];
+        this.matches = {};
     }
     addClient(client) {
         this.clients.add(client);
@@ -78,13 +78,13 @@ class GameManager {
         this.addMatch(match);
     }
     addMatch(match) {
-        this.matches.push(match);
+        this.matches[match.id] = match;
         this.sendStatsToAdmins();
     }
     removeMatch(match) {
-        const index = this.matches.indexOf(match);
-        if (index >= 0)
-            this.matches.splice(index);
+        if (match.id in this.matches) {
+            delete this.matches[match.id];
+        }
         this.sendStatsToAdmins();
     }
     getStats() {
@@ -97,11 +97,12 @@ class GameManager {
                 return admins.push(client.getNicknameWithIcon());
             players.push(client.getNicknameWithIcon());
         });
-        this.matches.forEach(match => {
+        Object.values(this.matches).forEach(match => {
             var _a, _b;
             if (match.hasBot())
                 botCount++;
             matches.push({
+                id: match.id,
                 player1: (_a = match.getPlayer(player_1.PlayerTag.Player1)) === null || _a === void 0 ? void 0 : _a.getNicknameWithIcon(),
                 player2: (_b = match.getPlayer(player_1.PlayerTag.Player2)) === null || _b === void 0 ? void 0 : _b.getNicknameWithIcon(false)
             });

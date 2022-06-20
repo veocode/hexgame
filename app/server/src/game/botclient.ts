@@ -2,6 +2,7 @@ import { HexNeighborLevel } from "../shared/hexmap";
 import { HexMapCell } from "../shared/hexmapcell";
 import { PlayerHasNoMovesReasons } from "../shared/player";
 import { Client } from "./client";
+import { generateId } from "./utils";
 
 type SocketCallback = (...args: any[]) => void;
 type CallbackDict = { [eventName: string]: SocketCallback };
@@ -62,21 +63,12 @@ export class BotClient extends Client {
 
     getId(): string {
         if (this.botId) return this.botId;
-        return this.botId = this.generateId();
+        return this.botId = generateId();
     }
 
     getNickname(): string {
         if (this.botNickname) return this.botNickname;
         return this.botNickname = this.shuffleArray(botNames)[0];
-    }
-
-    private generateId(length: number = 6): string {
-        let result = '';
-        let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        for (var i = 0; i < length; i++) {
-            result += characters.charAt(Math.floor(Math.random() * characters.length));
-        }
-        return result;
     }
 
     private callback(eventName: string, data: any) {

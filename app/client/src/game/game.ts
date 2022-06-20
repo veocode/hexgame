@@ -2,6 +2,7 @@ import { io, Socket } from "socket.io-client";
 import { Player, PlayerTag } from '../shared/player';
 import { Match } from "./match";
 import { Sandbox } from "./sandbox";
+import { SpectateMatch } from "./spectate";
 
 const MaxNicknameLength = 12;
 
@@ -97,25 +98,37 @@ export class Game {
         });
 
         this.socket.on('game:match:start', ({ playerTag, map, scores, maxTurnTime }) => {
-            this.match = new Match(this, {
+            this.startMatch(new Match(this, {
                 map,
                 playerTag,
                 initialScores: scores,
                 maxTurnTime
-            });
+            }));
+        });
 
-            this.match.whenOver(() => {
-                this.setOver();
-                this.match?.unbindSocketEvents();
-                this.match = null;
-            });
-
-            this.setStarted();
-        })
+        this.socket.on('game:match:start-spectating', ({ map, scores, maxTurnTime }) => {
+            this.startMatch(new SpectateMatch(this, {
+                map,
+                initialScores: scores,
+                maxTurnTime
+            }));
+        });
 
         this.socket.on('game:stats', (stats: GameServerStats) => {
             if (this.callbacks.StatsUpdated) this.callbacks.StatsUpdated(stats);
         });
+    }
+
+    startMatch(match: Match) {
+        this.match = match;
+
+        this.match.whenOver(() => {
+            this.setOver();
+            this.match?.unbindSocketEvents();
+            this.match = null;
+        });
+
+        this.setStarted();
     }
 
     async connectAndStart(nickname: string) {
@@ -133,10 +146,6 @@ export class Game {
 
     async searchAndStart(nickname?: string) {
         setTimeout(() => this.setSearchingGame(), 600);
-    }
-
-    startSandbox() {
-        this.setSandbox();
     }
 
     createPlayer(): Player {
@@ -206,6 +215,10 @@ export class Game {
     setSandbox() {
         this.sandbox = new Sandbox(this);
         this.setState(GameState.Sandbox);
+    }
+
+    startSandbox() {
+        this.setSandbox();
     }
 
     isTutorial(): boolean {

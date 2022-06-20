@@ -34,6 +34,9 @@ class ClientList {
             callback(client);
         });
     }
+    send(eventName, ...args) {
+        this.forEach(client => client.send(eventName, ...args));
+    }
 }
 exports.ClientList = ClientList;
 var ClientState;

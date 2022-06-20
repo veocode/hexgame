@@ -47,6 +47,10 @@ export default class Timer {
         }
     }
 
+    reset() {
+        this.secondsElapsed = 0;
+    }
+
     formatElapsed(text: string) {
         return `${text} (${this.secondsElapsed})`;
     }

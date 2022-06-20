@@ -39,6 +39,10 @@ export class ClientList {
         })
     }
 
+    send(eventName, ...args: any[]) {
+        this.forEach(client => client.send(eventName, ...args));
+    }
+
 }
 
 export enum ClientState {

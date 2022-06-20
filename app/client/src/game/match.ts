@@ -72,21 +72,22 @@ export type MatchScoreList = {
 
 export class Match {
 
-    private map: HexMap;
-    private player: Player;
+    protected map: HexMap;
+    protected player: Player;
 
-    private emojis: EmojisByPlayersDict = { 1: null, 2: null };
-    private isEmojisLocked: boolean = false;
+    protected emojis: EmojisByPlayersDict = { 1: null, 2: null };
+    protected isEmojisLocked: boolean = false;
 
-    private state: MatchState = MatchState.OpponentMove;
-    private selectedCell: HexMapCell | null = null;
-    private scores: MatchScoreList | null = null;
-    private result: MatchResult | null = null;
+    protected state: MatchState = MatchState.OpponentMove;
+    protected isMoveDone: boolean = false;
+    protected selectedCell: HexMapCell | null = null;
+    protected scores: MatchScoreList | null = null;
+    protected result: MatchResult | null = null;
 
-    private maxTurnTime: number = 30;
-    private turnTimer: Timer = new Timer();
+    protected maxTurnTime: number = 30;
+    protected turnTimer: Timer = new Timer();
 
-    private callbacks: {
+    protected callbacks: {
         MapUpdated?: MapUpdatedCallback | null,
         StateMessageUpdated?: StateMessageUpdatedCallback | null,
         ScoreUpdated?: ScoreUpdatedCallback | null,
@@ -96,8 +97,8 @@ export class Match {
     } = {};
 
     constructor(
-        private game: Game,
-        private options: MatchOptions
+        protected game: Game,
+        protected options: MatchOptions
     ) {
         this.map = new HexMap();
         this.map.deserealize(options.map);
@@ -123,6 +124,10 @@ export class Match {
                 })
             });
 
+            this.map.resetHighlight();
+            this.redrawMap();
+
+            this.isMoveDone = false;
             this.setMyMove();
         })
 
@@ -272,6 +277,8 @@ export class Match {
 
     makeMove(fromId: number, toId: number, isOpponent: boolean = false): Promise<boolean> {
         return new Promise<boolean>(async resolve => {
+            if (this.isMyMove() && this.isMoveDone) return resolve(false);
+
             const srcCell = this.map.getCell(fromId);
             const dstCell = this.map.getCell(toId);
 
@@ -284,7 +291,10 @@ export class Match {
             const player = srcCell.getOccupiedBy();
             if (!player) return resolve(false);
 
-            if (!isOpponent) this.game.socket.emit('game:match:move-response', { fromId, toId });
+            if (!isOpponent) {
+                this.game.socket.emit('game:match:move-response', { fromId, toId });
+                this.isMoveDone = true;
+            }
 
             if (level === HexNeighborLevel.Near) {
                 await this.occupyCellByPlayer(dstCell.id, player);
@@ -480,7 +490,14 @@ export class Match {
     }
 
     playerSetEmoji(playerTag: PlayerTag, emoji: string) {
+        if (this.player.getTag() !== PlayerTag.Player1) {
+            playerTag = playerTag === PlayerTag.Player1
+                ? PlayerTag.Player2
+                : PlayerTag.Player1;
+        }
+
         if (this.emojis[playerTag] !== null) return;
+
         this.emojis[playerTag] = emoji;
         this.updateEmojis();
 
