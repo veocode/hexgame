@@ -4,7 +4,7 @@ import { Client, ClientList } from './client';
 import { generateId } from './utils';
 
 const MaxPlayers: number = 2;
-const MaxTurnTimeSeconds: number = 30000;
+const MaxTurnTimeSeconds: number = 30;
 const MaxMissedTurnsCount: number = 3;
 
 const Delay = {

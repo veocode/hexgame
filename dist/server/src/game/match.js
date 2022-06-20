@@ -6,7 +6,7 @@ const player_1 = require("../shared/player");
 const client_1 = require("./client");
 const utils_1 = require("./utils");
 const MaxPlayers = 2;
-const MaxTurnTimeSeconds = 30000;
+const MaxTurnTimeSeconds = 30;
 const MaxMissedTurnsCount = 3;
 const Delay = {
     noMovesFillPerCell: 200,
