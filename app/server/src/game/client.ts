@@ -86,6 +86,10 @@ export class Client extends Player {
         return false;
     }
 
+    isConnected(): boolean {
+        return this.socket.connected;
+    }
+
     getId(): string {
         return this.id;
     }
@@ -162,7 +166,7 @@ export class Client extends Player {
     }
 
     stopTurnTimeout() {
-        if (this.turnTimeout) clearTimeout(this.turnTimeout);
+        clearTimeout(this.turnTimeout);
         this.turnTimeout = null;
     }
 

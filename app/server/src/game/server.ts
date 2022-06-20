@@ -55,6 +55,8 @@ export class GameServer {
                 isAdmin: client.isAdmin()
             })
 
+            socket.on("error", () => socket.disconnect());
+
             socket.on("disconnect", () => {
                 this.gameManager.removeClient(client);
             });

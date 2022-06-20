@@ -23,12 +23,15 @@ class GameManager {
         if (client.isAdmin())
             this.admins.remove(client);
         if (this.clients.remove(client)) {
+            console.log('client remove');
             const activeMatch = client.getMatch();
             if (activeMatch) {
+                console.log('activeMatch found');
                 activeMatch.removePlayer(client);
                 if (client.getOpponent()) {
                     const remainingPlayer = activeMatch.getPlayer(client.getOpponent().getTag());
                     if (remainingPlayer === null || remainingPlayer === void 0 ? void 0 : remainingPlayer.isBot()) {
+                        console.log('activeMatch terminate');
                         activeMatch.terminate();
                     }
                 }

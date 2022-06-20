@@ -67,6 +67,9 @@ class Client extends player_1.Player {
     isBot() {
         return false;
     }
+    isConnected() {
+        return this.socket.connected;
+    }
     getId() {
         return this.id;
     }
@@ -126,8 +129,7 @@ class Client extends player_1.Player {
         this.turnTimeout = setTimeout(() => callback(), ms);
     }
     stopTurnTimeout() {
-        if (this.turnTimeout)
-            clearTimeout(this.turnTimeout);
+        clearTimeout(this.turnTimeout);
         this.turnTimeout = null;
     }
     resetMissedTurns() {

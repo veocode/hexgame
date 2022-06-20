@@ -260,7 +260,6 @@ export class GameMatch {
             return;
         }
 
-
         this.spectators.send('game:match:move-started', {
             player: player.getTag()
         })

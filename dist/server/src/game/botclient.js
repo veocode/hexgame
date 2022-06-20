@@ -65,16 +65,20 @@ class BotClient extends client_1.Client {
             this.respondWithMove();
         }
         if (eventName === 'game:match:start') {
-            this.sendEmoji('👋', 1000 + Math.random() * 500);
+            if (Math.random() > 0.75) {
+                this.sendEmoji('👋', 1000 + Math.random() * 500);
+            }
         }
         if (eventName === 'game:match:no-moves') {
-            const { loserTag, reasonType } = data;
-            if (reasonType !== player_1.PlayerHasNoMovesReasons.Left) {
-                if (loserTag === this.getTag()) {
-                    this.sendEmoji(this.shuffleArray(['👍', '☹️', '😡', '😭'])[0], 400);
-                }
-                else {
-                    this.sendEmoji(this.shuffleArray(['😎', '😀', '😛'])[0], 400);
+            if (Math.random() > 0.60) {
+                const { loserTag, reasonType } = data;
+                if (reasonType !== player_1.PlayerHasNoMovesReasons.Left) {
+                    if (loserTag === this.getTag()) {
+                        this.sendEmoji(this.shuffleArray(['👍', '☹️', '😡', '😭'])[0], 400);
+                    }
+                    else {
+                        this.sendEmoji(this.shuffleArray(['😎', '😀', '😛'])[0], 400);
+                    }
                 }
             }
         }
@@ -91,10 +95,11 @@ class BotClient extends client_1.Client {
         const moves = this.getPossibleMoves();
         if (moves.maxCapture) {
             if (moves.maxCaptureProfit >= 4) {
-                this.sendEmoji('😎', 1200);
+                if (Math.random() >= .70)
+                    this.sendEmoji('😎', 1200);
             }
             else if (moves.maxCaptureProfit >= 3) {
-                if (Math.random() >= .85)
+                if (Math.random() >= .90)
                     this.sendEmoji('😀', 1200);
             }
             return this.makeMove(moves.maxCapture);
