@@ -43,6 +43,10 @@ export class ClientList {
         this.forEach(client => client.send(eventName, ...args));
     }
 
+    disconnect() {
+        this.forEach(client => client.disconnect());
+    }
+
 }
 
 export enum ClientState {
@@ -66,6 +70,7 @@ export class Client extends Player {
     constructor(
         private readonly socket: Socket | null,
         public readonly nickname: string = '',
+        public readonly lang: string = '??',
         isAdministrator: boolean = false
     ) {
         super();

@@ -42,10 +42,11 @@ export class GameServer {
     bindSocketServerEvents() {
         this.socketServer.on('connection', socket => {
             let nickname = socket.handshake.auth.nickname;
+            let lang = socket.handshake.auth.lang ?? '??';
             const isAdmin = nickname === Config.admin.nickname;
 
             if (isAdmin) nickname = nickname.split('#')[0];
-            const client = new Client(socket, nickname, isAdmin);
+            const client = new Client(socket, nickname, lang, isAdmin);
 
             this.gameManager.addClient(client);
 

@@ -45,6 +45,9 @@ class GameManager {
                 return;
             this.sendStatsToAdmin(client);
         });
+        client.on('game:spectate-request', ({ matchId }) => {
+            this.spectateMatchByClient(client, matchId);
+        });
     }
     searchGameForClient(client) {
         client.setSearchingGame();
@@ -95,7 +98,10 @@ class GameManager {
         this.clients.forEach(client => {
             if (client.isAdmin())
                 return admins.push(client.getNicknameWithIcon());
-            players.push(client.getNicknameWithIcon());
+            players.push({
+                nickname: client.getNicknameWithIcon(),
+                lang: client.lang
+            });
         });
         Object.values(this.matches).forEach(match => {
             var _a, _b;
@@ -136,6 +142,12 @@ class GameManager {
     }
     getRandomMap() {
         return maps_1.Maps[Math.floor(Math.random() * maps_1.Maps.length)];
+    }
+    spectateMatchByClient(client, matchId) {
+        if (!(matchId in this.matches))
+            return;
+        const match = this.matches[matchId];
+        match.addSpectator(client);
     }
 }
 exports.GameManager = GameManager;

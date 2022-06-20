@@ -4,7 +4,7 @@ import { Client, ClientList } from './client';
 import { generateId } from './utils';
 
 const MaxPlayers: number = 2;
-const MaxTurnTimeSeconds: number = 30;
+const MaxTurnTimeSeconds: number = 30000;
 const MaxMissedTurnsCount: number = 3;
 
 const Delay = {
@@ -104,6 +104,13 @@ export class GameMatch {
 
     addSpectator(spectator: Client) {
         this.spectators.add(spectator);
+
+        spectator.send('game:match:start-spectating', {
+            map: this.map.serialize(),
+            scores: this.getPlayerScores(),
+            currentPlayer: this.currentPlayerTag,
+            maxTurnTime: MaxTurnTimeSeconds
+        });
     }
 
     removeSpectator(spectators: Client) {
@@ -150,6 +157,8 @@ export class GameMatch {
             player.setOpponent(null);
         });
 
+        this.spectators.disconnect();
+
         this.currentPlayerTag = 0;
         if (this.callbacks.Over) this.callbacks.Over();
     }
@@ -171,6 +180,7 @@ export class GameMatch {
             if (!player) return;
 
             const matchResult = {
+                winner: winnerTag,
                 isWinner: !isWithdraw && winnerTag === player.getTag(),
                 isWithdraw,
                 isNoMoves,
@@ -250,11 +260,12 @@ export class GameMatch {
             return;
         }
 
-        player.send('game:match:move-request');
-        this.spectators.send('game:match:move-request', {
+
+        this.spectators.send('game:match:move-started', {
             player: player.getTag()
         })
 
+        player.send('game:match:move-request');
         player.getOpponent().send('game:match:move-pending');
 
         player.setTurnTimeout(() => this.onPlayerTurnTimeOut(player), MaxTurnTimeSeconds * 1000);
@@ -327,6 +338,7 @@ export class GameMatch {
 
     onPlayerEmoji(player: Client, emoji: string) {
         player.getOpponent()?.send('game:match:emoji', { emoji });
+        this.spectators.send('game:match:emoji', { player: player.getTag(), emoji });
     }
 
     sendScoreToPlayers(): MatchScoreList {

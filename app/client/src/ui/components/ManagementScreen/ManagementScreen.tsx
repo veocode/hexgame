@@ -18,9 +18,9 @@ export const ManagementScreen: React.FC<ManagementScreenProps> = ({ game }) => {
     const matches: JSX.Element[] = [];
 
     if (stats?.players.count) {
-        stats.players.list.forEach((playerName, index) => {
+        stats.players.list.forEach((player, index) => {
             players.push(
-                <span key={index} className='player-name'>{playerName}</span>
+                <span key={index} className='player-name'>{player.nickname} ({player.lang})</span>
             )
         })
     }
@@ -32,6 +32,7 @@ export const ManagementScreen: React.FC<ManagementScreenProps> = ({ game }) => {
                     <span className='player player-1'>{matchDescription.player1}</span>
                     <span className='vs'>vs</span>
                     <span className='player player-2'>{matchDescription.player2}</span>
+                    <button onClick={() => game.startSpectating(matchDescription.id)}>👁</button>
                 </div>
             )
         })

@@ -108,9 +108,9 @@ export class BotClient extends Client {
 
     private sendEmoji(emoji: string, delay: number = 0) {
         if (delay) {
-            setTimeout(() => this.getOpponent()?.send('game:match:emoji', { emoji }), delay);
+            setTimeout(() => this.callback('game:match:emoji', { emoji }), delay);
         } else {
-            this.getOpponent()?.send('game:match:emoji', { emoji });
+            this.callback('game:match:emoji', { emoji });
         }
     }
 

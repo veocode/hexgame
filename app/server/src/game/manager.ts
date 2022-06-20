@@ -4,6 +4,11 @@ import { Maps } from "./maps";
 import { BotClient } from "./botclient";
 import { PlayerTag } from "../shared/player";
 
+interface ServerPlayerDescription {
+    nickname: string,
+    lang: string
+}
+
 interface ServerMatchDescription {
     id: string,
     player1: string,
@@ -14,7 +19,7 @@ interface ServerStats {
     bots: number,
     players: {
         count: number,
-        list: string[]
+        list: ServerPlayerDescription[]
     },
     admins: {
         count: number,
@@ -68,6 +73,10 @@ export class GameManager {
             if (!client.isAdmin()) return;
             this.sendStatsToAdmin(client);
         })
+
+        client.on('game:spectate-request', ({ matchId }) => {
+            this.spectateMatchByClient(client, matchId);
+        });
     }
 
     searchGameForClient(client: Client) {
@@ -124,12 +133,15 @@ export class GameManager {
     getStats(): ServerStats {
         let botCount = 0;
         let admins: string[] = [];
-        let players: string[] = [];
+        let players: ServerPlayerDescription[] = [];
         let matches: ServerMatchDescription[] = [];
 
         this.clients.forEach(client => {
             if (client.isAdmin()) return admins.push(client.getNicknameWithIcon());
-            players.push(client.getNicknameWithIcon());
+            players.push({
+                nickname: client.getNicknameWithIcon(),
+                lang: client.lang
+            });
         })
 
         Object.values(this.matches).forEach(match => {
@@ -173,5 +185,11 @@ export class GameManager {
 
     private getRandomMap(): number[] {
         return Maps[Math.floor(Math.random() * Maps.length)];
+    }
+
+    spectateMatchByClient(client: Client, matchId: string) {
+        if (!(matchId in this.matches)) return;
+        const match = this.matches[matchId];
+        match.addSpectator(client);
     }
 }

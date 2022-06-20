@@ -34,11 +34,13 @@ class GameServer {
     }
     bindSocketServerEvents() {
         this.socketServer.on('connection', socket => {
+            var _a;
             let nickname = socket.handshake.auth.nickname;
+            let lang = (_a = socket.handshake.auth.lang) !== null && _a !== void 0 ? _a : '??';
             const isAdmin = nickname === config_1.Config.admin.nickname;
             if (isAdmin)
                 nickname = nickname.split('#')[0];
-            const client = new client_1.Client(socket, nickname, isAdmin);
+            const client = new client_1.Client(socket, nickname, lang, isAdmin);
             this.gameManager.addClient(client);
             socket.emit('game:connected', {
                 clientId: client.id,

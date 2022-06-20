@@ -110,3 +110,10 @@
 .management-screen .matches-list .match .player-2 {
     text-align: right;
 }
+
+.management-screen .matches-list .match button {
+    padding: 1px 15px;
+    margin-left: 15px;
+
+
+}

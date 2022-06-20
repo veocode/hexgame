@@ -80,12 +80,11 @@ class BotClient extends client_1.Client {
         }
     }
     sendEmoji(emoji, delay = 0) {
-        var _a;
         if (delay) {
-            setTimeout(() => { var _a; return (_a = this.getOpponent()) === null || _a === void 0 ? void 0 : _a.send('game:match:emoji', { emoji }); }, delay);
+            setTimeout(() => this.callback('game:match:emoji', { emoji }), delay);
         }
         else {
-            (_a = this.getOpponent()) === null || _a === void 0 ? void 0 : _a.send('game:match:emoji', { emoji });
+            this.callback('game:match:emoji', { emoji });
         }
     }
     respondWithMove() {

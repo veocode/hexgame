@@ -34,12 +34,13 @@ export const GameScreen: React.FC<GameScreenProps> = ({ match }) => {
         <div className='result-wrap'>
             <div className='result-box'>
                 <div className='message'>
-                    {matchResult.isWithdraw
-                        ? texts.MatchWithdraw
-                        : (matchResult.isWinner ? texts.MatchWon : texts.MatchLost)}
+                    {matchResult.message}
                 </div>
                 <div className='button'>
-                    <button onClick={() => match.getGame().searchAndStart()}>{texts.PlayAgain}</button>
+                    {match.isSpectating()
+                        ? <button onClick={() => match.getGame().setLoggedOut()}>{texts.Quit}</button>
+                        : <button onClick={() => match.getGame().searchAndStart()}>{texts.PlayAgain}</button>
+                    }
                 </div>
             </div>
         </div>
@@ -54,7 +55,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ match }) => {
             <div className='game-field'>
                 <div className='state-message'>
                     <div className='message'>
-                        {stateMessage.text || '...'}
+                        {stateMessage.text || match.getInitialStateMessage()}
                     </div>
                 </div>
                 <HexField
@@ -64,7 +65,10 @@ export const GameScreen: React.FC<GameScreenProps> = ({ match }) => {
                     onCellClick={id => match.onCellClick(id)}
                     playerColors={match.getPlayerColors()}
                 />
-                {!isEmojisLocked ? <EmojiSelector onSelected={emoji => match.sendEmoji(emoji)} /> : ''}
+                {(!isEmojisLocked && !match.isSpectating()) ? <EmojiSelector onSelected={emoji => match.sendEmoji(emoji)} /> : ''}
+                {match.isSpectating()
+                    ? <div className='spectator-panel'><span>Spectator Mode</span><button onClick={() => match.getGame().setLoggedOut()}>Quit</button></div>
+                    : ''}
                 {resultBox}
             </div>
         </div>

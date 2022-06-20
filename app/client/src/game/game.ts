@@ -1,5 +1,6 @@
 import { io, Socket } from "socket.io-client";
 import { Player, PlayerTag } from '../shared/player';
+import { getUserLang } from "./locales";
 import { Match } from "./match";
 import { Sandbox } from "./sandbox";
 import { SpectateMatch } from "./spectate";
@@ -17,7 +18,13 @@ export enum GameState {
     Management
 }
 
+export interface GameServerPlayerDescription {
+    nickname: string,
+    lang: string,
+}
+
 export interface GameServerMatchDescription {
+    id: string,
     player1: string,
     player2: string
 }
@@ -26,7 +33,7 @@ export interface GameServerStats {
     bots: number,
     players: {
         count: number,
-        list: string[]
+        list: GameServerPlayerDescription[]
     },
     admins: {
         count: number,
@@ -77,7 +84,7 @@ export class Game {
     connect(nickname: string): Promise<void> {
         return new Promise<void>(resolve => {
             this.setConnecting();
-            this.socket.auth = { nickname };
+            this.socket.auth = { nickname, lang: getUserLang() };
             this.socket.connect();
 
             this.socket.once('game:connected', ({ isAdmin }) => {
@@ -106,9 +113,10 @@ export class Game {
             }));
         });
 
-        this.socket.on('game:match:start-spectating', ({ map, scores, maxTurnTime }) => {
+        this.socket.on('game:match:start-spectating', ({ currentPlayer, map, scores, maxTurnTime }) => {
             this.startMatch(new SpectateMatch(this, {
                 map,
+                currentPlayer,
                 initialScores: scores,
                 maxTurnTime
             }));
@@ -146,6 +154,10 @@ export class Game {
 
     async searchAndStart(nickname?: string) {
         setTimeout(() => this.setSearchingGame(), 600);
+    }
+
+    startSpectating(matchId: string) {
+        this.socket.emit('game:spectate-request', { matchId });
     }
 
     createPlayer(): Player {

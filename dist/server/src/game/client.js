@@ -37,6 +37,9 @@ class ClientList {
     send(eventName, ...args) {
         this.forEach(client => client.send(eventName, ...args));
     }
+    disconnect() {
+        this.forEach(client => client.disconnect());
+    }
 }
 exports.ClientList = ClientList;
 var ClientState;
@@ -46,10 +49,11 @@ var ClientState;
     ClientState[ClientState["InGame"] = 2] = "InGame";
 })(ClientState = exports.ClientState || (exports.ClientState = {}));
 class Client extends player_1.Player {
-    constructor(socket, nickname = '', isAdministrator = false) {
+    constructor(socket, nickname = '', lang = '??', isAdministrator = false) {
         super();
         this.socket = socket;
         this.nickname = nickname;
+        this.lang = lang;
         this.state = ClientState.Idle;
         this.missedTurnsCount = 0;
         this.id = socket

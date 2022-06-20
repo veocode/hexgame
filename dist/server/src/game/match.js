@@ -6,7 +6,7 @@ const player_1 = require("../shared/player");
 const client_1 = require("./client");
 const utils_1 = require("./utils");
 const MaxPlayers = 2;
-const MaxTurnTimeSeconds = 30;
+const MaxTurnTimeSeconds = 30000;
 const MaxMissedTurnsCount = 3;
 const Delay = {
     noMovesFillPerCell: 200,
@@ -74,6 +74,12 @@ class GameMatch {
     }
     addSpectator(spectator) {
         this.spectators.add(spectator);
+        spectator.send('game:match:start-spectating', {
+            map: this.map.serialize(),
+            scores: this.getPlayerScores(),
+            currentPlayer: this.currentPlayerTag,
+            maxTurnTime: MaxTurnTimeSeconds
+        });
     }
     removeSpectator(spectators) {
         this.spectators.remove(spectators);
@@ -111,6 +117,7 @@ class GameMatch {
             player.setIdle();
             player.setOpponent(null);
         });
+        this.spectators.disconnect();
         this.currentPlayerTag = 0;
         if (this.callbacks.Over)
             this.callbacks.Over();
@@ -130,6 +137,7 @@ class GameMatch {
             if (!player)
                 return;
             const matchResult = {
+                winner: winnerTag,
                 isWinner: !isWithdraw && winnerTag === player.getTag(),
                 isWithdraw,
                 isNoMoves,
@@ -199,10 +207,10 @@ class GameMatch {
             this.finishWithNoMoves(player_1.PlayerHasNoMovesReasons.Left);
             return;
         }
-        player.send('game:match:move-request');
-        this.spectators.send('game:match:move-request', {
+        this.spectators.send('game:match:move-started', {
             player: player.getTag()
         });
+        player.send('game:match:move-request');
         player.getOpponent().send('game:match:move-pending');
         player.setTurnTimeout(() => this.onPlayerTurnTimeOut(player), MaxTurnTimeSeconds * 1000);
     }
@@ -270,6 +278,7 @@ class GameMatch {
     onPlayerEmoji(player, emoji) {
         var _a;
         (_a = player.getOpponent()) === null || _a === void 0 ? void 0 : _a.send('game:match:emoji', { emoji });
+        this.spectators.send('game:match:emoji', { player: player.getTag(), emoji });
     }
     sendScoreToPlayers() {
         const scores = this.getPlayerScores();

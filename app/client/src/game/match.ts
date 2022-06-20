@@ -6,8 +6,9 @@ import Timer from "./timer";
 import { Game } from "./game";
 import { EmojisByPlayersDict } from "../ui/components/GameScreen/EmojiDisplay/EmojiDisplay";
 
-const cellAnimationTime: number = 400;
-const emojiLifeTime = 2000;
+export const cellAnimationTime: number = 400;
+export const emojiLifeTime = 2000;
+
 const texts = getLocaleTexts();
 
 enum MatchState {
@@ -45,10 +46,15 @@ export type MatchServerScoreDict = {
     }
 };
 
-export interface MatchResult {
+export interface ServerMatchResult {
     isWinner: boolean,
     isWithdraw: boolean,
     isNoMoves: boolean,
+    scores: MatchServerScoreDict
+}
+
+export interface MatchResult {
+    message: string,
     scores: MatchServerScoreDict
 }
 
@@ -114,6 +120,14 @@ export class Match {
 
     getGame(): Game {
         return this.game;
+    }
+
+    isSpectating(): boolean {
+        return false;
+    }
+
+    getInitialStateMessage() {
+        return '...';
     }
 
     bindSocketEvents() {
@@ -193,10 +207,12 @@ export class Match {
         this.game.socket.on('game:match:over', ({ isWinner, isWithdraw, isNoMoves, scores }) => {
             this.turnTimer.stop();
 
-            this.setOver({
-                isWinner,
-                isWithdraw,
-                isNoMoves,
+            const message = isWithdraw
+                ? texts.MatchWithdraw
+                : (isWinner ? texts.MatchWon : texts.MatchLost);
+
+            this.setOver(isNoMoves, {
+                message,
                 scores
             });
         })
@@ -235,6 +251,7 @@ export class Match {
     }
 
     async onCellClick(id: number) {
+        if (this.isSpectating()) return;
 
         const cell = this.map.getCell(id);
 
@@ -255,7 +272,9 @@ export class Match {
 
         if (cell.isEmpty() && this.selectedCell) {
             this.map.resetHighlight();
-            await this.makeMove(this.selectedCell.id, cell.id);
+            if (this.isMyMove() && !this.isMoveDone) {
+                await this.makeMove(this.selectedCell.id, cell.id);
+            }
             this.selectedCell = null;
         }
 
@@ -277,8 +296,6 @@ export class Match {
 
     makeMove(fromId: number, toId: number, isOpponent: boolean = false): Promise<boolean> {
         return new Promise<boolean>(async resolve => {
-            if (this.isMyMove() && this.isMoveDone) return resolve(false);
-
             const srcCell = this.map.getCell(fromId);
             const dstCell = this.map.getCell(toId);
 
@@ -430,9 +447,9 @@ export class Match {
         })
     }
 
-    setOver(result: MatchResult) {
+    setOver(isNoMoves: boolean, result: MatchResult) {
         this.state = MatchState.Over;
-        if (!result.isNoMoves) {
+        if (!isNoMoves) {
             this.updateStateMessage({
                 text: texts.MatchOver,
             });

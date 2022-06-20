@@ -17,7 +17,7 @@
 
 .game-screen .emoji-selector {
     position: absolute;
-    bottom: 12%;
+    bottom: 9%;
 }
 
 @media (orientation: landscape) {
@@ -87,4 +87,19 @@
     color: #FFF;
     font-weight: lighter;
     margin-bottom: 20px;
+}
+
+.game-screen .spectator-panel {
+    position: absolute;
+    bottom: 10%;
+    color: #FFF;
+}
+
+.game-screen .spectator-panel span {
+    padding-right: 10px;
+    color: #a4aeb9;
+}
+
+.game-screen .spectator-panel button {
+    padding: 5px 25px;
 }

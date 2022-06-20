@@ -36,8 +36,10 @@ export default class Timer {
         this.stop();
         this.maxSeconds = maxSeconds;
         this.secondsElapsed = 0;
-        if (this.maxSeconds) this.scheduleTick();
         if (tickCallback) this.onTick(tickCallback);
+        if (this.maxSeconds) {
+            this.scheduleTick();
+        }
     }
 
     stop() {
