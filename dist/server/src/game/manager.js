@@ -5,6 +5,7 @@ const client_1 = require("./client");
 const match_1 = require("./match");
 const maps_1 = require("./maps");
 const botclient_1 = require("./botclient");
+const player_1 = require("../shared/player");
 class GameManager {
     constructor() {
         this.admins = new client_1.ClientList;
@@ -87,15 +88,38 @@ class GameManager {
         this.sendStatsToAdmins();
     }
     getStats() {
-        let adminCount = this.admins.count();
-        let playerCount = this.clients.count() - adminCount;
         let botCount = 0;
-        this.matches.forEach(match => match.hasBot() && botCount++);
+        let admins = [];
+        let players = [];
+        let matches = [];
+        this.clients.forEach(client => {
+            if (client.isAdmin())
+                return admins.push(client.getNicknameWithIcon());
+            players.push(client.getNicknameWithIcon());
+        });
+        this.matches.forEach(match => {
+            var _a, _b;
+            if (match.hasBot())
+                botCount++;
+            matches.push({
+                player1: (_a = match.getPlayer(player_1.PlayerTag.Player1)) === null || _a === void 0 ? void 0 : _a.getNicknameWithIcon(),
+                player2: (_b = match.getPlayer(player_1.PlayerTag.Player2)) === null || _b === void 0 ? void 0 : _b.getNicknameWithIcon(false)
+            });
+        });
         return {
-            players: playerCount,
+            players: {
+                count: players.length,
+                list: players
+            },
             bots: botCount,
-            admins: adminCount,
-            matches: this.matches.length
+            admins: {
+                count: admins.length,
+                list: admins
+            },
+            matches: {
+                count: matches.length,
+                list: matches
+            }
         };
     }
     sendStatsToAdmins() {

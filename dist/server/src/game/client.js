@@ -66,6 +66,10 @@ class Client extends player_1.Player {
     getNickname() {
         return this.nickname;
     }
+    getNicknameWithIcon(isPrepend = true) {
+        const icon = this.isBot() ? '🤖' : '👤';
+        return isPrepend ? `${icon} ${this.nickname}` : `${this.nickname} ${icon}`;
+    }
     getOpponent() {
         return this.opponent;
     }

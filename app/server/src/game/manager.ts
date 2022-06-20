@@ -2,12 +2,27 @@ import { Client, ClientList } from "./client";
 import { GameMatch } from "./match";
 import { Maps } from "./maps";
 import { BotClient } from "./botclient";
+import { PlayerTag } from "../shared/player";
+
+interface ServerMatchDescription {
+    player1: string,
+    player2: string
+}
 
 interface ServerStats {
-    players: number,
     bots: number,
-    admins: number,
-    matches: number
+    players: {
+        count: number,
+        list: string[]
+    },
+    admins: {
+        count: number,
+        list: string[]
+    },
+    matches: {
+        count: number,
+        list: ServerMatchDescription[]
+    }
 }
 
 export class GameManager {
@@ -105,17 +120,39 @@ export class GameManager {
     }
 
     getStats(): ServerStats {
-        let adminCount = this.admins.count();
-        let playerCount = this.clients.count() - adminCount;
-
         let botCount = 0;
-        this.matches.forEach(match => match.hasBot() && botCount++);
+        let admins: string[] = [];
+        let players: string[] = [];
+        let matches: ServerMatchDescription[] = [];
+
+        this.clients.forEach(client => {
+            if (client.isAdmin()) return admins.push(client.getNicknameWithIcon());
+            players.push(client.getNicknameWithIcon());
+        })
+
+        this.matches.forEach(match => {
+            if (match.hasBot()) botCount++;
+
+            matches.push({
+                player1: match.getPlayer(PlayerTag.Player1)?.getNicknameWithIcon(),
+                player2: match.getPlayer(PlayerTag.Player2)?.getNicknameWithIcon(false)
+            });
+        });
 
         return {
-            players: playerCount,
+            players: {
+                count: players.length,
+                list: players
+            },
             bots: botCount,
-            admins: adminCount,
-            matches: this.matches.length
+            admins: {
+                count: admins.length,
+                list: admins
+            },
+            matches: {
+                count: matches.length,
+                list: matches
+            }
         };
     }
 

@@ -85,6 +85,11 @@ export class Client extends Player {
         return this.nickname;
     }
 
+    getNicknameWithIcon(isPrepend: boolean = true): string {
+        const icon = this.isBot() ? '🤖' : '👤';
+        return isPrepend ? `${icon} ${this.nickname}` : `${this.nickname} ${icon}`;
+    }
+
     getOpponent(): Client | null {
         return this.opponent;
     }

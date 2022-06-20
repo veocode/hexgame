@@ -4,7 +4,7 @@ exports.GameMatch = void 0;
 const hexmap_1 = require("../shared/hexmap");
 const player_1 = require("../shared/player");
 const MaxPlayers = 2;
-const MaxTurnTimeSeconds = 30;
+const MaxTurnTimeSeconds = 300000;
 const MaxMissedTurnsCount = 3;
 const Delay = {
     noMovesFillPerCell: 200,

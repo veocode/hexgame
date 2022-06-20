@@ -3,6 +3,8 @@ import { Player, PlayerTag } from '../shared/player';
 import { Match } from "./match";
 import { Sandbox } from "./sandbox";
 
+const MaxNicknameLength = 12;
+
 export enum GameState {
     LoggedOut = 0,
     Connecting,
@@ -14,11 +16,25 @@ export enum GameState {
     Management
 }
 
+export interface GameServerMatchDescription {
+    player1: string,
+    player2: string
+}
+
 export interface GameServerStats {
-    players: number,
     bots: number,
-    admins: number,
-    matches: number
+    players: {
+        count: number,
+        list: string[]
+    },
+    admins: {
+        count: number,
+        list: string[]
+    },
+    matches: {
+        count: number,
+        list: GameServerMatchDescription[]
+    }
 }
 
 type StateUpdatedCallback = (state: GameState) => void;
@@ -103,6 +119,7 @@ export class Game {
     }
 
     async connectAndStart(nickname: string) {
+        nickname = nickname.substring(0, MaxNicknameLength);
         await this.connect(nickname);
 
         setTimeout(() => {

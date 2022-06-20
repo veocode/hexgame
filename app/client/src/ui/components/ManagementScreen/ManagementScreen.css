@@ -17,6 +17,8 @@
 }
 
 .management-screen section {
+    color: #a4aeb9;
+    font-weight: lighter;
     border: solid 1px #555b61;
     border-radius: 10px;
     padding: 20px;
@@ -69,4 +71,42 @@
     width: 30%;
     padding-left: 5px;
     font-weight: bold;
+}
+
+.management-screen .players-list {
+    text-align: left;
+}
+
+.management-screen .players-list .player-name {
+    margin-right: 10px;
+    margin-bottom: 5px;
+    word-break: keep-all;
+    display: inline-block;
+    font-size: 15px;
+}
+
+.management-screen .matches-list .match {
+    width: 100%;
+    display: flex;
+    border-bottom: dashed 1px #555b61;
+    padding: 10px 0;
+}
+
+.management-screen .matches-list .match:last-child {
+    border: none;
+}
+
+.management-screen .matches-list .match .vs {
+    padding: 0 10px;
+}
+
+.management-screen .matches-list .match .player {
+    width: 50%;
+    flex-grow: 1;
+    color: #FFF;
+    text-align: left;
+}
+
+.management-screen .matches-list .match .player-2 {
+    text-align: right;
 }
