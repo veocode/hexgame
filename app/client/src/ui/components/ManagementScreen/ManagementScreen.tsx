@@ -30,7 +30,7 @@ export const ManagementScreen: React.FC<ManagementScreenProps> = ({ game }) => {
             matches.push(
                 <div key={index} className='match'>
                     <span className='player player-1'>{matchDescription.player1}</span>
-                    <span className='vs'>vs</span>
+                    <span className='vs'>/</span>
                     <span className='player player-2'>{matchDescription.player2}</span>
                     <button onClick={() => game.startSpectating(matchDescription.id)}>👁</button>
                 </div>

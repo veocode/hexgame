@@ -97,7 +97,7 @@
 }
 
 .management-screen .matches-list .match .vs {
-    padding: 0 10px;
+    padding: 0 4px;
 }
 
 .management-screen .matches-list .match .player {
@@ -105,6 +105,12 @@
     flex-grow: 1;
     color: #FFF;
     text-align: left;
+    font-size: 15px;
+}
+
+.management-screen .matches-list .match .vs,
+.management-screen .matches-list .match .player {
+    line-height: 30px;
 }
 
 .management-screen .matches-list .match .player-2 {
@@ -114,6 +120,5 @@
 .management-screen .matches-list .match button {
     padding: 1px 15px;
     margin-left: 15px;
-
-
+    height: 30px;
 }
