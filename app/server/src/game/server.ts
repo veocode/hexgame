@@ -5,6 +5,7 @@ import { Config } from '../config';
 import { GameManager } from '../game/manager';
 import { Client } from '../game/client';
 import { readFileSync } from 'fs';
+import { PlayerInfo } from '../shared/player';
 
 export class GameServer {
 
@@ -41,26 +42,29 @@ export class GameServer {
 
     bindSocketServerEvents() {
         this.socketServer.on('connection', socket => {
-            let nickname = socket.handshake.auth.nickname;
-            let lang = socket.handshake.auth.lang ?? '??';
-            const isAdmin = nickname === Config.admin.nickname;
+            let isAdmin = false;
+            const info: PlayerInfo = socket.handshake.auth.info;
+            const lang = socket.handshake.auth.lang ?? '??';
 
-            if (isAdmin) nickname = nickname.split('#')[0];
-            const client = new Client(socket, nickname, lang, isAdmin);
+            [isAdmin, info.nickname] = this.detectAdminByNickname(info.nickname);
+            const client = new Client(socket, info, lang, isAdmin);
 
             this.gameManager.addClient(client);
+
+            socket.on("error", () => socket.disconnect());
+            socket.on("disconnect", () => this.gameManager.removeClient(client));
 
             socket.emit('game:connected', {
                 clientId: client.id,
                 isAdmin: client.isAdmin()
             })
-
-            socket.on("error", () => socket.disconnect());
-
-            socket.on("disconnect", () => {
-                this.gameManager.removeClient(client);
-            });
         });
+    }
+
+    detectAdminByNickname(nickname: string): [boolean, string] {
+        const isAdmin = nickname === Config.admin.nickname;
+        const editedNickname = isAdmin ? nickname.split('#')[0] : nickname;
+        return [isAdmin, editedNickname];
     }
 
 }

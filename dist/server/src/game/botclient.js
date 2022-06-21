@@ -21,17 +21,16 @@ const botNames = [
     'hexomorfin',
     'hexotoxin',
     'hexonaut',
-    'hexlady',
-    'hexchick',
     'hexhomie',
     'hexist',
     'hexoid',
     'hexxeh',
-    'hexatoxx',
 ];
 class BotClient extends client_1.Client {
     constructor() {
-        super(...arguments);
+        super(null, {
+            nickname: botNames[Math.floor(Math.random() * botNames.length)]
+        });
         this.botId = '';
         this.botNickname = '';
         this.callbacks = {};

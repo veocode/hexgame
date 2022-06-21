@@ -47,7 +47,7 @@
 .login-screen .login-form .inputs {
     display: flex;
     flex-direction: column;
-    max-width: 220px;
+    max-width: 260px;
 }
 
 .login-screen .login-form .inputs input {
@@ -79,6 +79,7 @@
     opacity: .65;
     width: 100%;
     font-size: 14px;
+    z-index: 2;
 }
 
 .footer a {

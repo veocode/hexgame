@@ -11,10 +11,22 @@ export enum PlayerTag {
 
 export type PlayerColorsList = { [key: number]: string }
 
+export type PlayerInfo = {
+    nickname: string,
+    avatarUrl?: string,
+    externalId?: string
+}
+
 export class Player {
 
-    private tag: number = 0;
-    private isAdministrator: boolean = false;
+    protected tag: number = 0;
+    protected isAdministrator: boolean = false;
+
+    constructor(public info: PlayerInfo) { }
+
+    isGuest(): boolean {
+        return !this.info.externalId;
+    }
 
     isAdmin(): boolean {
         return this.isAdministrator;
@@ -36,6 +48,14 @@ export class Player {
         return this.getTag() === PlayerTag.Player1
             ? PlayerTag.Player2
             : PlayerTag.Player1;
+    }
+
+    setInfo(info: PlayerInfo) {
+        this.info = info;
+    }
+
+    getInfo(): PlayerInfo {
+        return this.info;
     }
 
 }

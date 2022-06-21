@@ -1,14 +1,14 @@
 import { io, Socket } from "socket.io-client";
-import { Player, PlayerTag } from '../shared/player';
+import { Player, PlayerInfo, PlayerTag } from '../shared/player';
 import { getUserLang } from "./locales";
 import { Match } from "./match";
 import { Sandbox } from "./sandbox";
 import { SpectateMatch } from "./spectate";
 
-const MaxNicknameLength = 12;
 
 export enum GameState {
-    LoggedOut = 0,
+    Loading,
+    LoggedOut,
     Connecting,
     SearchingGame,
     Started,
@@ -52,9 +52,9 @@ export class Game {
 
     public readonly socket: Socket;
 
-    private state: GameState = GameState.LoggedOut;
+    private state: GameState = GameState.Loading;
 
-    private player: Player;
+    protected player: Player;
     private match: Match | null = null;
     private sandbox: Sandbox | null = null;
 
@@ -73,18 +73,30 @@ export class Game {
         });
 
         this.bindSocketEvents();
+        this.player = this.createGuestPlayer();
+    }
 
-        this.player = this.createPlayer();
+    createGuestPlayer(): Player {
+        const getRandomNickname = () => {
+            const randomId = (Math.floor(Math.random() * 90000) + 11111);
+            return `guest-${randomId}`;
+        }
+        return this.createPlayer({
+            nickname: localStorage.getItem('hexgame:nickname') || getRandomNickname()
+        });
     }
 
     getMatch(): Match | null {
         return this.match;
     }
 
-    connect(nickname: string): Promise<void> {
+    connect(): Promise<void> {
         return new Promise<void>(resolve => {
             this.setConnecting();
-            this.socket.auth = { nickname, lang: getUserLang() };
+            this.socket.auth = {
+                info: this.player.getInfo(),
+                lang: getUserLang()
+            };
             this.socket.connect();
 
             this.socket.once('game:connected', ({ isAdmin }) => {
@@ -139,9 +151,8 @@ export class Game {
         this.setStarted();
     }
 
-    async connectAndStart(nickname: string) {
-        nickname = nickname.substring(0, MaxNicknameLength);
-        await this.connect(nickname);
+    async connectAndStart() {
+        await this.connect();
 
         setTimeout(() => {
             if (this.player.isAdmin()) {
@@ -160,10 +171,10 @@ export class Game {
         this.socket.emit('game:spectate-request', { matchId });
     }
 
-    createPlayer(): Player {
-        const player = new Player();
-        player.setTag(PlayerTag.Player1);
-        return player;
+    createPlayer(info: PlayerInfo) {
+        this.player = new Player(info);
+        this.player.setTag(PlayerTag.Player1);
+        return this.player;
     }
 
     getPlayer(): Player {

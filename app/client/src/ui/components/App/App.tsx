@@ -5,17 +5,31 @@ import { LoginScreen } from '../LoginScreen/LoginScreen';
 import { GameScreen } from '../GameScreen/GameScreen';
 import { SandboxScreen } from '../SandboxScreen/SandboxScreen';
 import { getLocaleTexts } from '../../../game/locales';
-import './App.css';
 import { TutorialScreen } from '../TutorialScreen/TutorialScreen';
 import { ManagementScreen } from '../ManagementScreen/ManagementScreen';
+import { VkBridge } from '../../../vk/bridge';
+import './App.css';
 
-interface AppProps {
-  game: Game,
-};
 
 const texts = getLocaleTexts();
 
-export const App: React.FC<AppProps> = ({ game }) => {
+const game: Game = new Game(window.location.hostname);
+const vk = new VkBridge();
+
+if (vk.isDetected()) {
+  vk.getUserInfo().then(info => {
+    game.createPlayer({
+      nickname: info.firstName,
+      avatarUrl: info.avatarUrl,
+      externalId: `vk-${info.id}`
+    });
+    game.setLoggedOut();
+  });
+} else {
+  game.setLoggedOut();
+}
+
+export const App: React.FC<{}> = () => {
   const [state, setState] = useState<GameState>(game.getState());
 
   game.whenStateUpdated((state: GameState) => {
@@ -23,6 +37,10 @@ export const App: React.FC<AppProps> = ({ game }) => {
   });
 
   let childComponents;
+
+  if (state === GameState.Loading) {
+    childComponents = <MessageScreen text='⏳' />;
+  }
 
   if (state === GameState.LoggedOut) {
     childComponents = <LoginScreen game={game} />;
@@ -57,7 +75,7 @@ export const App: React.FC<AppProps> = ({ game }) => {
   return (
     <div className='game-app'>
       {childComponents}
-      {(state !== GameState.Tutorial) ?
+      {(state !== GameState.Tutorial && state !== GameState.Loading) ?
         <button
           className='button-fullscreen'
           title='F11'

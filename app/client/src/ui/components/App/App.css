@@ -62,6 +62,7 @@ button.active {
     left: 0;
     bottom: 30px;
     box-sizing: border-box;
+    z-index: 2;
 }
 
 .button-fullscreen .icon {

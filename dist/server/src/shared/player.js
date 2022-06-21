@@ -16,6 +16,9 @@ class Player {
     constructor() {
         this.tag = 0;
         this.isAdministrator = false;
+        this.info = {
+            nickname: 'guest-' + (Math.floor(Math.random() * 90000) + 11111)
+        };
     }
     isAdmin() {
         return this.isAdministrator;
@@ -33,6 +36,12 @@ class Player {
         return this.getTag() === PlayerTag.Player1
             ? PlayerTag.Player2
             : PlayerTag.Player1;
+    }
+    setInfo(info) {
+        this.info = info;
+    }
+    getInfo() {
+        return this.info;
     }
 }
 exports.Player = Player;

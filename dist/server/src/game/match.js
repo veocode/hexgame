@@ -326,7 +326,7 @@ class GameMatch {
         tags.forEach((tag) => {
             var _a;
             scores[tag] = {
-                nickname: ((_a = this.players[tag]) === null || _a === void 0 ? void 0 : _a.nickname) || '-',
+                nickname: ((_a = this.players[tag]) === null || _a === void 0 ? void 0 : _a.info.nickname) || '-',
                 score: 0
             };
         });

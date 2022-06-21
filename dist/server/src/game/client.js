@@ -49,18 +49,16 @@ var ClientState;
     ClientState[ClientState["InGame"] = 2] = "InGame";
 })(ClientState = exports.ClientState || (exports.ClientState = {}));
 class Client extends player_1.Player {
-    constructor(socket, nickname = '', lang = '??', isAdministrator = false) {
+    constructor(socket, info, lang = '??', isAdministrator = false) {
         super();
         this.socket = socket;
-        this.nickname = nickname;
+        this.info = info;
         this.lang = lang;
         this.state = ClientState.Idle;
         this.missedTurnsCount = 0;
         this.id = socket
             ? socket.id
             : this.getId();
-        if (!nickname)
-            this.nickname = this.getNickname();
         if (isAdministrator)
             this.setAdmin();
     }
@@ -74,11 +72,11 @@ class Client extends player_1.Player {
         return this.id;
     }
     getNickname() {
-        return this.nickname;
+        return this.info.nickname;
     }
     getNicknameWithIcon(isPrepend = true) {
         const icon = this.isBot() ? '🤖' : '👤';
-        return isPrepend ? `${icon} ${this.nickname}` : `${this.nickname} ${icon}`;
+        return isPrepend ? `${icon} ${this.info.nickname}` : `${this.info.nickname} ${icon}`;
     }
     getOpponent() {
         return this.opponent;

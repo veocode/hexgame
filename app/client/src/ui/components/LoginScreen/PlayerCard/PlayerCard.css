@@ -1,0 +1,24 @@
+.player-card {
+    display: flex;
+    flex-direction: row;
+    color: #FFF;
+    margin-bottom: 20px;
+    justify-content: center;
+    align-items: center;
+    background: #707a85;
+    border-radius: 10px;
+    width: 260px;
+    height: 64px;
+    line-height: 64px;
+}
+
+.player-card .avatar {
+    width: 48px;
+    height: 48px;
+    margin-right: 10px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    border-radius: 50%;
+    border: solid 2px #FFF;
+}

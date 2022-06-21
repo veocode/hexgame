@@ -35,22 +35,24 @@ class GameServer {
     bindSocketServerEvents() {
         this.socketServer.on('connection', socket => {
             var _a;
-            let nickname = socket.handshake.auth.nickname;
-            let lang = (_a = socket.handshake.auth.lang) !== null && _a !== void 0 ? _a : '??';
-            const isAdmin = nickname === config_1.Config.admin.nickname;
-            if (isAdmin)
-                nickname = nickname.split('#')[0];
-            const client = new client_1.Client(socket, nickname, lang, isAdmin);
+            let isAdmin = false;
+            const info = socket.handshake.auth.info;
+            const lang = (_a = socket.handshake.auth.lang) !== null && _a !== void 0 ? _a : '??';
+            [isAdmin, info.nickname] = this.detectAdminByNickname(info.nickname);
+            const client = new client_1.Client(socket, info, lang, isAdmin);
             this.gameManager.addClient(client);
+            socket.on("error", () => socket.disconnect());
+            socket.on("disconnect", () => this.gameManager.removeClient(client));
             socket.emit('game:connected', {
                 clientId: client.id,
                 isAdmin: client.isAdmin()
             });
-            socket.on("error", () => socket.disconnect());
-            socket.on("disconnect", () => {
-                this.gameManager.removeClient(client);
-            });
         });
+    }
+    detectAdminByNickname(nickname) {
+        const isAdmin = nickname === config_1.Config.admin.nickname;
+        const editedNickname = isAdmin ? nickname.split('#')[0] : nickname;
+        return [isAdmin, editedNickname];
     }
 }
 exports.GameServer = GameServer;

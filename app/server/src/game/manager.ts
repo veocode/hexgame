@@ -98,7 +98,7 @@ export class GameManager {
         setTimeout(() => {
             if (client.isSearchingGame()) {
                 client.setInGame();
-                const botOpponent = new BotClient(null);
+                const botOpponent = new BotClient();
                 this.createMatch(client, botOpponent);
             }
         }, 3000);

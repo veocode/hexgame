@@ -41,13 +41,10 @@ const botNames = [
     'hexomorfin',
     'hexotoxin',
     'hexonaut',
-    'hexlady',
-    'hexchick',
     'hexhomie',
     'hexist',
     'hexoid',
     'hexxeh',
-    'hexatoxx',
 ];
 
 export class BotClient extends Client {
@@ -56,6 +53,12 @@ export class BotClient extends Client {
     private botNickname: string = '';
 
     private callbacks: CallbackDict = {};
+
+    constructor() {
+        super(null, {
+            nickname: botNames[Math.floor(Math.random() * botNames.length)]
+        });
+    }
 
     isBot(): boolean {
         return true;

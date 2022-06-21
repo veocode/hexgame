@@ -66,7 +66,7 @@ class GameManager {
         setTimeout(() => {
             if (client.isSearchingGame()) {
                 client.setInGame();
-                const botOpponent = new botclient_1.BotClient(null);
+                const botOpponent = new botclient_1.BotClient();
                 this.createMatch(client, botOpponent);
             }
         }, 3000);

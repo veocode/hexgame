@@ -1,10 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { Game } from './game/game';
-import './index.css';
 import { App } from './ui/components/App/App';
+import './index.css';
 
-const game: Game = new Game(window.location.hostname);
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -12,6 +10,6 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <App game={game} />
+    <App />
   </React.StrictMode>
 );

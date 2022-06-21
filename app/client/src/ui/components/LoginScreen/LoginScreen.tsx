@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { Game } from '../../../game/game';
 import { getLocaleTexts } from '../../../game/locales';
 import { LocaleSelector } from './LocaleSelector/LocaleSelector';
+import { PlayerCard } from './PlayerCard/PlayerCard';
 import './LoginScreen.css';
 
 const texts = getLocaleTexts();
@@ -10,20 +11,20 @@ interface LoginScreenProps {
     game: Game,
 };
 
-const getRandomNickname = () => {
-    const randomId = (Math.floor(Math.random() * 90000) + 11111);
-    return `guest-${randomId}`;
-}
-
 export const LoginScreen: React.FC<LoginScreenProps> = ({ game }) => {
     const nicknameInput = useRef<HTMLInputElement>(null);
-    const nickname = localStorage.getItem('hexgame:nickname') || getRandomNickname();
+    const nickname = game.getPlayer().info.nickname;
 
     const onPlayClick = () => {
-        const nickname = nicknameInput.current?.value || 'unnamed';
+        const nickname = (nicknameInput.current?.value || 'unnamed').substring(0, 12);
         localStorage.setItem('hexgame:nickname', nickname);
-        game.connectAndStart(nickname);
+        game.getPlayer().info.nickname = nickname;
+        game.connectAndStart();
     };
+
+    let userInput: JSX.Element = game.getPlayer().isGuest()
+        ? <input type='text' maxLength={12} defaultValue={nickname} ref={nicknameInput} />
+        : <PlayerCard info={game.getPlayer().info} />;
 
     return (
         <div className='login-screen'>
@@ -34,14 +35,13 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ game }) => {
             <div className='login-form'>
                 <div className='inputs'>
                     <h1>play<b>hex</b></h1>
-                    <input type='text' maxLength={12} defaultValue={nickname} ref={nicknameInput} />
+                    {userInput}
                     <button onClick={() => onPlayClick()} className='button-play'>{texts.Play}</button>
                     <button onClick={() => game.setTutorial()}>{texts.HowTo}</button>
                 </div>
             </div>
             <div className='footer'>
-                made with ❤️ by <a href="mailto:me@veocode.ru">veocode</a><br />
-                inspired by <a href='https://en.wikipedia.org/wiki/Hexxag%C5%8Dn' target='_blank' rel='noreferrer'>Hexxagōn</a>
+                made with ❤️ by <a href="mailto:me@veocode.ru">veocode</a>
             </div>
         </div>
     );

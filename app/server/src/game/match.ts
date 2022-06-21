@@ -389,7 +389,7 @@ export class GameMatch {
         const tags = [PlayerTag.Player1, PlayerTag.Player2];
         tags.forEach((tag: PlayerTag) => {
             scores[tag] = {
-                nickname: this.players[tag]?.nickname || '-',
+                nickname: this.players[tag]?.info.nickname || '-',
                 score: 0
             };
         })

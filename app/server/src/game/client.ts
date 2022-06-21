@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { Player } from "../shared/player";
+import { Player, PlayerInfo } from "../shared/player";
 import { GameMatch } from "./match";
 
 export class ClientList {
@@ -69,7 +69,7 @@ export class Client extends Player {
 
     constructor(
         private readonly socket: Socket | null,
-        public readonly nickname: string = '',
+        public readonly info: PlayerInfo,
         public readonly lang: string = '??',
         isAdministrator: boolean = false
     ) {
@@ -78,7 +78,6 @@ export class Client extends Player {
             ? socket.id
             : this.getId();
 
-        if (!nickname) this.nickname = this.getNickname();
         if (isAdministrator) this.setAdmin();
     }
 
@@ -95,12 +94,12 @@ export class Client extends Player {
     }
 
     getNickname(): string {
-        return this.nickname;
+        return this.info.nickname;
     }
 
     getNicknameWithIcon(isPrepend: boolean = true): string {
         const icon = this.isBot() ? '🤖' : '👤';
-        return isPrepend ? `${icon} ${this.nickname}` : `${this.nickname} ${icon}`;
+        return isPrepend ? `${icon} ${this.info.nickname}` : `${this.info.nickname} ${icon}`;
     }
 
     getOpponent(): Client | null {
