@@ -111,13 +111,13 @@ export class SpectateMatch extends Match {
     }
 
     unbindSocketEvents() {
-        this.game.socket.off('game:match:move-request');
-        this.game.socket.off('game:match:move-pending');
+        this.game.socket.off('game:match:move-started');
+        this.game.socket.off('game:match:move-done');
         this.game.socket.off('game:match:move-cell-selected');
-        this.game.socket.off('game:match:move-by-opponent');
         this.game.socket.off('game:match:no-moves');
         this.game.socket.off('game:match:scores');
         this.game.socket.off('game:match:over');
+        this.game.socket.off('game:match:emoji');
     }
 
     updateScores(scores: MatchServerScoreDict) {

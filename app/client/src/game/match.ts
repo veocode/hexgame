@@ -230,6 +230,7 @@ export class Match {
         this.game.socket.off('game:match:no-moves');
         this.game.socket.off('game:match:scores');
         this.game.socket.off('game:match:over');
+        this.game.socket.off('game:match:emoji');
     }
 
     getPlayerColors(): PlayerColorsList {
