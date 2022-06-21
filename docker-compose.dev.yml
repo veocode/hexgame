@@ -1,14 +1,11 @@
 version: "3.1"
-
 services:
-
   mongodb:
-    container_name: hex-mongo-dev
     image: mongo:${MONGODB_VERSION}
     user: "1000:1000"
     volumes:
       - ./docker/conf/initmongo.js:/docker-entrypoint-initdb.d/initmongo.js
-      - ./storage/mongodb:/data/db
+      - ./storage/mongodb:/data/db:rw
     ports:
       - ${MONGODB_PORT}:27017
     environment:
@@ -17,7 +14,6 @@ services:
       MONGO_INITDB_DATABASE: ${MONGODB_DATABASE}
 
   mongo-admin:
-    container_name: hexgame-mongo-admin
     image: mongo-express
     restart: always
     ports:

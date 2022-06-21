@@ -1,11 +1,3 @@
-export enum PlayerHasNoMovesReasons {
-    Left = 'left',
-    Eliminated = 'eliminated',
-    NoMoves = 'no-moves'
-}
-
-export type PlayerColorsList = { [key: number]: string }
-
 export type PlayerInfo = {
     lang: string,
     nickname: string,

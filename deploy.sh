@@ -7,7 +7,7 @@ DEPLOY_HOST="playhex"
 DEPLOY_PATH="/opt/hexgame"
 
 if [[ ${1:-help} == help ]]; then
-    echo "" 
+    echo ""
     echo "Usage:"
     echo "  deploy.sh [command]"
     echo ""
@@ -44,17 +44,21 @@ install() {
 }
 
 dev() {
-    # docker-compose -f docker-compose.dev.yml down --remove-orphans && docker network prune -f
-    # docker-compose -f docker-compose.dev.yml up -d $ARGS
+    docker-compose -f docker-compose.dev.yml down --remove-orphans && docker network prune -f
+    docker-compose -f docker-compose.dev.yml up -d $ARGS
     npm run dev --prefix=./app/builder
 }
 
+dev-logs() {
+    docker-compose -f docker-compose.dev.yml logs $ARGS
+}
+
 up(){
-    docker-compose up -d
+    docker-compose -f docker-compose.prod.yml up -d
 }
 
 down(){
-    docker-compose down --remove-orphans && docker network prune -f
+    docker-compose -f docker-compose.prod.yml down --remove-orphans && docker network prune -f
 }
 
 restart(){
@@ -87,20 +91,20 @@ build-deploy() {
 }
 
 build-docker() {
-    docker-compose build
+    docker-compose -f docker-compose.prod.yml build
 }
 
 log() {
-    docker-compose logs -f --tail=50 server
+    docker-compose -f docker-compose.prod.yml logs -f --tail=50 server
 }
 
 logs() {
-    docker-compose logs $ARGS
+    docker-compose -f docker-compose.prod.yml logs $ARGS
 }
 
 check() {
     echo "========================== CONTAINERS STATE ========================================"
-    docker-compose ps
+    docker-compose -f docker-compose.prod.yml ps
 }
 
 update() {
@@ -114,7 +118,7 @@ update() {
 update-rebuild() {
     down
     git pull
-    docker-compose up -d --build
+    docker-compose -f docker-compose.prod.yml up -d --build
     logs
     echo "Update Done!"
 }
