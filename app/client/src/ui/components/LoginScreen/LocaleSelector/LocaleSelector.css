@@ -12,9 +12,10 @@
 @media (max-height:380px) {
     .locale-selector {
         left: auto;
-        right: 0;
+        right: 5px;
+        top: 50%;
         flex-direction: column;
-        transform: translate(0 0);
+        transform: translate(0, -50%);
         margin-top: 0;
     }
 }

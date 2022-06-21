@@ -5,33 +5,68 @@
     overflow: hidden;
 }
 
-.login-screen h1 {
-    font-weight: lighter;
-    color: #31A2D3;
-    letter-spacing: 4px;
+.login-screen .logo {
+    height: 64px;
+    line-height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 30px 0;
+    font-weight: bold;
+    transform: scale(.85);
 }
 
-.login-screen h1 b {
+.login-screen .logo>span {
+    width: 64px;
+    height: 64px;
+    text-align: center;
+    font-size: 36px;
+    color: #fff;
+}
+
+.login-screen .logo .e {
+    width: 64px;
+    position: relative;
     color: #F85050;
 }
 
-.login-screen .login-bg {
+.login-screen .logo .e .bg {
     position: absolute;
-    background: url(../../images/hex-white.svg) no-repeat center;
+    width: 64px;
+    height: 64px;
+    left: 0;
+    top: 0;
+    transform: scale(1.4);
+    background: url(../../images/hex-red.svg) no-repeat center;
     background-size: contain;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    animation: growInExtra 12s infinite ease-in-out;
+    z-index: 2;
+}
+
+.login-screen .logo .e .bg.pulse {
+    animation: logoPulse 4s infinite ease-out;
+    background-size: contain;
     z-index: 1;
+    opacity: .75;
 }
 
-.login-screen .login-bg.bg-2 {
-    animation-delay: 4s;
+@keyframes logoPulse {
+    65% {
+        transform: scale(2);
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 0;
+    }
 }
 
-.login-screen .login-bg.bg-3 {
-    animation-delay: 8s;
+.login-screen .logo .e .letter {
+    position: relative;
+    z-index: 3;
+}
+
+.login-screen .logo.logo-ru>span:last-child {
+    width: 36px;
 }
 
 .login-screen .login-form {

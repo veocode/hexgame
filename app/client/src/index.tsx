@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { App } from './ui/components/App/App';
 import './index.css';
+import './animations.css';
 
 
 const root = ReactDOM.createRoot(

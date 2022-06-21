@@ -30,13 +30,32 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ game }) => {
 
     return (
         <div className='login-screen'>
-            <div className='login-bg'></div>
-            <div className='login-bg bg-2'></div>
-            <div className='login-bg bg-3'></div>
             <LocaleSelector />
             <div className='login-form'>
                 <div className='inputs'>
-                    <h1>play<b>hex</b></h1>
+                    {game.getPlayer().info.lang === 'ru'
+                        ?
+                        <div className='logo logo-ru'>
+                            <span>Г</span>
+                            <span className='e'>
+                                <span className='bg pulse'></span>
+                                <span className='bg'></span>
+                                <span className='letter'>E</span>
+                            </span>
+                            <span>К</span>
+                            <span>С</span>
+                        </div>
+                        :
+                        <div className='logo logo-en'>
+                            <span>H</span>
+                            <span className='e'>
+                                <span className='bg pulse'></span>
+                                <span className='bg'></span>
+                                <span className='letter'>E</span>
+                            </span>
+                            <span>X</span>
+                        </div>
+                    }
                     {userInput}
                     <button onClick={() => onPlayClick()} className='button-play'>{texts.Play}</button>
                     <button onClick={() => game.setTutorial()}>{texts.HowTo}</button>
