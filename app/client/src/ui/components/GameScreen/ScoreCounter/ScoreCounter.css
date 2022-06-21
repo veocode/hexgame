@@ -23,9 +23,10 @@
 .score-counter .nickname {
     line-height: var(--icon-size);
     padding-left: 10px;
-    font-weight: lighter;
+    font-weight: bold;
     font-size: 14px;
     opacity: .75;
+    color: #83daff;
 }
 
 .score-counter.right {
@@ -44,6 +45,7 @@
 .score-counter.right .nickname {
     padding-left: 0;
     padding-right: 10px;
+    color: #f88282;
 }
 
 @media (min-width: 768px) {
