@@ -1,7 +1,7 @@
-import { PlayerColorsList, PlayerHasNoMovesReasons, PlayerTag } from "../shared/player";
 import { Game } from "./game";
 import { getLocaleTexts } from "./locales";
 import { emojiLifeTime, Match, MatchServerScoreDict } from "./match";
+import { PlayerTag, PlayerColorsList, PlayerHasNoMovesReasons } from "../shared/types";
 
 const texts = getLocaleTexts();
 

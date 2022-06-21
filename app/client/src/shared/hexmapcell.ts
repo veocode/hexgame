@@ -1,4 +1,4 @@
-import { PlayerTag } from "./player";
+import { PlayerTag } from "./types";
 
 export enum HexCellState {
     None = 0,

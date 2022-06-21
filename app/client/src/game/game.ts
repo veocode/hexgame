@@ -1,10 +1,9 @@
 import { io, Socket } from "socket.io-client";
-import { Player, PlayerInfo, PlayerTag } from '../shared/player';
+import { Player, PlayerInfo } from './player';
 import { getUserLang } from "./locales";
 import { Match } from "./match";
 import { Sandbox } from "./sandbox";
 import { SpectateMatch } from "./spectate";
-
 
 export enum GameState {
     Loading,
@@ -82,7 +81,8 @@ export class Game {
             return `guest-${randomId}`;
         }
         return this.createPlayer({
-            nickname: localStorage.getItem('hexgame:nickname') || getRandomNickname()
+            nickname: localStorage.getItem('hexgame:nickname') || getRandomNickname(),
+            lang: getUserLang()
         });
     }
 
@@ -94,8 +94,7 @@ export class Game {
         return new Promise<void>(resolve => {
             this.setConnecting();
             this.socket.auth = {
-                info: this.player.getInfo(),
-                lang: getUserLang()
+                info: this.player.info,
             };
             this.socket.connect();
 
@@ -172,9 +171,7 @@ export class Game {
     }
 
     createPlayer(info: PlayerInfo) {
-        this.player = new Player(info);
-        this.player.setTag(PlayerTag.Player1);
-        return this.player;
+        return this.player = new Player(info);
     }
 
     getPlayer(): Player {

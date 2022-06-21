@@ -12,6 +12,7 @@ export enum PlayerTag {
 export type PlayerColorsList = { [key: number]: string }
 
 export type PlayerInfo = {
+    lang: string,
     nickname: string,
     avatarUrl?: string,
     externalId?: string
@@ -25,7 +26,8 @@ export class Player {
 
     constructor() {
         this.info = {
-            nickname: 'guest-' + (Math.floor(Math.random() * 90000) + 11111)
+            nickname: 'guest-' + (Math.floor(Math.random() * 90000) + 10000),
+            lang: '??'
         }
     }
 

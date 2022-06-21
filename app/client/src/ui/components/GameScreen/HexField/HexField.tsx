@@ -1,9 +1,8 @@
 import React from 'react';
 import { HexMapCell } from '../../../../shared/hexmapcell';
-import { PlayerColorsList } from '../../../../shared/player';
+import { PlayerColorsList } from '../../../../shared/types';
 import { HexCell } from './HexCell/HexCell';
 import './HexField.css';
-
 
 interface HexFieldProps {
   width: number,
@@ -39,5 +38,4 @@ export const HexField: React.FC<HexFieldProps> = (props) => {
       {rows}
     </div>
   );
-
 }

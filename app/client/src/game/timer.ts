@@ -1,4 +1,4 @@
-export default class Timer {
+export class Timer {
 
     private timeoutId: NodeJS.Timeout | null = null;
 

@@ -1,10 +1,10 @@
+import { getLocaleTexts } from "./locales";
+import { Game } from "./game";
 import { HexMapCell } from "../shared/hexmapcell";
 import { HexMap, HexNeighborLevel } from '../shared/hexmap';
-import { Player, PlayerColorsList, PlayerHasNoMovesReasons, PlayerTag } from '../shared/player';
-import { getLocaleTexts } from "./locales";
-import Timer from "./timer";
-import { Game } from "./game";
+import { Timer } from "./timer";
 import { EmojisByPlayersDict } from "../ui/components/GameScreen/EmojiDisplay/EmojiDisplay";
+import { PlayerColorsList, PlayerHasNoMovesReasons, PlayerTag } from "../shared/types";
 
 export const cellAnimationTime: number = 400;
 export const emojiLifeTime = 2000;
@@ -79,7 +79,7 @@ export type MatchScoreList = {
 export class Match {
 
     protected map: HexMap;
-    protected player: Player;
+    protected playerTag: PlayerTag = PlayerTag.Player1;
 
     protected emojis: EmojisByPlayersDict = { 1: null, 2: null };
     protected isEmojisLocked: boolean = false;
@@ -109,9 +109,7 @@ export class Match {
         this.map = new HexMap();
         this.map.deserealize(options.map);
 
-        this.player = game.getPlayer();
-        this.player.setTag(options.playerTag);
-
+        this.playerTag = options.playerTag;
         this.maxTurnTime = options.maxTurnTime;
 
         this.updateScores(options.initialScores);
@@ -177,8 +175,8 @@ export class Match {
             reasons[PlayerHasNoMovesReasons.Eliminated] = texts.OpponentEliminated;
             reasons[PlayerHasNoMovesReasons.NoMoves] = texts.OpponentNoMoves;
 
-            const winnerTag = loserTag === this.player.getTag() ? this.player.getOpponentTag() : this.player.getTag();
-            const stateText = loserTag === this.player.getTag()
+            const winnerTag = loserTag === this.playerTag ? this.getOpponentTag() : this.playerTag;
+            const stateText = loserTag === this.playerTag
                 ? texts.NoMoves
                 : reasons[reasonType];
 
@@ -218,7 +216,7 @@ export class Match {
         })
 
         this.game.socket.on('game:match:emoji', async ({ emoji }) => {
-            this.playerSetEmoji(this.player.getOpponentTag(), emoji);
+            this.playerSetEmoji(this.getOpponentTag(), emoji);
         })
     }
 
@@ -234,7 +232,7 @@ export class Match {
     }
 
     getPlayerColors(): PlayerColorsList {
-        if (this.player.getTag() === PlayerTag.Player1) {
+        if (this.playerTag === PlayerTag.Player1) {
             return {
                 1: 'own',
                 2: 'enemy',
@@ -260,12 +258,12 @@ export class Match {
             return;
         }
 
-        if (cell.isNone() || (!cell.isEmpty() && !cell.isOccupiedBy(this.player.getTag()))) {
+        if (cell.isNone() || (!cell.isEmpty() && !cell.isOccupiedBy(this.playerTag))) {
             this.map.resetHighlight();
             this.selectedCell = null;
         }
 
-        if (cell.isOccupiedBy(this.player.getTag())) {
+        if (cell.isOccupiedBy(this.playerTag)) {
             if (!this.selectedCell || this.selectedCell.id !== cell.id) {
                 this.selectCell(cell);
             }
@@ -287,7 +285,7 @@ export class Match {
     }
 
     selectCell(cell: HexMapCell) {
-        if (!cell.isOccupiedBy(this.player.getTag())) return;
+        if (!cell.isOccupiedBy(this.playerTag)) return;
 
         if (this.selectedCell) this.map.resetHighlight();
         this.selectedCell = cell;
@@ -399,8 +397,8 @@ export class Match {
 
     updateScores(scores: MatchServerScoreDict) {
         const matchScores = {
-            own: { ...scores[this.player.getTag()] },
-            opponent: { ...scores[this.player.getOpponentTag()] },
+            own: { ...scores[this.playerTag] },
+            opponent: { ...scores[this.getOpponentTag()] },
         }
 
         this.scores = matchScores;
@@ -479,7 +477,7 @@ export class Match {
 
     sendEmoji(emoji: string) {
         this.game.socket.emit('game:match:emoji', { emoji });
-        this.playerSetEmoji(this.player.getTag(), emoji);
+        this.playerSetEmoji(this.playerTag, emoji);
         this.lockEmojis(true);
     }
 
@@ -508,7 +506,7 @@ export class Match {
     }
 
     playerSetEmoji(playerTag: PlayerTag, emoji: string) {
-        if (this.player.getTag() !== PlayerTag.Player1) {
+        if (this.playerTag !== PlayerTag.Player1) {
             playerTag = playerTag === PlayerTag.Player1
                 ? PlayerTag.Player2
                 : PlayerTag.Player1;
@@ -533,6 +531,16 @@ export class Match {
 
     whenEmojisUpdated(callback: EmojisUpdatedCallback) {
         this.callbacks.EmojisUpdated = callback;
+    }
+
+    getPlayerTag(): PlayerTag {
+        return this.playerTag;
+    }
+
+    getOpponentTag(): PlayerTag {
+        return this.playerTag === PlayerTag.Player1
+            ? PlayerTag.Player2
+            : PlayerTag.Player1;
     }
 
 }

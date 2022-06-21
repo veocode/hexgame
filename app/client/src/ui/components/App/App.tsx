@@ -4,7 +4,7 @@ import { MessageScreen } from '../MessageScreen/MessageScreen';
 import { LoginScreen } from '../LoginScreen/LoginScreen';
 import { GameScreen } from '../GameScreen/GameScreen';
 import { SandboxScreen } from '../SandboxScreen/SandboxScreen';
-import { getLocaleTexts } from '../../../game/locales';
+import { getLocaleTexts, getUserLang } from '../../../game/locales';
 import { TutorialScreen } from '../TutorialScreen/TutorialScreen';
 import { ManagementScreen } from '../ManagementScreen/ManagementScreen';
 import { VkBridge } from '../../../vk/bridge';
@@ -19,6 +19,7 @@ const vk = new VkBridge();
 if (vk.isDetected()) {
   vk.getUserInfo().then(info => {
     game.createPlayer({
+      lang: getUserLang(),
       nickname: info.firstName,
       avatarUrl: info.avatarUrl,
       externalId: `vk-${info.id}`

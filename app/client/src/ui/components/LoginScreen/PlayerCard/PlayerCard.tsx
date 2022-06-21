@@ -1,5 +1,5 @@
 import React from 'react';
-import { PlayerInfo } from '../../../../shared/player';
+import { PlayerInfo } from '../../../../game/player';
 import './PlayerCard.css';
 
 

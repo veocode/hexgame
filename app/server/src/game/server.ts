@@ -44,10 +44,9 @@ export class GameServer {
         this.socketServer.on('connection', socket => {
             let isAdmin = false;
             const info: PlayerInfo = socket.handshake.auth.info;
-            const lang = socket.handshake.auth.lang ?? '??';
 
             [isAdmin, info.nickname] = this.detectAdminByNickname(info.nickname);
-            const client = new Client(socket, info, lang, isAdmin);
+            const client = new Client(socket, info, isAdmin);
 
             this.gameManager.addClient(client);
 

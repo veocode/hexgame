@@ -49,11 +49,10 @@ var ClientState;
     ClientState[ClientState["InGame"] = 2] = "InGame";
 })(ClientState = exports.ClientState || (exports.ClientState = {}));
 class Client extends player_1.Player {
-    constructor(socket, info, lang = '??', isAdministrator = false) {
+    constructor(socket, info, isAdministrator = false) {
         super();
         this.socket = socket;
         this.info = info;
-        this.lang = lang;
         this.state = ClientState.Idle;
         this.missedTurnsCount = 0;
         this.id = socket
@@ -65,6 +64,9 @@ class Client extends player_1.Player {
     isBot() {
         return false;
     }
+    isGuest() {
+        return !this.isBot() && this.info.externalId === null;
+    }
     isConnected() {
         return this.socket.connected;
     }
@@ -75,7 +77,7 @@ class Client extends player_1.Player {
         return this.info.nickname;
     }
     getNicknameWithIcon(isPrepend = true) {
-        const icon = this.isBot() ? '🤖' : '👤';
+        const icon = this.isBot() ? '🤖' : (this.isGuest() ? '👤' : '👨🏼‍💼');
         return isPrepend ? `${icon} ${this.info.nickname}` : `${this.info.nickname} ${icon}`;
     }
     getOpponent() {

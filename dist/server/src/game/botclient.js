@@ -29,7 +29,8 @@ const botNames = [
 class BotClient extends client_1.Client {
     constructor() {
         super(null, {
-            nickname: botNames[Math.floor(Math.random() * botNames.length)]
+            nickname: botNames[Math.floor(Math.random() * botNames.length)],
+            lang: '??'
         });
         this.botId = '';
         this.botNickname = '';

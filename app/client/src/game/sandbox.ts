@@ -1,6 +1,6 @@
 import { HexMapCell } from "../shared/hexmapcell";
 import { HexMap } from '../shared/hexmap';
-import { PlayerColorsList, PlayerTag } from '../shared/player';
+import { PlayerColorsList, PlayerTag } from "../shared/types";
 import { Game } from "./game";
 
 const defaultMap: number[] = [
@@ -102,6 +102,5 @@ export class Sandbox {
             2: 'enemy',
         }
     }
-
 
 }

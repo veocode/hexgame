@@ -34,12 +34,10 @@ class GameServer {
     }
     bindSocketServerEvents() {
         this.socketServer.on('connection', socket => {
-            var _a;
             let isAdmin = false;
             const info = socket.handshake.auth.info;
-            const lang = (_a = socket.handshake.auth.lang) !== null && _a !== void 0 ? _a : '??';
             [isAdmin, info.nickname] = this.detectAdminByNickname(info.nickname);
-            const client = new client_1.Client(socket, info, lang, isAdmin);
+            const client = new client_1.Client(socket, info, isAdmin);
             this.gameManager.addClient(client);
             socket.on("error", () => socket.disconnect());
             socket.on("disconnect", () => this.gameManager.removeClient(client));

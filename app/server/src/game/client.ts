@@ -70,7 +70,6 @@ export class Client extends Player {
     constructor(
         private readonly socket: Socket | null,
         public readonly info: PlayerInfo,
-        public readonly lang: string = '??',
         isAdministrator: boolean = false
     ) {
         super();
@@ -83,6 +82,10 @@ export class Client extends Player {
 
     isBot(): boolean {
         return false;
+    }
+
+    isGuest(): boolean {
+        return !this.isBot() && this.info.externalId === null;
     }
 
     isConnected(): boolean {
@@ -98,7 +101,7 @@ export class Client extends Player {
     }
 
     getNicknameWithIcon(isPrepend: boolean = true): string {
-        const icon = this.isBot() ? '🤖' : '👤';
+        const icon = this.isBot() ? '🤖' : (this.isGuest() ? '👤' : '👨🏼‍💼');
         return isPrepend ? `${icon} ${this.info.nickname}` : `${this.info.nickname} ${icon}`;
     }
 

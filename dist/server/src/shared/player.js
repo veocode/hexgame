@@ -17,7 +17,8 @@ class Player {
         this.tag = 0;
         this.isAdministrator = false;
         this.info = {
-            nickname: 'guest-' + (Math.floor(Math.random() * 90000) + 11111)
+            nickname: 'guest-' + (Math.floor(Math.random() * 90000) + 10000),
+            lang: '??'
         };
     }
     isAdmin() {
