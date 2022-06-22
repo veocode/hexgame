@@ -1,5 +1,5 @@
-import * as express from 'express'
-import { Server as SocketIOServer } from 'socket.io'
+import mongoose from 'mongoose'
+import { Server as SocketIOServer, Socket } from 'socket.io'
 import * as https from 'https'
 import { Config } from '../config';
 import { GameManager } from '../game/manager';
@@ -11,27 +11,41 @@ export class GameServer {
 
     private gameManager: GameManager = new GameManager();
 
-    private express = express();
-    private httpsServer: https.Server;
+    private httpServer: https.Server;
     private socketServer: SocketIOServer;
 
     constructor() {
-        this.httpsServer = https.createServer({
+        const port = Config.sockets.port;
+
+        this.connectDatabase().then(() => {
+            console.log(`Connected to database...`);
+
+            this.createHttpServer();
+            this.createSocketServer();
+            this.bindSocketServerEvents();
+
+            this.httpServer.listen(port, () => {
+                console.log(`Server listening at port ${port}...`);
+            });
+        }).catch(err => {
+            console.log(`ERROR: Failed to connect to database: ${err}`);
+            process.exit(1);
+        });
+    }
+
+    async connectDatabase(): Promise<typeof mongoose> {
+        return mongoose.connect(`${Config.db.url}/${Config.db.name}`);
+    }
+
+    createHttpServer() {
+        this.httpServer = https.createServer({
             "key": readFileSync(Config.ssl.keyFile),
             "cert": readFileSync(Config.ssl.certFile),
-        }, this.express);
-
-        this.createSocketServer();
-        this.bindSocketServerEvents();
-
-        const port = Config.sockets.port;
-        console.log('Server Configuration: ', Config, '\n');
-        console.log(`Server listening at port ${port}...`);
-        this.httpsServer.listen(port);
+        });
     }
 
     createSocketServer() {
-        this.socketServer = new SocketIOServer(this.httpsServer, {
+        this.socketServer = new SocketIOServer(this.httpServer, {
             transports: ['websocket', 'polling'],
             cors: {
                 origin: Config.sockets.corsOrigin,
@@ -41,23 +55,27 @@ export class GameServer {
     }
 
     bindSocketServerEvents() {
-        this.socketServer.on('connection', socket => {
-            let isAdmin = false;
-            const info: PlayerInfo = socket.handshake.auth.info;
+        this.socketServer.on('connection', socket => this.onClientConnected(socket));
+    }
 
-            [isAdmin, info.nickname] = this.detectAdminByNickname(info.nickname);
-            const client = new Client(socket, info, isAdmin);
+    onClientConnected(socket: Socket) {
+        let isAdmin = false;
+        const info: PlayerInfo = socket.handshake.auth.info;
 
-            this.gameManager.addClient(client);
+        [isAdmin, info.nickname] = this.detectAdminByNickname(info.nickname);
+        const client = new Client(socket, info, isAdmin);
 
-            socket.on("error", () => socket.disconnect());
-            socket.on("disconnect", () => this.gameManager.removeClient(client));
+        console.log('player connected', info);
 
-            socket.emit('game:connected', {
-                clientId: client.id,
-                isAdmin: client.isAdmin()
-            })
-        });
+        this.gameManager.addClient(client);
+
+        socket.on("error", () => socket.disconnect());
+        socket.on("disconnect", () => this.gameManager.removeClient(client));
+
+        socket.emit('game:connected', {
+            clientId: client.id,
+            isAdmin: client.isAdmin()
+        })
     }
 
     detectAdminByNickname(nickname: string): [boolean, string] {

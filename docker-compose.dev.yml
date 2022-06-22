@@ -2,25 +2,42 @@ version: "3.1"
 services:
   mongodb:
     image: mongo:${MONGODB_VERSION}
+    container_name: hex-mongo-dev
     user: "1000:1000"
     volumes:
-      - ./docker/conf/initmongo.js:/docker-entrypoint-initdb.d/initmongo.js
+      - ./docker/conf/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
       - ./storage/mongodb:/data/db:rw
     ports:
-      - ${MONGODB_PORT}:27017
+      - ${MONGODB_PORT}:${MONGODB_PORT}
+    networks:
+      - hex-dev-network
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGODB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_ROOT_PASSWORD}
       MONGO_INITDB_DATABASE: ${MONGODB_DATABASE}
+    command: mongod --port ${MONGODB_PORT}
 
-  mongo-admin:
+  mongo-express:
     image: mongo-express
+    container_name: hex-mongo-express
     restart: always
     ports:
       - 8088:8081
+    networks:
+      - hex-dev-network
     environment:
-      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGODB_USERNAME}
-      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGODB_PASSWORD}
-      ME_CONFIG_MONGODB_URL: mongodb://${MONGODB_ROOT_USERNAME}:${MONGODB_ROOT_PASSWORD}@mongodb:${MONGODB_PORT}
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_PORT: ${MONGODB_PORT}
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGODB_ROOT_USERNAME}
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGODB_ROOT_PASSWORD}
     depends_on:
       - mongodb
+    links:
+      - mongodb
+
+networks:
+  hex-dev-network:
+    ipam:
+      driver: default
+      config:
+        - subnet: ${DOCKER_SUBNET:-192.120.0.0/16}

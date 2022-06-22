@@ -32,6 +32,16 @@ if [[ ${1:-help} == help ]]; then
     exit 1
 fi
 
+clear() {
+    read -p "Are you sure? (y/N): " -n 1 -r
+    echo ""
+    if [[ $REPLY =~ ^[Yy]$ ]]
+    then
+        sudo rm -rf storage/mongodb/*
+        sudo chown -R 1000:1000 storage/mongodb
+    fi
+}
+
 install() {
     echo "Installing builder dependencies..."
     cd app/builder && npm install
@@ -44,9 +54,14 @@ install() {
 }
 
 dev() {
-    # docker-compose -f docker-compose.dev.yml down --remove-orphans && docker network prune -f
-    # docker-compose -f docker-compose.dev.yml up -d $ARGS
+    dev-down
+    docker-compose -f docker-compose.dev.yml up -d $ARGS
     npm run dev --prefix=./app/builder
+    dev-logs
+}
+
+dev-down() {
+    docker-compose -f docker-compose.dev.yml down --remove-orphans && docker network prune -f
 }
 
 dev-logs() {

@@ -82,7 +82,8 @@ export class Game {
         }
         return this.createPlayer({
             nickname: localStorage.getItem('hexgame:nickname') || getRandomNickname(),
-            lang: getUserLang()
+            lang: getUserLang(),
+            externalId: null
         });
     }
 

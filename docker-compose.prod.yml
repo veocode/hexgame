@@ -49,3 +49,10 @@ services:
       - 443:443
     depends_on:
       - server
+
+networks:
+  default:
+    ipam:
+      driver: default
+      config:
+        - subnet: ${DOCKER_SUBNET:-192.120.0.0/16}

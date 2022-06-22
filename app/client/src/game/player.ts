@@ -1,8 +1,8 @@
 export type PlayerInfo = {
     lang: string,
     nickname: string,
+    externalId: string | null
     avatarUrl?: string,
-    externalId?: string
 }
 
 export class Player {

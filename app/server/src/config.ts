@@ -1,9 +1,12 @@
-const env = (name, defaultValue) => {
-    defaultValue = defaultValue || false;
+const env = (name, defaultValue: any = false) => {
     return process.env[name] || defaultValue;
 }
 
 export const Config = {
+    db: {
+        url: env('MONGODB_URL', 'mongodb://hexgame:hexgamemongopassword@localhost:47017'),
+        name: env('MONGODB_DATABASE', 'hexgame'),
+    },
     sockets: {
         port: env('SERVER_WS_PORT', 3010),
         corsOrigin: env('SERVER_CORS_ORIGIN', 'localhost:3000'),
