@@ -8,7 +8,7 @@ services:
     user: "1000:1000"
     volumes:
       - ./docker/conf/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
-      - ./storage/mongodb:/data/db
+      - ./storage/mongodb:/data/db:rw
     ports:
       - ${MONGODB_PORT}:27017
     environment:
