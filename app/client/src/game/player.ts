@@ -13,10 +13,13 @@ export class Player {
     protected tag: number = 0;
     protected isAdministrator: boolean = false;
 
-    constructor(public readonly authInfo: PlayerAuthInfo) { }
+    constructor(
+        public readonly authInfo: PlayerAuthInfo,
+        protected isGuestPlayer: boolean = false
+    ) { }
 
     isGuest(): boolean {
-        return this.authInfo.sourceId?.startsWith('g-') || true;
+        return this.isGuestPlayer;
     }
 
     isAdmin(): boolean {

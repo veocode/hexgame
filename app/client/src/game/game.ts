@@ -91,7 +91,7 @@ export class Game {
             sourceId,
             nickname,
             lang: getUserLang()
-        });
+        }, true);
     }
 
     getMatch(): Match | null {
@@ -178,8 +178,8 @@ export class Game {
         this.socket.emit('game:spectate-request', { matchId });
     }
 
-    createPlayer(info: PlayerAuthInfo) {
-        return this.player = new Player(info);
+    createPlayer(info: PlayerAuthInfo, isGuest: boolean = false) {
+        return this.player = new Player(info, isGuest);
     }
 
     getPlayer(): Player {
