@@ -17,20 +17,20 @@ export class GameServer {
     constructor() {
         const port = Config.sockets.port;
 
-        this.connectDatabase().then(() => {
-            console.log(`Connected to database...`);
+        // this.connectDatabase().then(() => {
+        // console.log(`Connected to database...`);
 
-            this.createHttpServer();
-            this.createSocketServer();
-            this.bindSocketServerEvents();
+        this.createHttpServer();
+        this.createSocketServer();
+        this.bindSocketServerEvents();
 
-            this.httpServer.listen(port, () => {
-                console.log(`Server listening at port ${port}...`);
-            });
-        }).catch(err => {
-            console.log(`ERROR: Failed to connect to database: ${err}`);
-            process.exit(1);
+        this.httpServer.listen(port, () => {
+            console.log(`Server listening at port ${port}...`);
         });
+        // }).catch(err => {
+        //     console.log(`ERROR: Failed to connect to database: ${err}`);
+        //     process.exit(1);
+        // });
     }
 
     async connectDatabase(): Promise<typeof mongoose> {
