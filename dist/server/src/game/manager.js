@@ -11,6 +11,14 @@ class GameManager {
         this.admins = new client_1.ClientList;
         this.clients = new client_1.ClientList;
         this.matches = {};
+        this.mapPool = [];
+    }
+    getRandomMap() {
+        if (this.mapPool.length == 0) {
+            this.mapPool = [...maps_1.Maps];
+            this.mapPool.sort(() => Math.random() - 0.5);
+        }
+        return this.mapPool.pop();
     }
     addClient(client) {
         this.clients.add(client);
@@ -44,6 +52,16 @@ class GameManager {
             if (!client.isAdmin())
                 return;
             this.sendStatsToAdmin(client);
+        });
+        client.on('game:maps', () => {
+            if (!client.isAdmin())
+                return;
+            client.send('game:maps', { count: maps_1.Maps.length });
+        });
+        client.on('game:map-request', ({ id }) => {
+            if (!client.isAdmin())
+                return;
+            this.sendMapToEditor(client, id);
         });
         client.on('game:spectate-request', ({ matchId }) => {
             this.spectateMatchByClient(client, matchId);
@@ -140,8 +158,13 @@ class GameManager {
             return;
         admin.send('game:stats', this.getStats());
     }
-    getRandomMap() {
-        return maps_1.Maps[Math.floor(Math.random() * maps_1.Maps.length)];
+    sendMapToEditor(client, mapId) {
+        if (mapId >= 0 && mapId < maps_1.Maps.length) {
+            client.send('game:map', {
+                id: mapId,
+                map: maps_1.Maps[mapId]
+            });
+        }
     }
     spectateMatchByClient(client, matchId) {
         if (!(matchId in this.matches))

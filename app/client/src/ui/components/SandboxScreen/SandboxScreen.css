@@ -8,14 +8,16 @@
     align-items: center;
     justify-content: center;
     margin-top: 20px;
+    flex-wrap: wrap;
 }
 
 .sandbox-screen .toolbar .tool-button {
     margin-right: 5px;
+    margin-bottom: 10px;
 }
 
 .sandbox-screen .toolbar .tool-button:last-child {
-    margin: 0;
+    margin-right: 0;
 }
 
 .sandbox-screen .toolbar .tool-button.special {

@@ -37,6 +37,17 @@ export class GameManager {
     private clients: ClientList = new ClientList;
     private matches: { [key: string]: GameMatch } = {};
 
+    private mapPool: number[][] = [];
+
+    private getRandomMap(): number[] {
+        if (this.mapPool.length == 0) {
+            this.mapPool = [...Maps];
+            this.mapPool.sort(() => Math.random() - 0.5);
+        }
+
+        return this.mapPool.pop();
+    }
+
     addClient(client: Client) {
         this.clients.add(client);
         if (client.isAdmin()) this.admins.add(client);
@@ -72,6 +83,16 @@ export class GameManager {
         client.on('game:stats-request', () => {
             if (!client.isAdmin()) return;
             this.sendStatsToAdmin(client);
+        })
+
+        client.on('game:maps', () => {
+            if (!client.isAdmin()) return;
+            client.send('game:maps', { count: Maps.length });
+        })
+
+        client.on('game:map-request', ({ id }) => {
+            if (!client.isAdmin()) return;
+            this.sendMapToEditor(client, id);
         })
 
         client.on('game:spectate-request', ({ matchId }) => {
@@ -183,8 +204,13 @@ export class GameManager {
         admin.send('game:stats', this.getStats());
     }
 
-    private getRandomMap(): number[] {
-        return Maps[Math.floor(Math.random() * Maps.length)];
+    sendMapToEditor(client: Client, mapId: number) {
+        if (mapId >= 0 && mapId < Maps.length) {
+            client.send('game:map', {
+                id: mapId,
+                map: Maps[mapId]
+            })
+        }
     }
 
     spectateMatchByClient(client: Client, matchId: string) {

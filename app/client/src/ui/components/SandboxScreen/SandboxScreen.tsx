@@ -14,8 +14,11 @@ interface SandboxScreenProps {
 export const SandboxScreen: React.FC<SandboxScreenProps> = ({ sandbox }) => {
     const [cells, setCells] = useState<HexMapCell[]>(sandbox.getMap().getCells());
     const [activeTool, setActiveTool] = useState<SandboxTool>(sandbox.getTool());
+    const [mapsCount, setMapsCount] = useState<number>(0);
+    const [selectedMapId, setSelectedMapId] = useState<number>(-1);
 
     sandbox.whenMapUpdated(setCells);
+    sandbox.whenMapsCountUpdated(setMapsCount);
 
     const tools: { id: number, title: string }[] = [
         { id: SandboxTool.EmptyNone, title: texts.SandboxToolEmptyNone },
@@ -33,6 +36,24 @@ export const SandboxScreen: React.FC<SandboxScreenProps> = ({ sandbox }) => {
             >{tool.title}</button>
         )
     })
+
+    const requestMap = (id: number) => {
+        sandbox.requestMap(id);
+        setSelectedMapId(id);
+    }
+
+    let mapButtons: JSX.Element[] = [];
+    if (mapsCount > 0) {
+        for (let i = 0; i < mapsCount; i++) {
+            mapButtons.push(
+                <button
+                    key={i}
+                    className={`tool-button ${selectedMapId === i ? 'active' : ''}`}
+                    onClick={() => { requestMap(i); }}
+                >{i}</button>
+            )
+        }
+    }
 
     return (
         <div className='sandbox-screen'>
@@ -53,6 +74,9 @@ export const SandboxScreen: React.FC<SandboxScreenProps> = ({ sandbox }) => {
                     <button className='tool-button special' onClick={() => sandbox.getGame().setLoggedOut()}>
                         {texts.Quit}
                     </button>
+                </div>
+                <div className='toolbar maps'>
+                    {mapButtons}
                 </div>
             </div>
         </div>

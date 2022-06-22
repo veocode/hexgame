@@ -21,7 +21,8 @@ export enum SandboxTool {
     Player2
 }
 
-type MapUpdatedCallback = (cells: HexMapCell[]) => void
+type MapUpdatedCallback = (cells: HexMapCell[]) => void;
+type MapCountUpdatedCallback = (count: number) => void;
 
 export class Sandbox {
 
@@ -31,12 +32,40 @@ export class Sandbox {
 
     private callbacks: {
         MapUpdated?: MapUpdatedCallback | null,
+        MapCountUpdated?: MapCountUpdatedCallback | null
     } = {};
 
     constructor(
         private game: Game,
     ) {
         this.map = this.createMap();
+        this.bindSocketEvents();
+        this.requestMaps();
+    }
+
+    bindSocketEvents() {
+        this.game.socket.on('game:maps', ({ count }) => {
+            if (this.callbacks.MapCountUpdated) {
+                this.callbacks.MapCountUpdated(count);
+            }
+        })
+
+        this.game.socket.on('game:map', ({ id, map }) => {
+            this.map.deserealize(map);
+            this.redrawMap();
+        })
+    }
+
+    requestMaps() {
+        this.game.socket.emit('game:maps');
+    }
+
+    requestMap(id: number) {
+        this.game.socket.emit('game:map-request', { id });
+    }
+
+    whenMapsCountUpdated(callback: MapCountUpdatedCallback) {
+        this.callbacks.MapCountUpdated = callback;
     }
 
     getGame(): Game {

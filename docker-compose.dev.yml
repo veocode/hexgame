@@ -9,8 +9,6 @@ services:
       - ./storage/mongodb:/data/db:rw
     ports:
       - ${MONGODB_PORT}:${MONGODB_PORT}
-    networks:
-      - hex-dev-network
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGODB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_ROOT_PASSWORD}
@@ -23,8 +21,6 @@ services:
     restart: always
     ports:
       - 8088:8081
-    networks:
-      - hex-dev-network
     environment:
       ME_CONFIG_MONGODB_SERVER: mongodb
       ME_CONFIG_MONGODB_PORT: ${MONGODB_PORT}
@@ -36,7 +32,7 @@ services:
       - mongodb
 
 networks:
-  hex-dev-network:
+  default:
     ipam:
       driver: default
       config:

@@ -5,7 +5,7 @@
     width: 100%;
     height: 100%;
     padding: 10px;
-    background: radial-gradient(#3e444d, #2d3138);
+    background: radial-gradient(#383d46, #22252b);
 }
 
 input[type=text] {
@@ -77,12 +77,5 @@ button.active {
 @media (hover: hover) {
     .button-fullscreen:hover .icon {
         opacity: 0.4;
-    }
-}
-
-@media screen and (orientation:portrait) {
-    .button-fullscreen {
-        left: 50%;
-        margin-left: -30px;
     }
 }
