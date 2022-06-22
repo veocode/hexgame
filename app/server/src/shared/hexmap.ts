@@ -1,4 +1,4 @@
-import { PlayerTag } from "./player";
+import { PlayerTag } from "./types";
 import { HexMapCell, HexCellHightlightType } from "./hexmapcell";
 import { Point2D } from './types';
 

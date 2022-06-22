@@ -9,36 +9,45 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.User = void 0;
+exports.ProfileModel = void 0;
 const mongoose_1 = require("mongoose");
 const schema = new mongoose_1.Schema({
-    externalId: { type: String, required: true },
-    firstName: { type: String },
-    lastName: { type: String },
+    sourceId: { type: String, required: true },
+    nickname: { type: String, default: 'unnamed' },
+    name: { type: String, default: 'unnamed' },
     avatarUrl: { type: String },
-    rating: { type: Number },
+    score: {
+        total: { type: Number, default: 0 },
+        day: { type: Number, default: 0 },
+        week: { type: Number, default: 0 },
+        month: { type: Number, default: 0 },
+    },
     createdAt: { type: Date, default: Date.now },
     visitedAt: { type: Date, default: Date.now }
 });
-schema.static('getByExternalId', function getByExternalId(externalId) {
+schema.statics.getBySourceId = function (sourceId) {
     return __awaiter(this, void 0, void 0, function* () {
-        return yield exports.User.findOne({ externalId }).exec();
+        return yield exports.ProfileModel.findOne({ sourceId }).exec();
     });
-});
-schema.static('getOrCreateByExternalId', function getOrCreateByExternalId(externalId) {
+};
+schema.statics.getOrCreateByAuthInfo = function (authInfo) {
     return __awaiter(this, void 0, void 0, function* () {
-        let user = yield this.getByExternalId(externalId);
-        if (user)
-            return user;
-        user = new this({
-            externalId
-        });
-        yield user.save();
-        return user;
+        let profile = yield this.getBySourceId(authInfo.sourceId);
+        if (profile)
+            return profile;
+        profile = new this(Object.assign({}, authInfo));
+        yield profile.save();
+        return profile;
     });
-});
-schema.method('getFullName', function getFullName() {
+};
+schema.methods.getFullName = function () {
     return this.firstName + ' ' + this.lastName;
-});
-exports.User = (0, mongoose_1.model)('User', schema);
-//# sourceMappingURL=user.js.map
+};
+schema.methods.updateVisitedAt = function () {
+    return __awaiter(this, void 0, void 0, function* () {
+        this.visitedAt = new Date();
+        yield this.save();
+    });
+};
+exports.ProfileModel = (0, mongoose_1.model)('ProfileModel', schema);
+//# sourceMappingURL=profilemodel.js.map

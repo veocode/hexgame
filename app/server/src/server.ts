@@ -1,11 +1,12 @@
+import * as https from 'https'
 import mongoose from 'mongoose'
 import { Server as SocketIOServer, Socket } from 'socket.io'
-import * as https from 'https'
-import { Config } from '../config';
-import { GameManager } from '../game/manager';
-import { Client } from '../game/client';
+import { Config } from './config';
+import { GameManager } from './game/manager';
+import { Client } from './client/client';
 import { readFileSync } from 'fs';
-import { PlayerInfo } from '../shared/player';
+import { AuthInfo } from './client/authinfo';
+import { Profile } from './client/profile';
 
 export class GameServer {
 
@@ -15,10 +16,10 @@ export class GameServer {
     private socketServer: SocketIOServer;
 
     constructor() {
-        console.log(`Starting server with configuration`, Config);
+        console.log(`Starting server with configuration: `, Config);
+
         const port = Config.sockets.port;
         this.connectDatabase().then(() => {
-
             console.log(`Connected to database...`);
 
             this.createHttpServer();
@@ -58,12 +59,16 @@ export class GameServer {
         this.socketServer.on('connection', socket => this.onClientConnected(socket));
     }
 
-    onClientConnected(socket: Socket) {
+    async onClientConnected(socket: Socket) {
         let isAdmin = false;
-        const info: PlayerInfo = socket.handshake.auth.info;
+        const authInfo: AuthInfo = socket.handshake.auth.info;
 
-        [isAdmin, info.nickname] = this.detectAdminByNickname(info.nickname);
-        const client = new Client(socket, info, isAdmin);
+        [isAdmin, authInfo.nickname] = this.detectAdminByNickname(authInfo.nickname);
+
+        const profile = new Profile();
+        await profile.load(authInfo);
+
+        const client = new Client(socket, authInfo, isAdmin);
 
         this.gameManager.addClient(client);
 

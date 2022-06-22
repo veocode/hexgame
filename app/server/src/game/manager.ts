@@ -1,8 +1,8 @@
-import { Client, ClientList } from "./client";
+import { Client, ClientList } from "../client/client";
 import { GameMatch } from "./match";
 import { Maps } from "./maps";
-import { BotClient } from "./botclient";
-import { PlayerTag } from "../shared/player";
+import { BotClient } from "../client/botclient";
+import { PlayerTag } from "../shared/types";
 
 interface ServerPlayerDescription {
     nickname: string,
@@ -161,7 +161,7 @@ export class GameManager {
             if (client.isAdmin()) return admins.push(client.getNicknameWithIcon());
             players.push({
                 nickname: client.getNicknameWithIcon(),
-                lang: client.info.lang
+                lang: client.authInfo.lang
             });
         })
 

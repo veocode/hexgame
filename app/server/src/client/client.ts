@@ -1,6 +1,7 @@
 import { Socket } from "socket.io";
-import { Player, PlayerInfo } from "../shared/player";
-import { GameMatch } from "./match";
+import { PlayerTag } from "../shared/types";
+import { GameMatch } from "../game/match";
+import { AuthInfo } from "./authinfo";
 
 export class ClientList {
 
@@ -55,28 +56,25 @@ export enum ClientState {
     InGame,
 }
 
-export class Client extends Player {
+export class Client {
 
     public readonly id: string;
 
     protected state: ClientState = ClientState.Idle;
-
     protected opponent: Client;
     protected match: GameMatch;
 
+    protected tag: number = 0;
+    protected isAdministrator: boolean = false;
     protected turnTimeout: NodeJS.Timeout | null;
     protected missedTurnsCount: number = 0;
 
     constructor(
         private readonly socket: Socket | null,
-        public readonly info: PlayerInfo,
+        public readonly authInfo: AuthInfo,
         isAdministrator: boolean = false
     ) {
-        super();
-        this.id = socket
-            ? socket.id
-            : this.getId();
-
+        this.id = socket ? socket.id : this.getId();
         if (isAdministrator) this.setAdmin();
     }
 
@@ -85,7 +83,9 @@ export class Client extends Player {
     }
 
     isGuest(): boolean {
-        return !this.isBot() && this.info.externalId === null;
+        return !this.isBot()
+            && 'sourceId' in this.authInfo
+            && this.authInfo.sourceId.startsWith('g-');
     }
 
     isConnected(): boolean {
@@ -97,12 +97,34 @@ export class Client extends Player {
     }
 
     getNickname(): string {
-        return this.info.nickname;
+        return this.authInfo.nickname;
     }
 
     getNicknameWithIcon(isPrepend: boolean = true): string {
         const icon = this.isBot() ? '🤖' : (this.isGuest() ? '👤' : '👨🏼‍💼');
-        return isPrepend ? `${icon} ${this.info.nickname}` : `${this.info.nickname} ${icon}`;
+        return isPrepend ? `${icon} ${this.authInfo.nickname}` : `${this.authInfo.nickname} ${icon}`;
+    }
+
+    isAdmin(): boolean {
+        return this.isAdministrator;
+    }
+
+    setAdmin() {
+        this.isAdministrator = true;
+    }
+
+    getTag(): number {
+        return this.tag;
+    }
+
+    setTag(tag: number) {
+        this.tag = tag;
+    }
+
+    getOpponentTag() {
+        return this.getTag() === PlayerTag.Player1
+            ? PlayerTag.Player2
+            : PlayerTag.Player1;
     }
 
     getOpponent(): Client | null {

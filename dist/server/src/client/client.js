@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Client = exports.ClientState = exports.ClientList = void 0;
-const player_1 = require("../shared/player");
+const types_1 = require("../shared/types");
 class ClientList {
     constructor() {
         this.clients = {};
@@ -48,16 +48,15 @@ var ClientState;
     ClientState[ClientState["SearchingGame"] = 1] = "SearchingGame";
     ClientState[ClientState["InGame"] = 2] = "InGame";
 })(ClientState = exports.ClientState || (exports.ClientState = {}));
-class Client extends player_1.Player {
-    constructor(socket, info, isAdministrator = false) {
-        super();
+class Client {
+    constructor(socket, authInfo, isAdministrator = false) {
         this.socket = socket;
-        this.info = info;
+        this.authInfo = authInfo;
         this.state = ClientState.Idle;
+        this.tag = 0;
+        this.isAdministrator = false;
         this.missedTurnsCount = 0;
-        this.id = socket
-            ? socket.id
-            : this.getId();
+        this.id = socket ? socket.id : this.getId();
         if (isAdministrator)
             this.setAdmin();
     }
@@ -65,7 +64,9 @@ class Client extends player_1.Player {
         return false;
     }
     isGuest() {
-        return !this.isBot() && this.info.externalId === null;
+        return !this.isBot()
+            && 'sourceId' in this.authInfo
+            && this.authInfo.sourceId.startsWith('g-');
     }
     isConnected() {
         return this.socket.connected;
@@ -74,11 +75,28 @@ class Client extends player_1.Player {
         return this.id;
     }
     getNickname() {
-        return this.info.nickname;
+        return this.authInfo.nickname;
     }
     getNicknameWithIcon(isPrepend = true) {
         const icon = this.isBot() ? '🤖' : (this.isGuest() ? '👤' : '👨🏼‍💼');
-        return isPrepend ? `${icon} ${this.info.nickname}` : `${this.info.nickname} ${icon}`;
+        return isPrepend ? `${icon} ${this.authInfo.nickname}` : `${this.authInfo.nickname} ${icon}`;
+    }
+    isAdmin() {
+        return this.isAdministrator;
+    }
+    setAdmin() {
+        this.isAdministrator = true;
+    }
+    getTag() {
+        return this.tag;
+    }
+    setTag(tag) {
+        this.tag = tag;
+    }
+    getOpponentTag() {
+        return this.getTag() === types_1.PlayerTag.Player1
+            ? types_1.PlayerTag.Player2
+            : types_1.PlayerTag.Player1;
     }
     getOpponent() {
         return this.opponent;

@@ -2,9 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BotClient = void 0;
 const hexmap_1 = require("../shared/hexmap");
-const player_1 = require("../shared/player");
+const types_1 = require("../shared/types");
 const client_1 = require("./client");
-const utils_1 = require("./utils");
+const utils_1 = require("../game/utils");
 const botNames = [
     'hexmaniac',
     'hexoholic',
@@ -29,6 +29,7 @@ const botNames = [
 class BotClient extends client_1.Client {
     constructor() {
         super(null, {
+            sourceId: 'bot',
             nickname: botNames[Math.floor(Math.random() * botNames.length)],
             lang: '??'
         });
@@ -72,7 +73,7 @@ class BotClient extends client_1.Client {
         if (eventName === 'game:match:no-moves') {
             if (Math.random() > 0.60) {
                 const { loserTag, reasonType } = data;
-                if (reasonType !== player_1.PlayerHasNoMovesReasons.Left) {
+                if (reasonType !== types_1.PlayerHasNoMovesReasons.Left) {
                     if (loserTag === this.getTag()) {
                         this.sendEmoji(this.shuffleArray(['👍', '☹️', '😡', '😭'])[0], 400);
                     }

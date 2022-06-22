@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GameManager = void 0;
-const client_1 = require("./client");
+const client_1 = require("../client/client");
 const match_1 = require("./match");
 const maps_1 = require("./maps");
-const botclient_1 = require("./botclient");
-const player_1 = require("../shared/player");
+const botclient_1 = require("../client/botclient");
+const types_1 = require("../shared/types");
 class GameManager {
     constructor() {
         this.admins = new client_1.ClientList;
@@ -118,7 +118,7 @@ class GameManager {
                 return admins.push(client.getNicknameWithIcon());
             players.push({
                 nickname: client.getNicknameWithIcon(),
-                lang: client.info.lang
+                lang: client.authInfo.lang
             });
         });
         Object.values(this.matches).forEach(match => {
@@ -127,8 +127,8 @@ class GameManager {
                 botCount++;
             matches.push({
                 id: match.id,
-                player1: (_a = match.getPlayer(player_1.PlayerTag.Player1)) === null || _a === void 0 ? void 0 : _a.getNicknameWithIcon(),
-                player2: (_b = match.getPlayer(player_1.PlayerTag.Player2)) === null || _b === void 0 ? void 0 : _b.getNicknameWithIcon(false)
+                player1: (_a = match.getPlayer(types_1.PlayerTag.Player1)) === null || _a === void 0 ? void 0 : _a.getNicknameWithIcon(),
+                player2: (_b = match.getPlayer(types_1.PlayerTag.Player2)) === null || _b === void 0 ? void 0 : _b.getNicknameWithIcon(false)
             });
         });
         return {

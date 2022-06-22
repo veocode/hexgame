@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GameMatch = void 0;
 const hexmap_1 = require("../shared/hexmap");
-const player_1 = require("../shared/player");
-const client_1 = require("./client");
+const types_1 = require("../shared/types");
+const client_1 = require("../client/client");
 const utils_1 = require("./utils");
 const MaxPlayers = 2;
 const MaxTurnTimeSeconds = 30;
@@ -16,7 +16,7 @@ class GameMatch {
     constructor(serializedMap) {
         this.players = {};
         this.spectators = new client_1.ClientList();
-        this.currentPlayerTag = player_1.PlayerTag.Player1;
+        this.currentPlayerTag = types_1.PlayerTag.Player1;
         this.callbacks = {};
         this.id = (0, utils_1.generateId)();
         this.map = new hexmap_1.HexMap();
@@ -34,7 +34,7 @@ class GameMatch {
         const count = this.getPlayersCount();
         if (count === MaxPlayers)
             return;
-        const tag = { 0: player_1.PlayerTag.Player1, 1: player_1.PlayerTag.Player2 }[count];
+        const tag = { 0: types_1.PlayerTag.Player1, 1: types_1.PlayerTag.Player2 }[count];
         player.setTag(tag);
         this.bindPlayerEvents(player);
         this.players[tag] = player;
@@ -44,7 +44,7 @@ class GameMatch {
         if ((tag in this.players) && (this.players[tag].id === player.id)) {
             this.players[tag] = null;
             if (tag === this.currentPlayerTag) {
-                this.finishWithNoMoves(player_1.PlayerHasNoMovesReasons.Left);
+                this.finishWithNoMoves(types_1.PlayerHasNoMovesReasons.Left);
             }
         }
         ;
@@ -70,7 +70,7 @@ class GameMatch {
         (_a = Object.values(this.players)) === null || _a === void 0 ? void 0 : _a.forEach(callback);
     }
     hasActivePlayers() {
-        return this.players[player_1.PlayerTag.Player1] !== null || this.players[player_1.PlayerTag.Player2] !== null;
+        return this.players[types_1.PlayerTag.Player1] !== null || this.players[types_1.PlayerTag.Player2] !== null;
     }
     addSpectator(spectator) {
         this.spectators.add(spectator);
@@ -124,14 +124,14 @@ class GameMatch {
     }
     finish(isNoMoves = false) {
         const scores = this.getPlayerScores();
-        const scorePlayer1 = scores[player_1.PlayerTag.Player1].score;
-        const scorePlayer2 = scores[player_1.PlayerTag.Player2].score;
+        const scorePlayer1 = scores[types_1.PlayerTag.Player1].score;
+        const scorePlayer2 = scores[types_1.PlayerTag.Player2].score;
         const isWithdraw = scorePlayer1 === scorePlayer2;
         let winnerTag = 0;
         if (!isWithdraw) {
             winnerTag = scorePlayer1 > scorePlayer2
-                ? player_1.PlayerTag.Player1
-                : player_1.PlayerTag.Player2;
+                ? types_1.PlayerTag.Player1
+                : types_1.PlayerTag.Player2;
         }
         this.forEachPlayer(player => {
             if (!player)
@@ -160,9 +160,9 @@ class GameMatch {
     }
     finishWithNoMoves(reasonType) {
         const loserTag = this.currentPlayerTag;
-        const winnerTag = loserTag === player_1.PlayerTag.Player2
-            ? player_1.PlayerTag.Player1
-            : player_1.PlayerTag.Player2;
+        const winnerTag = loserTag === types_1.PlayerTag.Player2
+            ? types_1.PlayerTag.Player1
+            : types_1.PlayerTag.Player2;
         this.forEachPlayer((player) => {
             if (!player)
                 return;
@@ -190,11 +190,11 @@ class GameMatch {
             return this.finish();
         this.switchPlayer();
         if (scores[this.currentPlayerTag].score === 0)
-            return this.finishWithNoMoves(player_1.PlayerHasNoMovesReasons.Eliminated);
+            return this.finishWithNoMoves(types_1.PlayerHasNoMovesReasons.Eliminated);
         if (!this.players[this.currentPlayerTag])
-            return this.finishWithNoMoves(player_1.PlayerHasNoMovesReasons.Left);
+            return this.finishWithNoMoves(types_1.PlayerHasNoMovesReasons.Left);
         if (!this.playerHasMoves(this.currentPlayerTag))
-            return this.finishWithNoMoves(player_1.PlayerHasNoMovesReasons.NoMoves);
+            return this.finishWithNoMoves(types_1.PlayerHasNoMovesReasons.NoMoves);
         this.requestNextMove();
     }
     requestNextMove() {
@@ -204,7 +204,7 @@ class GameMatch {
             return;
         }
         if (!player) {
-            this.finishWithNoMoves(player_1.PlayerHasNoMovesReasons.Left);
+            this.finishWithNoMoves(types_1.PlayerHasNoMovesReasons.Left);
             return;
         }
         this.spectators.send('game:match:move-started', {
@@ -322,11 +322,11 @@ class GameMatch {
     }
     getPlayerScores() {
         const scores = {};
-        const tags = [player_1.PlayerTag.Player1, player_1.PlayerTag.Player2];
+        const tags = [types_1.PlayerTag.Player1, types_1.PlayerTag.Player2];
         tags.forEach((tag) => {
             var _a;
             scores[tag] = {
-                nickname: ((_a = this.players[tag]) === null || _a === void 0 ? void 0 : _a.info.nickname) || '-',
+                nickname: ((_a = this.players[tag]) === null || _a === void 0 ? void 0 : _a.authInfo.nickname) || '-',
                 score: 0
             };
         });
@@ -338,12 +338,12 @@ class GameMatch {
         return scores;
     }
     getRandomPlayerTag() {
-        return [player_1.PlayerTag.Player1, player_1.PlayerTag.Player2][Math.floor(Math.random() * 2)];
+        return [types_1.PlayerTag.Player1, types_1.PlayerTag.Player2][Math.floor(Math.random() * 2)];
     }
     switchPlayer() {
-        this.currentPlayerTag = this.currentPlayerTag === player_1.PlayerTag.Player1
-            ? player_1.PlayerTag.Player2
-            : player_1.PlayerTag.Player1;
+        this.currentPlayerTag = this.currentPlayerTag === types_1.PlayerTag.Player1
+            ? types_1.PlayerTag.Player2
+            : types_1.PlayerTag.Player1;
     }
     currentPlayer() {
         return this.players[this.currentPlayerTag];

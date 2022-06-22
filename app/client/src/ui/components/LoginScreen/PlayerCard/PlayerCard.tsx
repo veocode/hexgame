@@ -1,10 +1,10 @@
 import React from 'react';
-import { PlayerInfo } from '../../../../game/player';
+import { PlayerAuthInfo } from '../../../../game/player';
 import './PlayerCard.css';
 
 
 interface PlayerCardProps {
-    info: PlayerInfo
+    info: PlayerAuthInfo
 };
 
 export const PlayerCard: React.FC<PlayerCardProps> = ({ info }) => {

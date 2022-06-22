@@ -10,17 +10,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GameServer = void 0;
+const https = require("https");
 const mongoose_1 = require("mongoose");
 const socket_io_1 = require("socket.io");
-const https = require("https");
-const config_1 = require("../config");
-const manager_1 = require("../game/manager");
-const client_1 = require("../game/client");
+const config_1 = require("./config");
+const manager_1 = require("./game/manager");
+const client_1 = require("./client/client");
 const fs_1 = require("fs");
+const profile_1 = require("./client/profile");
 class GameServer {
     constructor() {
         this.gameManager = new manager_1.GameManager();
-        console.log(`Starting server with configuration`, config_1.Config);
+        console.log(`Starting server with configuration: `, config_1.Config);
         const port = config_1.Config.sockets.port;
         this.connectDatabase().then(() => {
             console.log(`Connected to database...`);
@@ -58,16 +59,20 @@ class GameServer {
         this.socketServer.on('connection', socket => this.onClientConnected(socket));
     }
     onClientConnected(socket) {
-        let isAdmin = false;
-        const info = socket.handshake.auth.info;
-        [isAdmin, info.nickname] = this.detectAdminByNickname(info.nickname);
-        const client = new client_1.Client(socket, info, isAdmin);
-        this.gameManager.addClient(client);
-        socket.on("error", () => socket.disconnect());
-        socket.on("disconnect", () => this.gameManager.removeClient(client));
-        socket.emit('game:connected', {
-            clientId: client.id,
-            isAdmin: client.isAdmin()
+        return __awaiter(this, void 0, void 0, function* () {
+            let isAdmin = false;
+            const authInfo = socket.handshake.auth.info;
+            [isAdmin, authInfo.nickname] = this.detectAdminByNickname(authInfo.nickname);
+            const profile = new profile_1.Profile();
+            yield profile.load(authInfo);
+            const client = new client_1.Client(socket, authInfo, isAdmin);
+            this.gameManager.addClient(client);
+            socket.on("error", () => socket.disconnect());
+            socket.on("disconnect", () => this.gameManager.removeClient(client));
+            socket.emit('game:connected', {
+                clientId: client.id,
+                isAdmin: client.isAdmin()
+            });
         });
     }
     detectAdminByNickname(nickname) {

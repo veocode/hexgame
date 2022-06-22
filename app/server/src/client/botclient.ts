@@ -1,8 +1,8 @@
 import { HexNeighborLevel } from "../shared/hexmap";
 import { HexMapCell } from "../shared/hexmapcell";
-import { PlayerHasNoMovesReasons } from "../shared/player";
+import { PlayerHasNoMovesReasons } from "../shared/types";
 import { Client } from "./client";
-import { generateId } from "./utils";
+import { generateId } from "../game/utils";
 
 type SocketCallback = (...args: any[]) => void;
 type CallbackDict = { [eventName: string]: SocketCallback };
@@ -56,6 +56,7 @@ export class BotClient extends Client {
 
     constructor() {
         super(null, {
+            sourceId: 'bot',
             nickname: botNames[Math.floor(Math.random() * botNames.length)],
             lang: '??'
         });

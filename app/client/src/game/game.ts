@@ -1,5 +1,5 @@
 import { io, Socket } from "socket.io-client";
-import { Player, PlayerInfo } from './player';
+import { Player, PlayerAuthInfo } from './player';
 import { getUserLang } from "./locales";
 import { Match } from "./match";
 import { Sandbox } from "./sandbox";
@@ -76,14 +76,21 @@ export class Game {
     }
 
     createGuestPlayer(): Player {
-        const getRandomNickname = () => {
-            const randomId = (Math.floor(Math.random() * 90000) + 11111);
-            return `guest-${randomId}`;
+        const guestId = (Math.floor(Math.random() * 90000) + 11111);
+        const guestName = `guest-${guestId}`;
+
+        const nickname = localStorage.getItem('hexgame:nickname') || guestName;
+        let sourceId = localStorage.getItem('hexgame:guest-id');
+
+        if (!sourceId) {
+            sourceId = `g-${guestId}-${Date.now()}`;
+            localStorage.setItem('hexgame:guest-id', sourceId);
         }
+
         return this.createPlayer({
-            nickname: localStorage.getItem('hexgame:nickname') || getRandomNickname(),
-            lang: getUserLang(),
-            externalId: null
+            sourceId,
+            nickname,
+            lang: getUserLang()
         });
     }
 
@@ -95,7 +102,7 @@ export class Game {
         return new Promise<void>(resolve => {
             this.setConnecting();
             this.socket.auth = {
-                info: this.player.info,
+                info: this.player.authInfo,
             };
             this.socket.connect();
 
@@ -171,7 +178,7 @@ export class Game {
         this.socket.emit('game:spectate-request', { matchId });
     }
 
-    createPlayer(info: PlayerInfo) {
+    createPlayer(info: PlayerAuthInfo) {
         return this.player = new Player(info);
     }
 

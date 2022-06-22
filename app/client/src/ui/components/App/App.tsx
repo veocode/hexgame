@@ -22,7 +22,7 @@ if (vk.isDetected()) {
       lang: getUserLang(),
       nickname: info.firstName,
       avatarUrl: info.avatarUrl,
-      externalId: `vk-${info.id}`
+      sourceId: `vk-${info.id}`
     });
     game.setLoggedOut();
   });

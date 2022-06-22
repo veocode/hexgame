@@ -13,27 +13,27 @@ interface LoginScreenProps {
 
 export const LoginScreen: React.FC<LoginScreenProps> = ({ game }) => {
     const nicknameInput = useRef<HTMLInputElement>(null);
-    const nickname = game.getPlayer().info.nickname;
+    const nickname = game.getPlayer().authInfo.nickname;
 
     const onPlayClick = () => {
         if (game.getPlayer().isGuest()) {
             const nickname = (nicknameInput.current?.value || 'unnamed').substring(0, 12);
             localStorage.setItem('hexgame:nickname', nickname);
-            game.getPlayer().info.nickname = nickname;
+            game.getPlayer().authInfo.nickname = nickname;
         }
         game.connectAndStart();
     };
 
     let userInput: JSX.Element = game.getPlayer().isGuest()
         ? <input type='text' maxLength={12} defaultValue={nickname} ref={nicknameInput} />
-        : <PlayerCard info={game.getPlayer().info} />;
+        : <PlayerCard info={game.getPlayer().authInfo} />;
 
     return (
         <div className='login-screen'>
             <LocaleSelector />
             <div className='login-form'>
                 <div className='inputs'>
-                    {game.getPlayer().info.lang === 'ru'
+                    {game.getPlayer().authInfo.lang === 'ru'
                         ?
                         <div className='logo logo-ru'>
                             <span>Г</span>

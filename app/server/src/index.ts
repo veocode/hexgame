@@ -1,3 +1,3 @@
-import { GameServer } from "./game/server";
+import { GameServer } from "./server";
 
 new GameServer();

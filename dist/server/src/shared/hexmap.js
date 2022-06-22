@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.HexMap = exports.HexNeighborLevel = void 0;
-const player_1 = require("./player");
+const types_1 = require("./types");
 const hexmapcell_1 = require("./hexmapcell");
 var HexNeighborLevel;
 (function (HexNeighborLevel) {
@@ -236,9 +236,9 @@ class HexMap {
             let cellValue = 0;
             if (cell.isEmpty())
                 cellValue = 1;
-            if (cell.isOccupiedBy(player_1.PlayerTag.Player1))
+            if (cell.isOccupiedBy(types_1.PlayerTag.Player1))
                 cellValue = 2;
-            if (cell.isOccupiedBy(player_1.PlayerTag.Player2))
+            if (cell.isOccupiedBy(types_1.PlayerTag.Player2))
                 cellValue = 3;
             serializedMap.push(cellValue);
         });
@@ -252,9 +252,9 @@ class HexMap {
             if (cellValue === 1)
                 cell.setEmpty();
             if (cellValue === 2)
-                cell.setOccupiedBy(player_1.PlayerTag.Player1);
+                cell.setOccupiedBy(types_1.PlayerTag.Player1);
             if (cellValue === 3)
-                cell.setOccupiedBy(player_1.PlayerTag.Player2);
+                cell.setOccupiedBy(types_1.PlayerTag.Player2);
         });
         return this;
     }

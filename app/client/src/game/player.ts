@@ -1,7 +1,8 @@
-export type PlayerInfo = {
+export type PlayerAuthInfo = {
+    sourceId: string | null,
     lang: string,
     nickname: string,
-    externalId: string | null
+    name?: string,
     avatarUrl?: string,
 }
 
@@ -10,10 +11,10 @@ export class Player {
     protected tag: number = 0;
     protected isAdministrator: boolean = false;
 
-    constructor(public readonly info: PlayerInfo) { }
+    constructor(public readonly authInfo: PlayerAuthInfo) { }
 
     isGuest(): boolean {
-        return !this.info.externalId;
+        return this.authInfo.sourceId?.startsWith('g-') || true;
     }
 
     isAdmin(): boolean {

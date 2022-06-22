@@ -1,6 +1,6 @@
 import { HexMap, HexNeighborLevel } from '../shared/hexmap';
-import { PlayerHasNoMovesReasons, PlayerTag } from '../shared/player';
-import { Client, ClientList } from './client';
+import { PlayerHasNoMovesReasons, PlayerTag } from '../shared/types';
+import { Client, ClientList } from '../client/client';
 import { generateId } from './utils';
 
 const MaxPlayers: number = 2;
@@ -389,7 +389,7 @@ export class GameMatch {
         const tags = [PlayerTag.Player1, PlayerTag.Player2];
         tags.forEach((tag: PlayerTag) => {
             scores[tag] = {
-                nickname: this.players[tag]?.info.nickname || '-',
+                nickname: this.players[tag]?.authInfo.nickname || '-',
                 score: 0
             };
         })
