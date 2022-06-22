@@ -3,9 +3,8 @@ version: "3.1"
 services:
 
   mongodb:
-    image: mongo:${MONGODB_VERSION}
     container_name: hex-mongo
-    network_mode: host
+    image: mongo:${MONGODB_VERSION}
     user: "1000:1000"
     volumes:
       - ./docker/conf/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
@@ -34,7 +33,7 @@ services:
       SERVER_WS_CERT_FILE: ${SERVER_WS_CERT_FILE}
       SERVER_WS_KEY_FILE: ${SERVER_WS_KEY_FILE}
       SERVER_CORS_ORIGIN: ${SERVER_CORS_ORIGIN}
-      SERVER_MONGODB_URL: ${MONGO_URL}
+      SERVER_MONGODB_URL: ${MONGODB_URL}
       SERVER_MONGODB_DATABASE: ${MONGODB_DATABASE}
     working_dir: /opt/app
     command: forever -o /opt/app/logs/server.out.log -e /opt/app/logs/server.err.log ./src/index.js
