@@ -19,10 +19,11 @@ const vk = new VkBridge();
 if (vk.isDetected()) {
   vk.getUserInfo().then(info => {
     game.createPlayer({
+      sourceId: `vk-${info.id}`,
       lang: getUserLang(),
       nickname: info.firstName,
-      avatarUrl: info.avatarUrl,
-      sourceId: `vk-${info.id}`
+      name: info.firstName + ' ' + info.lastName,
+      avatarUrl: info.avatarUrl
     });
     game.setLoggedOut();
   });
