@@ -15,25 +15,25 @@ export class GameServer {
     private socketServer: SocketIOServer;
 
     constructor() {
+        console.log(`Starting server with configuration`, Config);
         const port = Config.sockets.port;
+        this.connectDatabase().then(() => {
 
-        // this.connectDatabase().then(() => {
-        // console.log(`Connected to database...`);
+            console.log(`Connected to database...`);
 
-        this.createHttpServer();
-        this.createSocketServer();
-        this.bindSocketServerEvents();
+            this.createHttpServer();
+            this.createSocketServer();
+            this.bindSocketServerEvents();
 
-        this.httpServer.listen(port, () => {
-            console.log(`Server listening at port ${port}...`);
-        });
-        // }).catch(err => {
-        //     console.log(`ERROR: Failed to connect to database: ${err}`);
-        //     process.exit(1);
-        // });
+            this.httpServer.listen(port, () => {
+                console.log(`Server listening at port ${port}...`);
+            });
+
+        }).catch(err => this.halt(`Database connection error: ${err}`));
     }
 
     async connectDatabase(): Promise<typeof mongoose> {
+        if (!Config.db.url || !Config.db.name) this.halt(`Database config missed`);
         return mongoose.connect(`${Config.db.url}/${Config.db.name}`);
     }
 
@@ -65,8 +65,6 @@ export class GameServer {
         [isAdmin, info.nickname] = this.detectAdminByNickname(info.nickname);
         const client = new Client(socket, info, isAdmin);
 
-        console.log('player connected', info);
-
         this.gameManager.addClient(client);
 
         socket.on("error", () => socket.disconnect());
@@ -82,6 +80,11 @@ export class GameServer {
         const isAdmin = nickname === Config.admin.nickname;
         const editedNickname = isAdmin ? nickname.split('#')[0] : nickname;
         return [isAdmin, editedNickname];
+    }
+
+    halt(errorMessage: string) {
+        console.log(`FATAL: ${errorMessage}`);
+        process.exit(1);
     }
 
 }

@@ -5,9 +5,8 @@ services:
   mongodb:
     image: mongo:${MONGODB_VERSION}
     container_name: hex-mongo
+    network_mode: host
     user: "1000:1000"
-    networks:
-      - hex-network
     volumes:
       - ./docker/conf/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
       - ./storage/mongodb:/data/db:rw
@@ -24,8 +23,6 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile.server
-    networks:
-      - hex-network
     volumes:
       - ./docker/certs:/opt/app/certs
       - ./docker/logs:/opt/app/logs
@@ -37,6 +34,8 @@ services:
       SERVER_WS_CERT_FILE: ${SERVER_WS_CERT_FILE}
       SERVER_WS_KEY_FILE: ${SERVER_WS_KEY_FILE}
       SERVER_CORS_ORIGIN: ${SERVER_CORS_ORIGIN}
+      SERVER_MONGODB_URL: ${MONGO_URL}
+      SERVER_MONGODB_DATABASE: ${MONGODB_DATABASE}
     working_dir: /opt/app
     command: forever -o /opt/app/logs/server.out.log -e /opt/app/logs/server.err.log ./src/index.js
     depends_on:
@@ -45,8 +44,6 @@ services:
   client:
     container_name: hex-client
     image: nginx:alpine
-    networks:
-      - hex-network
     volumes:
       - ./dist/client:/opt/client/html:ro
       - ./docker/conf/nginx.conf:/etc/nginx/conf.d/default.conf
@@ -58,7 +55,7 @@ services:
       - server
 
 networks:
-  hex-network:
+  default:
     ipam:
       driver: default
       config:

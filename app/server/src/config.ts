@@ -4,8 +4,8 @@ const env = (name, defaultValue: any = false) => {
 
 export const Config = {
     db: {
-        url: env('MONGODB_URL', 'mongodb://hexgame:hexgamemongopassword@localhost:47017'),
-        name: env('MONGODB_DATABASE', 'hexgame'),
+        url: env('SERVER_MONGODB_URL'),
+        name: env('SERVER_MONGODB_DATABASE', 'hexgame'),
     },
     sockets: {
         port: env('SERVER_WS_PORT', 3010),
