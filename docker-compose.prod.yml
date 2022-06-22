@@ -3,18 +3,19 @@ version: "3.1"
 services:
 
   mongodb:
-    container_name: hex-mongo
     image: mongo:${MONGODB_VERSION}
+    container_name: hex-mongo
     user: "1000:1000"
     volumes:
       - ./docker/conf/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
       - ./storage/mongodb:/data/db:rw
     ports:
-      - ${MONGODB_PORT}:27017
+      - ${MONGODB_PORT}:${MONGODB_PORT}
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGODB_ROOT_USERNAME}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_ROOT_PASSWORD}
       MONGO_INITDB_DATABASE: ${MONGODB_DATABASE}
+    command: mongod --port ${MONGODB_PORT}
 
   server:
     container_name: hex-server
