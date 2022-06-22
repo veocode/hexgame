@@ -37,8 +37,8 @@ clear() {
     echo ""
     if [[ $REPLY =~ ^[Yy]$ ]]
     then
-        sudo rm -rf storage/mongodb/*
-        sudo chown -R 1000:1000 storage/mongodb
+        rm -rf storage/mongodb/*
+        chown -R 1000:1000 storage/mongodb
     fi
 }
 
