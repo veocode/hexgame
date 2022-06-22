@@ -90,6 +90,7 @@ export class Game {
         return this.createPlayer({
             sourceId,
             nickname,
+            name: nickname,
             lang: getUserLang()
         }, true);
     }
