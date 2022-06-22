@@ -16,6 +16,8 @@ const schema = new mongoose_1.Schema({
     nickname: { type: String, default: 'unnamed' },
     name: { type: String, default: 'unnamed' },
     avatarUrl: { type: String },
+    cityId: { type: Number, default: 0 },
+    countryId: { type: Number, default: 0 },
     score: {
         total: { type: Number, default: 0 },
         day: { type: Number, default: 0 },

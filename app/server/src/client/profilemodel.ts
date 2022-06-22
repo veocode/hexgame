@@ -10,6 +10,8 @@ export interface IProfile {
         total: number;
         today: number;
     }
+    cityId?: number;
+    countryId?: number;
     createdAt?: Date;
     visitedAt?: Date;
 }
@@ -29,6 +31,8 @@ const schema = new Schema<IProfile, IProfileModelMethods, IProfileMethods>({
     nickname: { type: String, default: 'unnamed' },
     name: { type: String, default: 'unnamed' },
     avatarUrl: { type: String },
+    cityId: { type: Number, default: 0 },
+    countryId: { type: Number, default: 0 },
     score: {
         total: { type: Number, default: 0 },
         day: { type: Number, default: 0 },

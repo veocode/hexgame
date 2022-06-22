@@ -4,6 +4,8 @@ export type PlayerAuthInfo = {
     nickname: string,
     name?: string,
     avatarUrl?: string,
+    cityId?: number,
+    countryId?: number,
 }
 
 export class Player {

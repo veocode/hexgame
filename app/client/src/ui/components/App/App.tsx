@@ -23,7 +23,9 @@ if (vk.isDetected()) {
       lang: getUserLang(),
       nickname: info.firstName,
       name: info.firstName + ' ' + info.lastName,
-      avatarUrl: info.avatarUrl
+      avatarUrl: info.avatarUrl,
+      cityId: info.cityId,
+      countryId: info.countryId,
     });
     game.setLoggedOut();
   });
