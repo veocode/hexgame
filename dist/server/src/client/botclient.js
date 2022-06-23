@@ -106,12 +106,12 @@ class BotClient extends client_1.Client {
             return this.makeMove(moves.maxCapture);
         }
         if (moves.near.length > 0)
-            return this.makeMove(this.shuffleArray(moves.near)[0]);
+            return this.makeMove(this.getRandomArrayItem(moves.near));
         if (moves.minLose)
             return this.makeMove(moves.minLose);
         if (moves.far.length > 0)
-            return this.makeMove(this.shuffleArray(moves.far)[0]);
-        return this.makeMove(this.shuffleArray(moves.all)[0]);
+            return this.makeMove(this.getRandomArrayItem(moves.far));
+        return this.makeMove(this.getRandomArrayItem(moves.all));
     }
     makeMove(move) {
         setTimeout(() => {
@@ -193,6 +193,9 @@ class BotClient extends client_1.Client {
             [array[i], array[j]] = [array[j], array[i]];
         }
         return array;
+    }
+    getRandomArrayItem(array) {
+        return array[Math.floor(Math.random() * array.length)];
     }
 }
 exports.BotClient = BotClient;
