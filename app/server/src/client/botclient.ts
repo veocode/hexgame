@@ -210,7 +210,7 @@ export class BotClient extends Client {
                     move.isJump ? moves.far.push(move) : moves.near.push(move);
 
                     const loseCounter = move.isJump ? ownToLoseInCounter : 0;
-                    const captureProfit = (hostileToCapture - loseCounter) + (move.isJump ? 0 : 1);
+                    const captureProfit = (hostileToCapture - loseCounter) + (move.isJump && Math.random() > 0.1 ? 0 : 1);
 
                     if (captureProfit > 0 && captureProfit > maxCaptureProfit) {
                         maxCaptureProfit = captureProfit;
