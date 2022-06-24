@@ -29,6 +29,7 @@ services:
     ports:
       - ${SERVER_WS_PORT}:${SERVER_WS_PORT}
     environment:
+      APP_ENV: prod
       SERVER_WS_PORT: ${SERVER_WS_PORT}
       SERVER_WS_CERT_FILE: ${SERVER_WS_CERT_FILE}
       SERVER_WS_KEY_FILE: ${SERVER_WS_KEY_FILE}

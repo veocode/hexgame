@@ -4,9 +4,9 @@ exports.Config = void 0;
 const env = (name, defaultValue = false) => {
     return process.env[name] || defaultValue;
 };
-const isWindows = process.platform === "win32";
+const isDev = env('APP_ENV', 'dev') === 'dev';
 const defaultMongo = {
-    host: isWindows ? 'localhost' : 'mongodb',
+    host: isDev ? 'localhost' : 'mongodb',
     port: 47017,
     user: 'hexgame:hexgamemongopassword',
     database: 'hexgame'

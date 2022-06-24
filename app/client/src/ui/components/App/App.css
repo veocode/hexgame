@@ -32,7 +32,7 @@ button {
     border-radius: 10px;
     border: none;
     background: linear-gradient(#4d545f, #40454e);
-    box-shadow: 0 2px 2px #2d3138;
+    box-shadow: 0 2px 2px #1f2227;
     color: #d3dbe7;
     font-size: 16px;
     cursor: pointer;
@@ -78,4 +78,20 @@ button.active {
     .button-fullscreen:hover .icon {
         opacity: 0.4;
     }
+}
+
+.scrollable {
+    overflow-y: auto;
+}
+
+.scrollable::-webkit-scrollbar {
+    width: 6px;
+}
+
+.scrollable::-webkit-scrollbar-track {
+    background-color: #3d4146;
+}
+
+.scrollable::-webkit-scrollbar-thumb {
+    background-color: #555b61;
 }

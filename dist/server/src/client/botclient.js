@@ -160,20 +160,23 @@ class BotClient extends client_1.Client {
                 emptyNeighbors[level].forEach(emptyCellId => {
                     const emptyCell = map.getCell(emptyCellId);
                     const hostileToCapture = map.getCellHostileNeighbors(emptyCellId, this.getTag()).length;
+                    const isJump = level === hexmap_1.HexNeighborLevel.Far;
                     const move = {
                         fromCell: cell,
                         toCell: emptyCell,
                         hostileToCapture,
-                        ownToLoseInCounter,
-                        isJump: level === hexmap_1.HexNeighborLevel.Far,
+                        ownToLoseInCounter: isJump ? ownToLoseInCounter : 0,
+                        isJump,
                     };
                     moves.all.push(move);
                     move.isJump ? moves.far.push(move) : moves.near.push(move);
                     const loseCounter = move.isJump ? ownToLoseInCounter : 0;
-                    const captureProfit = (hostileToCapture - loseCounter) + (move.isJump && Math.random() > 0.1 ? 0 : 1);
-                    if (captureProfit > 0 && captureProfit > maxCaptureProfit) {
-                        maxCaptureProfit = captureProfit;
-                        moves.maxCapture = move;
+                    if (hostileToCapture - move.ownToLoseInCounter > 0) {
+                        const captureProfit = (hostileToCapture - move.ownToLoseInCounter) + (move.isJump && Math.random() > 0.1 ? 0 : 1);
+                        if (captureProfit > 0 && captureProfit > maxCaptureProfit) {
+                            maxCaptureProfit = captureProfit;
+                            moves.maxCapture = move;
+                        }
                     }
                     if (loseCounter > 0 && loseCounter < minLose) {
                         minLose = loseCounter;

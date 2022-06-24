@@ -12,7 +12,7 @@ interface TutorialScreenProps {
 export const TutorialScreen: React.FC<TutorialScreenProps> = ({ game }) => {
     return (
         <div className='tutorial-screen'>
-            <div className='tutorial-panel'>
+            <div className='tutorial-panel scrollable'>
                 <h1>{texts.HowTo}</h1>
                 <div className='tutorial'>
                     <div className='page'>
