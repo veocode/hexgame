@@ -125,7 +125,7 @@ export class Match {
     }
 
     getInitialStateMessage() {
-        return '...';
+        return '';
     }
 
     bindSocketEvents() {
