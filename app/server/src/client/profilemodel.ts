@@ -47,7 +47,6 @@ const schema = new Schema<IProfile, IProfileModelMethods, IProfileMethods>({
 
 schema.statics.getBySourceId = async function (sourceId: string): Promise<ProfileModelType> {
     const result = await ProfileModel.findOne({ sourceId }).exec();
-    console.log('getBy', sourceId, result);
     return result;
 }
 
@@ -64,7 +63,7 @@ schema.statics.getOrCreateByAuthInfo = async function (authInfo: AuthInfo): Prom
 schema.statics.getTopPlayers = async function (period: string, count: number): Promise<ProfileModelType[]> {
     const sortDict: { [key: string]: SortOrder } = {};
     sortDict[`score.${period}`] = -1;
-    return await ProfileModel.find().sort(sortDict).limit(count).exec();
+    return await ProfileModel.find({ $ne: { sourceId: 'bot' } }).sort(sortDict).limit(count).exec();
 }
 
 schema.methods.getFullName = function (): string {

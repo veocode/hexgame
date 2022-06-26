@@ -30,7 +30,6 @@ const schema = new mongoose_1.Schema({
 schema.statics.getBySourceId = function (sourceId) {
     return __awaiter(this, void 0, void 0, function* () {
         const result = yield exports.ProfileModel.findOne({ sourceId }).exec();
-        console.log('getBy', sourceId, result);
         return result;
     });
 };
@@ -48,7 +47,7 @@ schema.statics.getTopPlayers = function (period, count) {
     return __awaiter(this, void 0, void 0, function* () {
         const sortDict = {};
         sortDict[`score.${period}`] = -1;
-        return yield exports.ProfileModel.find().sort(sortDict).limit(count).exec();
+        return yield exports.ProfileModel.find({ $ne: { sourceId: 'bot' } }).sort(sortDict).limit(count).exec();
     });
 };
 schema.methods.getFullName = function () {

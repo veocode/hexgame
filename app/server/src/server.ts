@@ -141,12 +141,10 @@ export class GameServer {
     }
 
     registerSocket(socket: Socket) {
-        console.log('registered: ', socket.id)
         this.sockets[socket.id] = socket;
     }
 
     unregisterSocket(socket: Socket) {
-        console.log('unregistered: ', socket.id)
         if (socket.id in this.sockets) delete this.sockets[socket.id];
     }
 
