@@ -7,8 +7,9 @@ import { SpectateMatch } from "./spectate";
 
 export enum GameState {
     Loading,
-    LoggedOut,
     Connecting,
+    LoggedOut,
+    Lobby,
     SearchingGame,
     Started,
     Over,
@@ -44,14 +45,33 @@ export interface GameServerStats {
     }
 }
 
+interface TopPlayerInfo {
+    place: number,
+    name: string,
+    points: number,
+    avatarUrl?: string
+}
+
+type TopPlayersDict = { [period: string]: TopPlayerInfo[] };
+
+interface LobbyData {
+    topPlayers: TopPlayersDict,
+    score: {
+        total: number,
+        today: number
+    }
+}
+
 type StateUpdatedCallback = (state: GameState) => void;
 type StatsUpdatedCallback = (result: GameServerStats) => void;
+type TopPlayersUpdatedCallback = (topPlayers: TopPlayersDict) => void;
 
 export class Game {
 
     public readonly socket: Socket;
 
     private state: GameState = GameState.Loading;
+    private lobbyData: LobbyData | null = null;
 
     protected player: Player;
     private match: Match | null = null;
@@ -59,7 +79,8 @@ export class Game {
 
     private callbacks: {
         StateUpdated?: StateUpdatedCallback | null,
-        StatsUpdated?: StatsUpdatedCallback | null
+        StatsUpdated?: StatsUpdatedCallback | null,
+        TopPlayersUpdated?: TopPlayersUpdatedCallback | null
     } = {};
 
     constructor(host: string) {
@@ -99,17 +120,23 @@ export class Game {
         return this.match;
     }
 
-    connect(): Promise<void> {
-        return new Promise<void>(resolve => {
-            this.setConnecting();
-            this.socket.auth = {
-                info: this.player.authInfo,
-            };
-            this.socket.connect();
+    connect() {
+        this.setConnecting();
+        this.socket.connect();
+        this.socket.once('game:connected', () => this.setLoggedOut());
+    }
 
-            this.socket.once('game:connected', ({ isAdmin }) => {
-                if (isAdmin) this.player.setAdmin();
-                resolve();
+    login() {
+        this.setLoading();
+        this.socket.emit('game:login', { authInfo: this.player.authInfo });
+        this.socket.once('game:logged', ({ isAdmin, topPlayers, score }) => {
+            if (isAdmin) {
+                this.player.setAdmin();
+                return this.setManagement();
+            }
+            this.setLobby({
+                topPlayers,
+                score
             });
         });
     }
@@ -117,11 +144,11 @@ export class Game {
     bindSocketEvents() {
         this.socket.on("connect_error", e => {
             alert(e.message);
-            this.setLoggedOut();
+            this.connect();
         });
 
         this.socket.on("disconnect", () => {
-            this.setLoggedOut();
+            this.connect();
         });
 
         this.socket.on('game:match:start', ({ playerTag, map, scores, maxTurnTime }) => {
@@ -168,7 +195,7 @@ export class Game {
             }
 
             this.setSearchingGame();
-        }, 500);
+        }, 200);
     }
 
     async searchAndStart(nickname?: string) {
@@ -185,6 +212,10 @@ export class Game {
 
     getPlayer(): Player {
         return this.player;
+    }
+
+    whenTopPlayersUpdated(callback: TopPlayersUpdatedCallback) {
+        this.callbacks.TopPlayersUpdated = callback;
     }
 
     whenStatsUpdated(callback: StatsUpdatedCallback) {
@@ -212,7 +243,6 @@ export class Game {
 
     setLoggedOut() {
         this.setState(GameState.LoggedOut);
-        if (this.socket.connected) this.socket.disconnect();
         if (this.match) this.match = null;
     }
 
@@ -222,6 +252,41 @@ export class Game {
 
     setConnecting() {
         this.setState(GameState.Connecting);
+        if (this.socket.connected) this.socket.disconnect();
+    }
+
+    isLoading(): boolean {
+        return this.state === GameState.Loading;
+    }
+
+    setLoading() {
+        this.setState(GameState.Loading);
+    }
+
+    isLobby(): boolean {
+        return this.state === GameState.Lobby;
+    }
+
+    setLobby(lobbyData: LobbyData | null = null) {
+        this.setLobbyData(lobbyData);
+
+        if (!lobbyData) {
+            this.setLoading();
+            this.socket.emit('game:lobby');
+            this.socket.once('game:lobby', (lobbyData) => {
+                this.setLobby(lobbyData);
+            })
+        } else {
+            this.setState(GameState.Lobby);
+        }
+    }
+
+    setLobbyData(lobbyData: LobbyData | null) {
+        this.lobbyData = lobbyData;
+    }
+
+    getLobbyData(): LobbyData | null {
+        return this.lobbyData;
     }
 
     isSearchingGame(): boolean {

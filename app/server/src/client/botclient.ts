@@ -3,6 +3,7 @@ import { HexMapCell } from "../shared/hexmapcell";
 import { PlayerHasNoMovesReasons } from "../shared/types";
 import { Client } from "./client";
 import { generateId } from "../game/utils";
+import { Profile } from "./profile";
 
 type SocketCallback = (...args: any[]) => void;
 type CallbackDict = { [eventName: string]: SocketCallback };
@@ -54,12 +55,12 @@ export class BotClient extends Client {
 
     private callbacks: CallbackDict = {};
 
-    constructor() {
-        super(null, {
-            sourceId: 'bot',
-            nickname: botNames[Math.floor(Math.random() * botNames.length)],
-            lang: '??'
-        });
+    static getRandomName(): string {
+        return botNames[Math.floor(Math.random() * botNames.length)];
+    }
+
+    constructor(profile: Profile) {
+        super(null, profile);
     }
 
     isBot(): boolean {

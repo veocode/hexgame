@@ -2,6 +2,7 @@ import { Socket } from "socket.io";
 import { PlayerTag } from "../shared/types";
 import { GameMatch } from "../game/match";
 import { AuthInfo } from "./authinfo";
+import { Profile } from "./profile";
 
 export class ClientList {
 
@@ -71,7 +72,7 @@ export class Client {
 
     constructor(
         private readonly socket: Socket | null,
-        public readonly authInfo: AuthInfo,
+        protected profile: Profile,
         isAdministrator: boolean = false
     ) {
         this.id = socket ? socket.id : this.getId();
@@ -84,8 +85,8 @@ export class Client {
 
     isGuest(): boolean {
         return !this.isBot()
-            && 'sourceId' in this.authInfo
-            && this.authInfo.sourceId.startsWith('g-');
+            && 'sourceId' in this.profile.authInfo
+            && this.profile.authInfo.sourceId.startsWith('g-');
     }
 
     isConnected(): boolean {
@@ -96,13 +97,21 @@ export class Client {
         return this.id;
     }
 
+    getProfile(): Profile {
+        return this.profile;
+    }
+
+    getAuthInfo(): AuthInfo {
+        return this.profile.authInfo;
+    }
+
     getNickname(): string {
-        return this.authInfo.nickname;
+        return this.profile.nickname;
     }
 
     getNicknameWithIcon(isPrepend: boolean = true): string {
         const icon = this.isBot() ? '🤖' : (this.isGuest() ? '👤' : '👨🏼‍💼');
-        return isPrepend ? `${icon} ${this.authInfo.nickname}` : `${this.authInfo.nickname} ${icon}`;
+        return isPrepend ? `${icon} ${this.profile.authInfo.nickname}` : `${this.profile.authInfo.nickname} ${icon}`;
     }
 
     isAdmin(): boolean {

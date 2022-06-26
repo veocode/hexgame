@@ -120,7 +120,7 @@ class GameMatch {
         this.spectators.disconnect();
         this.currentPlayerTag = 0;
         if (this.callbacks.Over)
-            this.callbacks.Over();
+            this.callbacks.Over(null);
     }
     finish(isNoMoves = false) {
         const scores = this.getPlayerScores();
@@ -136,11 +136,15 @@ class GameMatch {
         this.forEachPlayer(player => {
             if (!player)
                 return;
+            const pointsEarned = scores[player.getTag()].delta;
+            const pointsTotal = Math.max(player.getProfile().getTotalScore() + pointsEarned, 0);
             const matchResult = {
                 winner: winnerTag,
                 isWinner: !isWithdraw && winnerTag === player.getTag(),
                 isWithdraw,
                 isNoMoves,
+                pointsEarned,
+                pointsTotal,
                 scores
             };
             player.send('game:match:over', matchResult);
@@ -156,7 +160,7 @@ class GameMatch {
         });
         this.currentPlayerTag = 0;
         if (this.callbacks.Over)
-            this.callbacks.Over();
+            this.callbacks.Over(scores);
     }
     finishWithNoMoves(reasonType) {
         const loserTag = this.currentPlayerTag;
@@ -323,17 +327,24 @@ class GameMatch {
     getPlayerScores() {
         const scores = {};
         const tags = [types_1.PlayerTag.Player1, types_1.PlayerTag.Player2];
-        tags.forEach((tag) => {
+        tags.forEach(tag => {
             var _a;
             scores[tag] = {
-                nickname: ((_a = this.players[tag]) === null || _a === void 0 ? void 0 : _a.authInfo.nickname) || '-',
-                score: 0
+                nickname: ((_a = this.players[tag]) === null || _a === void 0 ? void 0 : _a.getAuthInfo().nickname) || '-',
+                score: 0,
+                delta: 0,
             };
         });
         this.map.getCells().forEach(cell => {
             if (!cell.isOccupied())
                 return;
             scores[cell.getOccupiedBy()].score += 1;
+        });
+        tags.forEach(tag => {
+            const opponentTag = tag === types_1.PlayerTag.Player1
+                ? types_1.PlayerTag.Player2
+                : types_1.PlayerTag.Player1;
+            scores[tag].delta = scores[tag].score - scores[opponentTag].score;
         });
         return scores;
     }

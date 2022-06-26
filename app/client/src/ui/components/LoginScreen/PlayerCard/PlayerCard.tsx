@@ -12,7 +12,9 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({ info }) => {
 
     return (
         <div className='player-card'>
-            <div className='avatar' style={{ backgroundImage: `url(${avatarUrl})` }}></div>
+            {avatarUrl && avatarUrl !== '#'
+                ? <div className='avatar' style={{ backgroundImage: `url(${avatarUrl})` }}></div>
+                : ''}
             <div className='name'>{info.nickname}</div>
         </div>
     )

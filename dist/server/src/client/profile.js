@@ -12,20 +12,43 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Profile = void 0;
 const profilemodel_1 = require("./profilemodel");
 class Profile {
-    constructor() {
+    constructor(authInfo) {
+        this.authInfo = authInfo;
         this.model = null;
+        this.nickname = '';
+        this.getModelByAuthInfo(this.authInfo).then(model => {
+            if (model) {
+                this.nickname = authInfo.nickname;
+                this.model = model;
+                this.model.visitedAt = new Date();
+                if (authInfo.sourceId !== 'bot') {
+                    this.model.nickname = this.authInfo.nickname;
+                    this.model.name = this.authInfo.name ? this.authInfo.name : this.authInfo.nickname;
+                }
+                this.model.save();
+            }
+        });
     }
-    load(authInfo) {
+    static createAndLoad(authInfo) {
         return __awaiter(this, void 0, void 0, function* () {
-            this.model = yield this.getModelByAuthInfo(authInfo);
-            if (this.model)
-                this.model['updateVisitedAt']();
+            return new Profile(authInfo);
         });
     }
     getModelByAuthInfo(authInfo) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield profilemodel_1.ProfileModel['getOrCreateByAuthInfo'](authInfo);
+            return yield profilemodel_1.ProfileModel.getOrCreateByAuthInfo(authInfo);
         });
+    }
+    addScore(points) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.model.addScore(points);
+        });
+    }
+    getScore() {
+        return this.model.score;
+    }
+    getTotalScore() {
+        return this.model.score.total || 0;
     }
 }
 exports.Profile = Profile;

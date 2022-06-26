@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GameManager = void 0;
 const client_1 = require("../client/client");
@@ -6,6 +15,7 @@ const match_1 = require("./match");
 const maps_1 = require("./maps");
 const botclient_1 = require("../client/botclient");
 const types_1 = require("../shared/types");
+const profile_1 = require("../client/profile");
 class GameManager {
     constructor() {
         this.admins = new client_1.ClientList;
@@ -78,13 +88,18 @@ class GameManager {
         if (opponentClient) {
             return this.createMatch(client, opponentClient);
         }
-        setTimeout(() => {
+        setTimeout(() => __awaiter(this, void 0, void 0, function* () {
             if (client.isSearchingGame()) {
                 client.setInGame();
-                const botOpponent = new botclient_1.BotClient();
+                const botProfile = yield profile_1.Profile.createAndLoad({
+                    sourceId: 'bot',
+                    nickname: botclient_1.BotClient.getRandomName(),
+                    lang: '??'
+                });
+                const botOpponent = new botclient_1.BotClient(botProfile);
                 this.createMatch(client, botOpponent);
             }
-        }, 3000);
+        }), 3000);
     }
     createMatch(player1, player2) {
         const match = new match_1.GameMatch(this.getRandomMap());
@@ -95,7 +110,19 @@ class GameManager {
         match.addPlayer(player1);
         match.addPlayer(player2);
         match.start();
-        match.whenOver(() => this.removeMatch(match));
+        match.whenOver((scores) => {
+            if (scores) {
+                const tags = [types_1.PlayerTag.Player1, types_1.PlayerTag.Player2];
+                tags.forEach(tag => {
+                    const player = match.getPlayer(tag);
+                    if (player) {
+                        const points = scores[tag].delta;
+                        player.getProfile().addScore(points);
+                    }
+                });
+            }
+            this.removeMatch(match);
+        });
         this.addMatch(match);
     }
     addMatch(match) {
@@ -118,7 +145,7 @@ class GameManager {
                 return admins.push(client.getNicknameWithIcon());
             players.push({
                 nickname: client.getNicknameWithIcon(),
-                lang: client.authInfo.lang
+                lang: client.getAuthInfo().lang
             });
         });
         Object.values(this.matches).forEach(match => {

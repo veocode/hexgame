@@ -15,13 +15,13 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ game }) => {
     const nicknameInput = useRef<HTMLInputElement>(null);
     const nickname = game.getPlayer().authInfo.nickname;
 
-    const onPlayClick = () => {
+    const onPlayClick = async () => {
         if (game.getPlayer().isGuest()) {
             const nickname = (nicknameInput.current?.value || 'unnamed').substring(0, 12);
             localStorage.setItem('hexgame:nickname', nickname);
             game.getPlayer().authInfo.nickname = nickname;
         }
-        game.connectAndStart();
+        await game.login();
     };
 
     let userInput: JSX.Element = game.getPlayer().isGuest()
@@ -57,7 +57,7 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ game }) => {
                         </div>
                     }
                     {userInput}
-                    <button onClick={() => onPlayClick()} className='button-play'>{texts.Play}</button>
+                    <button onClick={() => onPlayClick()} className='button-play'>{texts.LogIn}</button>
                     <button onClick={() => game.setTutorial()}>{texts.HowTo}</button>
                 </div>
             </div>

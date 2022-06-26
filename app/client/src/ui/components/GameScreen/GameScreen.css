@@ -75,7 +75,7 @@
 }
 
 .game-screen .result-box {
-    background: rgba(23, 30, 39, 0.85);
+    background: rgba(23, 30, 39, 0.92);
     padding: 30px;
     border-radius: 10px;
     width: 95%;
@@ -87,6 +87,53 @@
     color: #FFF;
     font-weight: lighter;
     margin-bottom: 20px;
+}
+
+.game-screen .result-box .result-points {
+    display: flex;
+    flex-direction: column;
+    color: #a4aeb9;
+    border: solid 1px #616b75;
+    border-radius: 10px;
+    padding: 15px 25px;
+    margin-bottom: 40px;
+}
+
+.game-screen .result-box .result-points .row {
+    display: flex;
+    line-height: 32px;
+    border-bottom: dashed 1px #616b75;
+    padding: 4px 0;
+}
+
+.game-screen .result-box .result-points .row:first-child {
+    padding-top: 0;
+}
+
+.game-screen .result-box .result-points .row:last-child {
+    border: none;
+    padding-bottom: 0;
+}
+
+.game-screen .result-box .result-points .row .label {
+    flex-grow: 1;
+    text-align: left;
+}
+
+.game-screen .result-box .result-points .row .points {
+    padding: 0 15px;
+    margin-left: 10px;
+    height: 32px;
+    line-height: 32px;
+    width: 25%;
+    text-align: center;
+    color: #FFF;
+    font-weight: bold;
+}
+
+.game-screen .result-box button {
+    margin-top: 5px;
+    margin-right: 5px;
 }
 
 .game-screen .spectator-panel {

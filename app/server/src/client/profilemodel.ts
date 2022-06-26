@@ -1,4 +1,4 @@
-import { Schema, model, Model, HydratedDocument } from 'mongoose';
+import { Schema, model, Model, HydratedDocument, SortOrder } from 'mongoose';
 import { AuthInfo } from './authinfo';
 
 export interface IProfile {
@@ -19,11 +19,13 @@ export interface IProfile {
 export interface IProfileMethods {
     getFullName(): string;
     updateVisitedAt(): void;
+    addScore(points: number): void;
 }
 
 export interface IProfileModelMethods extends Model<IProfile, {}, IProfileMethods> {
-    getBySourceId(sourceId: string): Promise<HydratedDocument<IProfile, IProfileMethods>>;
-    getOrCreateByAuthInfo(authInfo: AuthInfo);
+    getBySourceId(sourceId: string): Promise<ProfileModelType>;
+    getOrCreateByAuthInfo(authInfo: AuthInfo): Promise<ProfileModelType>;
+    getTopPlayers(period: string, count: number): Promise<ProfileModelType[]>;
 }
 
 const schema = new Schema<IProfile, IProfileModelMethods, IProfileMethods>({
@@ -35,7 +37,7 @@ const schema = new Schema<IProfile, IProfileModelMethods, IProfileMethods>({
     countryId: { type: Number, default: 0 },
     score: {
         total: { type: Number, default: 0 },
-        day: { type: Number, default: 0 },
+        today: { type: Number, default: 0 },
         week: { type: Number, default: 0 },
         month: { type: Number, default: 0 },
     },
@@ -43,18 +45,24 @@ const schema = new Schema<IProfile, IProfileModelMethods, IProfileMethods>({
     visitedAt: { type: Date, default: Date.now }
 });
 
-schema.statics.getBySourceId = async function (sourceId: string) {
+schema.statics.getBySourceId = async function (sourceId: string): Promise<ProfileModelType> {
     return await ProfileModel.findOne({ sourceId }).exec();
 }
 
-schema.statics.getOrCreateByAuthInfo = async function (authInfo: AuthInfo) {
+schema.statics.getOrCreateByAuthInfo = async function (authInfo: AuthInfo): Promise<ProfileModelType> {
     let profile = await this.getBySourceId(authInfo.sourceId);
-    if (profile) return profile;
+    if (profile !== null) return profile;
 
     profile = new this({ ...authInfo });
 
     await profile.save();
     return profile;
+}
+
+schema.statics.getTopPlayers = async function (period: string, count: number): Promise<ProfileModelType[]> {
+    const sortDict: { [key: string]: SortOrder } = {};
+    sortDict[`score.${period}`] = -1;
+    return await ProfileModel.find().sort(sortDict).limit(count).exec();
 }
 
 schema.methods.getFullName = function (): string {
@@ -66,4 +74,14 @@ schema.methods.updateVisitedAt = async function () {
     await this.save();
 }
 
-export const ProfileModel = model<IProfile>('ProfileModel', schema);
+schema.methods.addScore = async function (points: number) {
+    this.score.total = Math.max(this.score.total + points, 0);
+    this.score.today = Math.max(this.score.today + points, 0)
+    this.score.week = Math.max(this.score.week + points, 0)
+    this.score.month = Math.max(this.score.month + points, 0)
+    await this.save();
+}
+
+export type ProfileModelType = HydratedDocument<IProfile, IProfileMethods>;
+
+export const ProfileModel = model<IProfile, IProfileModelMethods, IProfileMethods>('ProfileModel', schema);

@@ -9,6 +9,7 @@ import { TutorialScreen } from '../TutorialScreen/TutorialScreen';
 import { ManagementScreen } from '../ManagementScreen/ManagementScreen';
 import { VkBridge } from '../../../vk/bridge';
 import './App.css';
+import { LobbyScreen } from '../LobbyScreen/LobbyScreen';
 
 
 const texts = getLocaleTexts();
@@ -27,18 +28,16 @@ if (vk.isDetected()) {
       cityId: info.cityId,
       countryId: info.countryId,
     });
-    game.setLoggedOut();
+    game.connect();
   });
 } else {
-  game.setLoggedOut();
+  game.connect();
 }
 
 export const App: React.FC<{}> = () => {
   const [state, setState] = useState<GameState>(game.getState());
 
-  game.whenStateUpdated((state: GameState) => {
-    setState(state);
-  });
+  game.whenStateUpdated(setState);
 
   let childComponents;
 
@@ -46,12 +45,16 @@ export const App: React.FC<{}> = () => {
     childComponents = <MessageScreen text='⏳' />;
   }
 
+  if (state === GameState.Connecting) {
+    childComponents = <MessageScreen text={texts.Connecting} />;
+  }
+
   if (state === GameState.LoggedOut) {
     childComponents = <LoginScreen game={game} />;
   }
 
-  if (state === GameState.Connecting) {
-    childComponents = <MessageScreen text={texts.Connecting} />;
+  if (state === GameState.Lobby) {
+    childComponents = <LobbyScreen game={game} />;
   }
 
   if (state === GameState.SearchingGame) {

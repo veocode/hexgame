@@ -12,15 +12,16 @@ const Delay = {
     betweenMoves: 800
 }
 
-type MatchPlayerList = { [key: number]: Client };
-type MatchScoreList = {
+export type MatchPlayerList = { [key: number]: Client };
+export type MatchScoreList = {
     [key: number]: {
         nickname: string,
-        score: number
+        score: number,
+        delta: number
     }
 };
 
-type MatchOverCallback = () => void;
+type MatchOverCallback = (scores: MatchScoreList | null) => void;
 
 export class GameMatch {
 
@@ -160,7 +161,7 @@ export class GameMatch {
         this.spectators.disconnect();
 
         this.currentPlayerTag = 0;
-        if (this.callbacks.Over) this.callbacks.Over();
+        if (this.callbacks.Over) this.callbacks.Over(null);
     }
 
     finish(isNoMoves: boolean = false) {
@@ -179,11 +180,16 @@ export class GameMatch {
         this.forEachPlayer(player => {
             if (!player) return;
 
+            const pointsEarned = scores[player.getTag()].delta;
+            const pointsTotal = Math.max(player.getProfile().getTotalScore() + pointsEarned, 0);
+
             const matchResult = {
                 winner: winnerTag,
                 isWinner: !isWithdraw && winnerTag === player.getTag(),
                 isWithdraw,
                 isNoMoves,
+                pointsEarned,
+                pointsTotal,
                 scores
             };
 
@@ -202,7 +208,7 @@ export class GameMatch {
         });
 
         this.currentPlayerTag = 0;
-        if (this.callbacks.Over) this.callbacks.Over();
+        if (this.callbacks.Over) this.callbacks.Over(scores);
     }
 
     finishWithNoMoves(reasonType: string) {
@@ -387,10 +393,11 @@ export class GameMatch {
         const scores = {}
 
         const tags = [PlayerTag.Player1, PlayerTag.Player2];
-        tags.forEach((tag: PlayerTag) => {
+        tags.forEach(tag => {
             scores[tag] = {
-                nickname: this.players[tag]?.authInfo.nickname || '-',
-                score: 0
+                nickname: this.players[tag]?.getAuthInfo().nickname || '-',
+                score: 0,
+                delta: 0,
             };
         })
 
@@ -398,6 +405,13 @@ export class GameMatch {
             if (!cell.isOccupied()) return;
             scores[cell.getOccupiedBy()].score += 1;
         });
+
+        tags.forEach(tag => {
+            const opponentTag = tag === PlayerTag.Player1
+                ? PlayerTag.Player2
+                : PlayerTag.Player1;
+            scores[tag].delta = scores[tag].score - scores[opponentTag].score;
+        })
 
         return scores;
     }

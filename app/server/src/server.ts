@@ -7,9 +7,20 @@ import { Client } from './client/client';
 import { readFileSync } from 'fs';
 import { AuthInfo } from './client/authinfo';
 import { Profile } from './client/profile';
+import { ProfileModel } from './client/profilemodel';
+
+interface TopPlayerInfo {
+    place: number,
+    name: string,
+    points: number,
+    avatarUrl?: string
+}
+
+type TopPlayersDict = { [period: string]: TopPlayerInfo[] };
 
 export class GameServer {
 
+    private sockets: { [key: string]: Socket } = {};
     private gameManager: GameManager = new GameManager();
 
     private httpServer: https.Server;
@@ -60,24 +71,32 @@ export class GameServer {
     }
 
     async onClientConnected(socket: Socket) {
-        let isAdmin = false;
-        const authInfo: AuthInfo = socket.handshake.auth.info;
+        this.registerSocket(socket);
+        socket.on("error", () => socket.disconnect());
+        socket.on("disconnect", () => this.unregisterSocket(socket));
+        socket.on("game:login", ({ authInfo }) => this.onClientLogin(socket, authInfo));
+        socket.emit('game:connected');
+    }
 
+    async onClientLogin(socket: Socket, authInfo: AuthInfo) {
+        let isAdmin = false;
         [isAdmin, authInfo.nickname] = this.detectAdminByNickname(authInfo.nickname);
 
-        const profile = new Profile();
-        await profile.load(authInfo);
-
-        const client = new Client(socket, authInfo, isAdmin);
+        const profile = await Profile.createAndLoad(authInfo);
+        const client = new Client(socket, profile, isAdmin);
 
         this.gameManager.addClient(client);
 
-        socket.on("error", () => socket.disconnect());
         socket.on("disconnect", () => this.gameManager.removeClient(client));
+        client.on("game:lobby", () => this.sendLobbyData(client));
 
-        socket.emit('game:connected', {
+        const topPlayers = await this.getTopPlayers(['today', 'total'], 5);
+
+        socket.emit('game:logged', {
             clientId: client.id,
-            isAdmin: client.isAdmin()
+            isAdmin: client.isAdmin(),
+            topPlayers,
+            score: profile.getScore()
         })
     }
 
@@ -87,9 +106,48 @@ export class GameServer {
         return [isAdmin, editedNickname];
     }
 
+    async sendLobbyData(client: Client) {
+        const topPlayers = await this.getTopPlayers(['today', 'total'], 5);
+        const score = client.getProfile().getScore();
+
+        client.send('game:lobby', {
+            topPlayers,
+            score
+        })
+    }
+
+    async getTopPlayers(periods: string[], count: number): Promise<TopPlayersDict> {
+        const topPlayers: TopPlayersDict = {};
+        const periodPromises = [];
+        periods.forEach(period => {
+            periodPromises.push(ProfileModel.getTopPlayers(period, 5).then(players => {
+                topPlayers[period] = players.map((profile, index) => {
+                    return {
+                        place: index + 1,
+                        name: profile.name,
+                        points: profile.score[period] || 0
+                    }
+                });
+            }))
+        });
+
+        await Promise.all(periodPromises);
+        return topPlayers;
+    }
+
     halt(errorMessage: string) {
         console.log(`FATAL: ${errorMessage}`);
         process.exit(1);
+    }
+
+    registerSocket(socket: Socket) {
+        console.log('registered: ', socket.id)
+        this.sockets[socket.id] = socket;
+    }
+
+    unregisterSocket(socket: Socket) {
+        console.log('unregistered: ', socket.id)
+        if (socket.id in this.sockets) delete this.sockets[socket.id];
     }
 
 }

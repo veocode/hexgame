@@ -27,15 +27,14 @@ const botNames = [
     'hexxeh',
 ];
 class BotClient extends client_1.Client {
-    constructor() {
-        super(null, {
-            sourceId: 'bot',
-            nickname: botNames[Math.floor(Math.random() * botNames.length)],
-            lang: '??'
-        });
+    constructor(profile) {
+        super(null, profile);
         this.botId = '';
         this.botNickname = '';
         this.callbacks = {};
+    }
+    static getRandomName() {
+        return botNames[Math.floor(Math.random() * botNames.length)];
     }
     isBot() {
         return true;

@@ -49,9 +49,9 @@ var ClientState;
     ClientState[ClientState["InGame"] = 2] = "InGame";
 })(ClientState = exports.ClientState || (exports.ClientState = {}));
 class Client {
-    constructor(socket, authInfo, isAdministrator = false) {
+    constructor(socket, profile, isAdministrator = false) {
         this.socket = socket;
-        this.authInfo = authInfo;
+        this.profile = profile;
         this.state = ClientState.Idle;
         this.tag = 0;
         this.isAdministrator = false;
@@ -65,8 +65,8 @@ class Client {
     }
     isGuest() {
         return !this.isBot()
-            && 'sourceId' in this.authInfo
-            && this.authInfo.sourceId.startsWith('g-');
+            && 'sourceId' in this.profile.authInfo
+            && this.profile.authInfo.sourceId.startsWith('g-');
     }
     isConnected() {
         return this.socket.connected;
@@ -74,12 +74,18 @@ class Client {
     getId() {
         return this.id;
     }
+    getProfile() {
+        return this.profile;
+    }
+    getAuthInfo() {
+        return this.profile.authInfo;
+    }
     getNickname() {
-        return this.authInfo.nickname;
+        return this.profile.nickname;
     }
     getNicknameWithIcon(isPrepend = true) {
         const icon = this.isBot() ? '🤖' : (this.isGuest() ? '👤' : '👨🏼‍💼');
-        return isPrepend ? `${icon} ${this.authInfo.nickname}` : `${this.authInfo.nickname} ${icon}`;
+        return isPrepend ? `${icon} ${this.profile.authInfo.nickname}` : `${this.profile.authInfo.nickname} ${icon}`;
     }
     isAdmin() {
         return this.isAdministrator;

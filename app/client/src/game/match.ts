@@ -42,20 +42,23 @@ export type MatchScoreDict = {
 export type MatchServerScoreDict = {
     [key: number]: {
         nickname: string,
-        score: number
+        score: number,
+        delta: number
     }
 };
 
 export interface ServerMatchResult {
+    winner: PlayerTag,
     isWinner: boolean,
     isWithdraw: boolean,
     isNoMoves: boolean,
+    pointsEarned: number,
+    pointsTotal: number,
     scores: MatchServerScoreDict
 }
 
-export interface MatchResult {
+export interface MatchResult extends ServerMatchResult {
     message: string,
-    scores: MatchServerScoreDict
 }
 
 type MapUpdatedCallback = (cells: HexMapCell[]) => void
@@ -202,16 +205,16 @@ export class Match {
             this.updateScores(scores);
         })
 
-        this.game.socket.on('game:match:over', ({ isWinner, isWithdraw, isNoMoves, scores }) => {
+        this.game.socket.on('game:match:over', (result: ServerMatchResult) => {
             this.turnTimer.stop();
 
-            const message = isWithdraw
+            const message = result.isWithdraw
                 ? texts.MatchWithdraw
-                : (isWinner ? texts.MatchWon : texts.MatchLost);
+                : (result.isWinner ? texts.MatchWon : texts.MatchLost);
 
-            this.setOver(isNoMoves, {
+            this.setOver(result.isNoMoves, {
                 message,
-                scores
+                ...result
             });
         })
 

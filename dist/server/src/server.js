@@ -18,8 +18,10 @@ const manager_1 = require("./game/manager");
 const client_1 = require("./client/client");
 const fs_1 = require("fs");
 const profile_1 = require("./client/profile");
+const profilemodel_1 = require("./client/profilemodel");
 class GameServer {
     constructor() {
+        this.sockets = {};
         this.gameManager = new manager_1.GameManager();
         console.log(`Starting server with configuration: `, config_1.Config);
         const port = config_1.Config.sockets.port;
@@ -60,18 +62,28 @@ class GameServer {
     }
     onClientConnected(socket) {
         return __awaiter(this, void 0, void 0, function* () {
-            let isAdmin = false;
-            const authInfo = socket.handshake.auth.info;
-            [isAdmin, authInfo.nickname] = this.detectAdminByNickname(authInfo.nickname);
-            const profile = new profile_1.Profile();
-            yield profile.load(authInfo);
-            const client = new client_1.Client(socket, authInfo, isAdmin);
-            this.gameManager.addClient(client);
+            this.registerSocket(socket);
             socket.on("error", () => socket.disconnect());
+            socket.on("disconnect", () => this.unregisterSocket(socket));
+            socket.on("game:login", ({ authInfo }) => this.onClientLogin(socket, authInfo));
+            socket.emit('game:connected');
+        });
+    }
+    onClientLogin(socket, authInfo) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let isAdmin = false;
+            [isAdmin, authInfo.nickname] = this.detectAdminByNickname(authInfo.nickname);
+            const profile = yield profile_1.Profile.createAndLoad(authInfo);
+            const client = new client_1.Client(socket, profile, isAdmin);
+            this.gameManager.addClient(client);
             socket.on("disconnect", () => this.gameManager.removeClient(client));
-            socket.emit('game:connected', {
+            client.on("game:lobby", () => this.sendLobbyData(client));
+            const topPlayers = yield this.getTopPlayers(['today', 'total'], 5);
+            socket.emit('game:logged', {
                 clientId: client.id,
-                isAdmin: client.isAdmin()
+                isAdmin: client.isAdmin(),
+                topPlayers,
+                score: profile.getScore()
             });
         });
     }
@@ -80,9 +92,47 @@ class GameServer {
         const editedNickname = isAdmin ? nickname.split('#')[0] : nickname;
         return [isAdmin, editedNickname];
     }
+    sendLobbyData(client) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const topPlayers = yield this.getTopPlayers(['today', 'total'], 5);
+            const score = client.getProfile().getScore();
+            client.send('game:lobby', {
+                topPlayers,
+                score
+            });
+        });
+    }
+    getTopPlayers(periods, count) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const topPlayers = {};
+            const periodPromises = [];
+            periods.forEach(period => {
+                periodPromises.push(profilemodel_1.ProfileModel.getTopPlayers(period, 5).then(players => {
+                    topPlayers[period] = players.map((profile, index) => {
+                        return {
+                            place: index + 1,
+                            name: profile.name,
+                            points: profile.score[period] || 0
+                        };
+                    });
+                }));
+            });
+            yield Promise.all(periodPromises);
+            return topPlayers;
+        });
+    }
     halt(errorMessage) {
         console.log(`FATAL: ${errorMessage}`);
         process.exit(1);
+    }
+    registerSocket(socket) {
+        console.log('registered: ', socket.id);
+        this.sockets[socket.id] = socket;
+    }
+    unregisterSocket(socket) {
+        console.log('unregistered: ', socket.id);
+        if (socket.id in this.sockets)
+            delete this.sockets[socket.id];
     }
 }
 exports.GameServer = GameServer;

@@ -1,6 +1,6 @@
 import { Game } from "./game";
 import { getLocaleTexts } from "./locales";
-import { emojiLifeTime, Match, MatchServerScoreDict } from "./match";
+import { emojiLifeTime, Match, MatchServerScoreDict, ServerMatchResult } from "./match";
 import { PlayerTag, PlayerColorsList, PlayerHasNoMovesReasons } from "../shared/types";
 
 const texts = getLocaleTexts();
@@ -92,16 +92,16 @@ export class SpectateMatch extends Match {
             this.updateScores(scores);
         })
 
-        this.game.socket.on('game:match:over', ({ winner, isWithdraw, isNoMoves, scores }) => {
+        this.game.socket.on('game:match:over', (result: ServerMatchResult) => {
             this.turnTimer.stop();
 
-            const message = isWithdraw
+            const message = result.isWithdraw
                 ? texts.MatchWithdraw
-                : `${this.getPlayerName(winner)} победил`;
+                : `${this.getPlayerName(result.winner)} победил`;
 
-            this.setOver(isNoMoves, {
+            this.setOver(result.isNoMoves, {
                 message,
-                scores
+                ...result
             });
         })
 

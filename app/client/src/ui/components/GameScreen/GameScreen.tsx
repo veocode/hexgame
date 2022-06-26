@@ -30,21 +30,43 @@ export const GameScreen: React.FC<GameScreenProps> = ({ match }) => {
     match.whenEmojisUpdated(setEmojis);
     match.whenEmojisLockUpdated(setEmojisLocked);
 
-    const resultBox = matchResult ? (
-        <div className='result-wrap'>
-            <div className='result-box'>
-                <div className='message'>
-                    {matchResult.message}
-                </div>
-                <div className='button'>
-                    {match.isSpectating()
-                        ? <button onClick={() => match.getGame().setLoggedOut()}>{texts.Quit}</button>
-                        : <button onClick={() => match.getGame().searchAndStart()}>{texts.PlayAgain}</button>
-                    }
+    let resultBox: JSX.Element | null = null;
+
+    if (matchResult) {
+        const points = matchResult.pointsEarned;
+        const signedPoints = points > 0 ? `+${points}` : `${points}`;
+
+        resultBox = (
+            <div className='result-wrap'>
+                <div className='result-box'>
+                    <div className='message'>
+                        {matchResult.message}
+                    </div>
+                    {points !== 0 && !match.isSpectating() ?
+                        <div className='result-points'>
+                            <div className='row'>
+                                <div className='label'>{texts.PointsEarned}:</div>
+                                <div className='points'>{signedPoints}</div>
+                            </div>
+                            <div className='row'>
+                                <div className='label'>{texts.PointsTotal}:</div>
+                                <div className='points'>{matchResult.pointsTotal}</div>
+                            </div>
+                        </div>
+                        : ''}
+                    <div className='button'>
+                        {match.isSpectating()
+                            ? <button onClick={() => match.getGame().setManagement()}>{texts.Quit}</button>
+                            : <div>
+                                <button onClick={() => match.getGame().searchAndStart()}>{texts.PlayAgain}</button>
+                                <button onClick={() => match.getGame().setLobby()}>{texts.Quit}</button>
+                            </div>
+                        }
+                    </div>
                 </div>
             </div>
-        </div>
-    ) : '';
+        );
+    }
 
     return (
         <div className='game-screen'>
@@ -67,7 +89,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ match }) => {
                 />
                 {(!isEmojisLocked && !match.isSpectating()) ? <EmojiSelector onSelected={emoji => match.sendEmoji(emoji)} /> : ''}
                 {match.isSpectating()
-                    ? <div className='spectator-panel'><span>Spectator Mode</span><button onClick={() => match.getGame().setLoggedOut()}>Quit</button></div>
+                    ? <div className='spectator-panel'><span>Spectator Mode</span><button onClick={() => match.getGame().setManagement()}>Quit</button></div>
                     : ''}
                 {resultBox}
             </div>

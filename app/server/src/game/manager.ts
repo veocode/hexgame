@@ -1,8 +1,9 @@
 import { Client, ClientList } from "../client/client";
-import { GameMatch } from "./match";
+import { GameMatch, MatchScoreList } from "./match";
 import { Maps } from "./maps";
 import { BotClient } from "../client/botclient";
 import { PlayerTag } from "../shared/types";
+import { Profile } from "../client/profile";
 
 interface ServerPlayerDescription {
     nickname: string,
@@ -113,10 +114,17 @@ export class GameManager {
             return this.createMatch(client, opponentClient);
         }
 
-        setTimeout(() => {
+        setTimeout(async () => {
             if (client.isSearchingGame()) {
                 client.setInGame();
-                const botOpponent = new BotClient();
+
+                const botProfile = await Profile.createAndLoad({
+                    sourceId: 'bot',
+                    nickname: BotClient.getRandomName(),
+                    lang: '??'
+                })
+
+                const botOpponent = new BotClient(botProfile);
                 this.createMatch(client, botOpponent);
             }
         }, 3000);
@@ -135,7 +143,20 @@ export class GameManager {
         match.addPlayer(player2);
         match.start();
 
-        match.whenOver(() => this.removeMatch(match));
+        match.whenOver((scores: MatchScoreList | null) => {
+            if (scores) {
+                const tags = [PlayerTag.Player1, PlayerTag.Player2];
+                tags.forEach(tag => {
+                    const player = match.getPlayer(tag);
+                    if (player) {
+                        const points = scores[tag].delta;
+                        player.getProfile().addScore(points);
+                    }
+                })
+            }
+            this.removeMatch(match);
+        });
+
         this.addMatch(match);
     }
 
@@ -161,7 +182,7 @@ export class GameManager {
             if (client.isAdmin()) return admins.push(client.getNicknameWithIcon());
             players.push({
                 nickname: client.getNicknameWithIcon(),
-                lang: client.authInfo.lang
+                lang: client.getAuthInfo().lang
             });
         })
 
