@@ -16,7 +16,7 @@ export const LobbyScreen: React.FC<LobbyScreenProps> = ({ game }) => {
     const tops: JSX.Element[] = [];
 
     if (lobbyData) {
-        const periods = ['today', 'total'];
+        const periods = ['total'];
 
         periods.forEach(period => {
             const playerRows: JSX.Element[] = [];
