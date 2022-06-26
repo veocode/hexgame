@@ -17,19 +17,18 @@ export class Profile {
     constructor(public readonly authInfo: AuthInfo) { }
 
     async load() {
-        this.getModelByAuthInfo(this.authInfo).then(model => {
-            this.nickname = this.authInfo.nickname;
+        const model = await this.getModelByAuthInfo(this.authInfo);
+        this.nickname = this.authInfo.nickname;
 
-            this.model = model;
-            this.model.visitedAt = new Date();
+        this.model = model;
+        this.model.visitedAt = new Date();
 
-            if (this.authInfo.sourceId !== 'bot') {
-                this.model.nickname = this.authInfo.nickname;
-                this.model.name = this.authInfo.name ? this.authInfo.name : this.authInfo.nickname;
-            }
+        if (this.authInfo.sourceId !== 'bot') {
+            this.model.nickname = this.authInfo.nickname;
+            this.model.name = this.authInfo.name ? this.authInfo.name : this.authInfo.nickname;
+        }
 
-            this.model.save();
-        });
+        this.model.save();
     }
 
     static async createAndLoad(authInfo: AuthInfo) {
@@ -47,7 +46,10 @@ export class Profile {
     }
 
     getScore(): ProfileScoreDict {
-        return this.model.score;
+        return this.model ? this.model.score : {
+            total: 0,
+            today: 0
+        };
     }
 
     getTotalScore(): number {

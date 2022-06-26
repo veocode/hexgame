@@ -19,16 +19,15 @@ class Profile {
     }
     load() {
         return __awaiter(this, void 0, void 0, function* () {
-            this.getModelByAuthInfo(this.authInfo).then(model => {
-                this.nickname = this.authInfo.nickname;
-                this.model = model;
-                this.model.visitedAt = new Date();
-                if (this.authInfo.sourceId !== 'bot') {
-                    this.model.nickname = this.authInfo.nickname;
-                    this.model.name = this.authInfo.name ? this.authInfo.name : this.authInfo.nickname;
-                }
-                this.model.save();
-            });
+            const model = yield this.getModelByAuthInfo(this.authInfo);
+            this.nickname = this.authInfo.nickname;
+            this.model = model;
+            this.model.visitedAt = new Date();
+            if (this.authInfo.sourceId !== 'bot') {
+                this.model.nickname = this.authInfo.nickname;
+                this.model.name = this.authInfo.name ? this.authInfo.name : this.authInfo.nickname;
+            }
+            this.model.save();
         });
     }
     static createAndLoad(authInfo) {
@@ -49,7 +48,10 @@ class Profile {
         });
     }
     getScore() {
-        return this.model.score;
+        return this.model ? this.model.score : {
+            total: 0,
+            today: 0
+        };
     }
     getTotalScore() {
         return this.model.score.total || 0;
