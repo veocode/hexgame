@@ -29,7 +29,9 @@ const schema = new mongoose_1.Schema({
 });
 schema.statics.getBySourceId = function (sourceId) {
     return __awaiter(this, void 0, void 0, function* () {
-        return yield exports.ProfileModel.findOne({ sourceId }).exec();
+        const result = yield exports.ProfileModel.findOne({ sourceId }).exec();
+        console.log('getBy', sourceId, result);
+        return result;
     });
 };
 schema.statics.getOrCreateByAuthInfo = function (authInfo) {

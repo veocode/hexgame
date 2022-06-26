@@ -14,26 +14,28 @@ export class Profile {
 
     public nickname: string = '';
 
-    constructor(public readonly authInfo: AuthInfo) {
+    constructor(public readonly authInfo: AuthInfo) { }
+
+    async load() {
         this.getModelByAuthInfo(this.authInfo).then(model => {
-            if (model) {
-                this.nickname = authInfo.nickname;
+            this.nickname = this.authInfo.nickname;
 
-                this.model = model;
-                this.model.visitedAt = new Date();
+            this.model = model;
+            this.model.visitedAt = new Date();
 
-                if (authInfo.sourceId !== 'bot') {
-                    this.model.nickname = this.authInfo.nickname;
-                    this.model.name = this.authInfo.name ? this.authInfo.name : this.authInfo.nickname;
-                }
-
-                this.model.save();
+            if (this.authInfo.sourceId !== 'bot') {
+                this.model.nickname = this.authInfo.nickname;
+                this.model.name = this.authInfo.name ? this.authInfo.name : this.authInfo.nickname;
             }
+
+            this.model.save();
         });
     }
 
     static async createAndLoad(authInfo: AuthInfo) {
-        return new Profile(authInfo);
+        const profile = new Profile(authInfo);
+        await profile.load();
+        return profile;
     }
 
     private async getModelByAuthInfo(authInfo: AuthInfo) {

@@ -46,7 +46,9 @@ const schema = new Schema<IProfile, IProfileModelMethods, IProfileMethods>({
 });
 
 schema.statics.getBySourceId = async function (sourceId: string): Promise<ProfileModelType> {
-    return await ProfileModel.findOne({ sourceId }).exec();
+    const result = await ProfileModel.findOne({ sourceId }).exec();
+    console.log('getBy', sourceId, result);
+    return result;
 }
 
 schema.statics.getOrCreateByAuthInfo = async function (authInfo: AuthInfo): Promise<ProfileModelType> {

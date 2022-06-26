@@ -111,7 +111,7 @@ class GameServer {
                     topPlayers[period] = players.map((profile, index) => {
                         return {
                             place: index + 1,
-                            name: profile.name,
+                            name: profile.name.replace('#admin', ''),
                             points: profile.score[period] || 0
                         };
                     });

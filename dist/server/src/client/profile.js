@@ -16,22 +16,26 @@ class Profile {
         this.authInfo = authInfo;
         this.model = null;
         this.nickname = '';
-        this.getModelByAuthInfo(this.authInfo).then(model => {
-            if (model) {
-                this.nickname = authInfo.nickname;
+    }
+    load() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.getModelByAuthInfo(this.authInfo).then(model => {
+                this.nickname = this.authInfo.nickname;
                 this.model = model;
                 this.model.visitedAt = new Date();
-                if (authInfo.sourceId !== 'bot') {
+                if (this.authInfo.sourceId !== 'bot') {
                     this.model.nickname = this.authInfo.nickname;
                     this.model.name = this.authInfo.name ? this.authInfo.name : this.authInfo.nickname;
                 }
                 this.model.save();
-            }
+            });
         });
     }
     static createAndLoad(authInfo) {
         return __awaiter(this, void 0, void 0, function* () {
-            return new Profile(authInfo);
+            const profile = new Profile(authInfo);
+            yield profile.load();
+            return profile;
         });
     }
     getModelByAuthInfo(authInfo) {
