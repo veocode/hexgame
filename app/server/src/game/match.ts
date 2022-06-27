@@ -4,7 +4,7 @@ import { Client, ClientList } from '../client/client';
 import { generateId } from './utils';
 
 const MaxPlayers: number = 2;
-const MaxTurnTimeSeconds: number = 3;
+const MaxTurnTimeSeconds: number = 30;
 const MaxMissedTurnsCount: number = 3;
 
 const Delay = {
@@ -30,6 +30,7 @@ export class GameMatch {
     private players: MatchPlayerList = {};
     private spectators: ClientList = new ClientList();
     private currentPlayerTag: PlayerTag = PlayerTag.Player1;
+    private turnCounter: number = 0;
 
     private callbacks: {
         Over?: MatchOverCallback | null
@@ -43,6 +44,10 @@ export class GameMatch {
 
     getMap(): HexMap {
         return this.map;
+    }
+
+    getTurn(): number {
+        return this.turnCounter;
     }
 
     hasBot(): boolean {
@@ -135,6 +140,7 @@ export class GameMatch {
     }
 
     start() {
+        this.turnCounter = 0;
         this.currentPlayerTag = this.getRandomPlayerTag();
 
         this.forEachPlayer((player: Client) => {
@@ -265,6 +271,8 @@ export class GameMatch {
             this.finishWithNoMoves(PlayerHasNoMovesReasons.Left);
             return;
         }
+
+        this.turnCounter++;
 
         this.spectators.send('game:match:move-started', {
             player: player.getTag()

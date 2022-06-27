@@ -92,18 +92,21 @@ export class BotClient extends Client {
     }
 
     send(eventName, data: any) {
+        const chanceToHelloEmoji = 0.33;
+        const chanceToNoMovesEmoji = 0.40;
+
         if (eventName === 'game:match:move-request') {
             this.respondWithMove();
         }
 
         if (eventName === 'game:match:start') {
-            if (Math.random() > 0.75) {
-                this.sendEmoji('👋', 1000 + Math.random() * 500);
+            if (Math.random() <= chanceToHelloEmoji) {
+                this.sendEmoji('👋', 1000 + Math.random() * 1000);
             }
         }
 
         if (eventName === 'game:match:no-moves') {
-            if (Math.random() > 0.60) {
+            if (Math.random() <= chanceToNoMovesEmoji) {
                 const { loserTag, reasonType } = data;
                 if (reasonType !== PlayerHasNoMovesReasons.Left) {
                     if (loserTag === this.getTag()) {
@@ -127,17 +130,22 @@ export class BotClient extends Client {
     private respondWithMove() {
         const moves = this.getPossibleMoves();
 
-        if (moves.maxCapture) {
-            if (moves.maxCaptureProfit >= 4) {
-                if (Math.random() >= .70) this.sendEmoji('😎', 1200);
-            } else if (moves.maxCaptureProfit >= 3) {
-                if (Math.random() >= .90) this.sendEmoji('😀', 1200);
-            }
+        const chanceToCaptureJump = this.match.getTurn() < 5 ? 0.2 : 0.7;
+        const chanceToEmojiOnBigCapture = 0.15;
+        const chanceToEmojiOnCapture = 0.08;
 
+        if (moves.maxCapture && (moves.maxCaptureProfit > 1 || Math.random() <= chanceToCaptureJump)) {
+            if (moves.maxCaptureProfit >= 4) {
+                if (Math.random() <= chanceToEmojiOnBigCapture) this.sendEmoji('😎', 1500);
+            } else if (moves.maxCaptureProfit >= 3) {
+                if (Math.random() <= chanceToEmojiOnCapture) this.sendEmoji('😀', 1500);
+            }
             return this.makeMove(moves.maxCapture);
         }
 
         if (moves.near.length > 0) return this.makeMove(this.getRandomArrayItem(moves.near));
+
+        if (moves.maxCapture) return this.makeMove(moves.maxCapture);
 
         if (moves.minLose) return this.makeMove(moves.minLose);
 

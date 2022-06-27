@@ -6,7 +6,7 @@ const types_1 = require("../shared/types");
 const client_1 = require("../client/client");
 const utils_1 = require("./utils");
 const MaxPlayers = 2;
-const MaxTurnTimeSeconds = 3;
+const MaxTurnTimeSeconds = 30;
 const MaxMissedTurnsCount = 3;
 const Delay = {
     noMovesFillPerCell: 200,
@@ -17,6 +17,7 @@ class GameMatch {
         this.players = {};
         this.spectators = new client_1.ClientList();
         this.currentPlayerTag = types_1.PlayerTag.Player1;
+        this.turnCounter = 0;
         this.callbacks = {};
         this.id = (0, utils_1.generateId)();
         this.map = new hexmap_1.HexMap();
@@ -24,6 +25,9 @@ class GameMatch {
     }
     getMap() {
         return this.map;
+    }
+    getTurn() {
+        return this.turnCounter;
     }
     hasBot() {
         let hasBot = false;
@@ -97,6 +101,7 @@ class GameMatch {
         this.spectators.forEach(spectator => callback(spectator));
     }
     start() {
+        this.turnCounter = 0;
         this.currentPlayerTag = this.getRandomPlayerTag();
         this.forEachPlayer((player) => {
             player.resetMissedTurns();
@@ -211,6 +216,7 @@ class GameMatch {
             this.finishWithNoMoves(types_1.PlayerHasNoMovesReasons.Left);
             return;
         }
+        this.turnCounter++;
         this.spectators.send('game:match:move-started', {
             player: player.getTag()
         });
