@@ -166,7 +166,7 @@ export class Client {
     }
 
     disconnect() {
-        this.socket.disconnect();
+        this.socket.disconnect(true);
     }
 
     setIdle() {

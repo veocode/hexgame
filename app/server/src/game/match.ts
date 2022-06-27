@@ -346,11 +346,7 @@ export class GameMatch {
         if (player.getTag() === this.currentPlayerTag) {
             player.addMissedTurn();
             if (player.getMissedTurns() == MaxMissedTurnsCount) {
-                if (player.isConnected()) {
-                    player.disconnect();
-                } else {
-                    return this.finishWithNoMoves(PlayerHasNoMovesReasons.Left);
-                }
+                return this.finishWithNoMoves(PlayerHasNoMovesReasons.Left);
             }
             this.nextTurn();
         }

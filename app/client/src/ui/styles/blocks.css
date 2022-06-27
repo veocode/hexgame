@@ -34,3 +34,34 @@
 .scrollable::-webkit-scrollbar-thumb {
   background-color: #555b61;
 }
+
+.stat-table {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-table .row {
+  display: flex;
+  font-size: 18px;
+  color: #FFF;
+  padding: 10px 0;
+  border-bottom: dashed 1px #555b61;
+}
+
+.stat-table .row:last-child {
+  border: none;
+}
+
+.stat-table .row .name {
+  text-align: right;
+  flex-grow: 1;
+  font-weight: lighter;
+  color: #a4aeb9;
+}
+
+.stat-table .row .value {
+  width: 33%;
+  padding-left: 15px;
+  font-weight: bold;
+  text-align: left;
+}

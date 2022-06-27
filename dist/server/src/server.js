@@ -116,7 +116,7 @@ class GameServer {
             const topPlayers = {};
             const periodPromises = [];
             periods.forEach(period => {
-                periodPromises.push(profilemodel_1.ProfileModel.getTopPlayers(period, 5).then(players => {
+                periodPromises.push(profilemodel_1.ProfileModel.getTopPlayers(period, 8).then(players => {
                     topPlayers[period] = players.map((profile, index) => {
                         return {
                             place: index + 1,

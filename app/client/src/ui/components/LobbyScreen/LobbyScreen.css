@@ -1,94 +1,39 @@
-.lobby-screen {
-    position: relative;
+.lobby-screen.screen {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    color: #a4aeb9;
+}
+
+.lobby-screen .body {
+    flex-grow: 1;
+    display: flex;
     width: 100%;
-    height: 100%;
+    justify-content: center;
     overflow: hidden;
 }
 
-.lobby-screen h1 {
-    font-weight: lighter;
-    color: #FFF;
+@media (max-width: 540px) {
+    .lobby-screen .body {
+        flex-direction: column;
+    }
 }
 
-.lobby-screen .lobby-panel {
-    height: 100%;
-    width: 100%;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
+.lobby-screen .player-panel {
+    background: #3a4049;
+    border-radius: 5px;
     align-items: center;
-}
-
-.lobby-screen section {
-    color: #a4aeb9;
-    font-weight: lighter;
-    border: solid 1px #555b61;
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 10px;
-    margin-right: 10px;
-    width: 95%;
-    max-width: 400px;
-}
-
-.lobby-screen section h3 {
-    font-weight: lighter;
-    color: #FFF;
-    margin: 0;
-    margin-bottom: 10px;
-}
-
-.lobby-screen .stat-table {
     display: flex;
     flex-direction: column;
+    margin-bottom: 20px;
+    padding: 20px 0;
 }
 
-.lobby-screen .stat-table .row {
-    display: flex;
-    font-size: 18px;
-    color: #FFF;
-    padding: 10px 0;
-    border-bottom: dashed 1px #555b61;
-}
-
-.lobby-screen .stat-table .row:last-child {
-    border: none;
-}
-
-.lobby-screen .stat-table .row .name {
-    text-align: right;
-    flex-grow: 1;
-    font-weight: lighter;
-    color: #a4aeb9;
-}
-
-.lobby-screen .stat-table .row .value {
-    width: 33%;
-    padding-left: 15px;
-    font-weight: bold;
-    text-align: left;
-}
-
-.lobby-screen .score-table .place {
-    width: 15%;
-}
-
-.lobby-screen .score-table .row .name {
-    text-align: left;
-}
-
-.lobby-screen .welcome {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.lobby-screen .player-panel .player-card {
     margin-bottom: 20px;
 }
 
-.lobby-screen .welcome .player-card {
-    margin-bottom: 20px;
-}
-
-.lobby-screen .welcome .stat-table {
+.lobby-screen .player-panel .stat-table {
     margin-bottom: 20px;
 }
 
@@ -96,15 +41,77 @@
     min-width: 200px;
 }
 
-.lobby-screen .button-play {
-    background: linear-gradient(#2e9ac9, #1e617e);
-    color: #FFF;
-    font-weight: bold;
-    height: 40px;
-    margin-bottom: 8px;
-    padding: 0 40px;
+.lobby-screen .tops-panel {
+    flex-grow: 1;
+    display: flex;
+    max-width: 815px;
 }
 
-.lobby-screen .button-play:hover {
-    background: linear-gradient(#32A6D9, #24779b);
+.lobby-screen .tops-panel section {
+    flex-grow: 1;
+    margin-left: 10px;
+    color: #a4aeb9;
+    font-weight: lighter;
+    margin-bottom: 10px;
+    width: 95%;
+}
+
+@media (max-width: 540px) {
+    .lobby-screen .tops-panel {
+        flex-direction: column;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+
+    .lobby-screen .tops-panel section {
+        width: 100%;
+        margin: 0;
+        margin-bottom: 10px;
+    }
+}
+
+.lobby-screen .top {
+    border: solid 1px #555b61;
+    border-radius: 5px;
+    padding: 15px 20px;
+    flex-grow: 1;
+}
+
+.lobby-screen .top h3 {
+    font-weight: lighter;
+    font-size: 16px;
+    color: #FFF;
+    margin: 0;
+    margin-bottom: 20px;
+}
+
+.lobby-screen .top .stat-table .row {
+    font-size: 14px;
+    line-height: 14px;
+}
+
+.lobby-screen .top .stat-table .row .place {
+    font-size: 12px;
+    opacity: 0.2;
+}
+
+.lobby-screen .top .stat-table .row .name {
+    text-align: center;
+    overflow: hidden;
+}
+
+.lobby-screen .top .stat-table .row .name b {
+    font-weight: normal;
+    color: #FFF;
+}
+
+@media (max-width: 730px) and (max-height: 500px) {
+    .lobby-screen .top-today {
+        width: 100%;
+    }
+
+    .lobby-screen .top-total {
+        display: none;
+        flex-grow: 0;
+    }
 }

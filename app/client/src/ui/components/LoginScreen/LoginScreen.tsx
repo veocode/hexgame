@@ -42,7 +42,8 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ game }) => {
             </div>
             {game.getPlayer().isGuest() ?
                 <div className='footer'>
-                    🌐 <a href="https://playhex.online" target='_top'>playhex.online</a>
+                    🌐 <a href="https://playhex.online" target='_top'>playhex.online</a><br />
+                    send feedback to <a href="mailto:me@veocode.ru">me@veocode.ru</a>
                 </div> : ''}
         </div>
     );

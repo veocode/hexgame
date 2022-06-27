@@ -82,7 +82,7 @@ export const App: React.FC<{}> = () => {
   return (
     <div className='game-app'>
       {childComponents}
-      {(state !== GameState.Tutorial && state !== GameState.Loading) ?
+      {(state !== GameState.Tutorial && state !== GameState.Loading && state !== GameState.Lobby) ?
         <button
           className='button-fullscreen'
           title='F11'

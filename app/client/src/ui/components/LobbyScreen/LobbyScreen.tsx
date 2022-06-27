@@ -17,7 +17,7 @@ export const LobbyScreen: React.FC<LobbyScreenProps> = ({ game }) => {
     const tops: JSX.Element[] = [];
 
     if (lobbyData) {
-        const periods = ['total'];
+        const periods = ['today', 'total'];
 
         periods.forEach(period => {
             const playerRows: JSX.Element[] = [];
@@ -26,17 +26,18 @@ export const LobbyScreen: React.FC<LobbyScreenProps> = ({ game }) => {
                     playerRows.push(
                         <div className='row' key={index}>
                             <div className='place'>#{topPlayer.place}</div>
-                            <div className='name nickname'>{topPlayer.name}</div>
-                            <div className='value'>{topPlayer.points}</div>
+                            <div className='name nickname'>{topPlayer.name} - <b>{topPlayer.points}</b></div>
                         </div>
                     )
                 })
 
                 tops.push(
-                    <section key={period}>
-                        <h3>{texts[`TopPlayers_${period}`]}</h3>
-                        <div className='stat-table score-table'>
-                            {playerRows}
+                    <section key={period} className={`top-${period}`}>
+                        <div className='top'>
+                            <h3>{texts[`TopPlayers_${period}`]}</h3>
+                            <div className='stat-table score-table'>
+                                {playerRows}
+                            </div>
                         </div>
                     </section>
                 )
@@ -45,24 +46,30 @@ export const LobbyScreen: React.FC<LobbyScreenProps> = ({ game }) => {
     }
 
     return (
-        <div className='lobby-screen screen'>
-            <div className='lobby-panel scrollable'>
-                <Logo lang={game.getPlayer().authInfo.lang} scale={0.65} margin={15} />
-                <section className='welcome'>
-                    <PlayerCard info={game.getPlayer().authInfo} />
-                    <div className='stat-table' style={{ width: '300px' }}>
-                        <div className='row'>
-                            <div className='name'>{texts.Points}:</div>
-                            <div className='value'>{lobbyData?.score.total}</div>
+        <div className='lobby-screen screen scrollable'>
+            <div className='header'>
+                <Logo lang={game.getPlayer().authInfo.lang} scale={0.5} margin={5} />
+            </div>
+            <div className='body'>
+                <div className='player-panel-col'>
+                    <div className='player-panel'>
+                        <PlayerCard info={game.getPlayer().authInfo} />
+                        <div className='stat-table' style={{ width: '300px' }}>
+                            <div className='row'>
+                                <div className='name'>{texts.Points}:</div>
+                                <div className='value'>{lobbyData?.score.total}</div>
+                            </div>
                         </div>
+                        <button className='button-primary' onClick={() => game.searchAndStart()}>{texts.Play}</button>
+                        {game.getPlayer().isAdmin()
+                            ? <button onClick={() => game.setManagement()}>Live Stats</button>
+                            : <button onClick={() => game.setTutorial()}>{texts.HowTo}</button>
+                        }
                     </div>
-                    <button className='button-primary' onClick={() => game.searchAndStart()}>{texts.Play}</button>
-                    {game.getPlayer().isAdmin()
-                        ? <button onClick={() => game.setManagement()}>Live Stats</button>
-                        : <button onClick={() => game.setTutorial()}>{texts.HowTo}</button>
-                    }
-                </section>
-                {tops}
+                </div>
+                <div className='tops-panel scrollable'>
+                    {tops}
+                </div>
             </div>
         </div>
     );

@@ -128,7 +128,7 @@ class Client {
         this.socket.emit(eventName, ...args);
     }
     disconnect() {
-        this.socket.disconnect();
+        this.socket.disconnect(true);
     }
     setIdle() {
         this.state = ClientState.Idle;
