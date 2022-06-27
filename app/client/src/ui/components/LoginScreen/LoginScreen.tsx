@@ -61,9 +61,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ game }) => {
                     <button onClick={() => game.setTutorial()}>{texts.HowTo}</button>
                 </div>
             </div>
-            <div className='footer'>
-                {/* made with ❤️ by <a href="mailto:me@veocode.ru">veocode</a> */}
-            </div>
+            {game.getPlayer().isGuest() ?
+                <div className='footer'>
+                    🌐 <a href="https://playhex.online" target='_top'>playhex.online</a>
+                </div> : ''}
         </div>
     );
 };

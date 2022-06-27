@@ -111,14 +111,13 @@
     left: 50%;
     transform: translate(-50%, 0);
     color: #AAA;
-    opacity: .65;
     width: 100%;
     font-size: 14px;
     z-index: 2;
 }
 
 .footer a {
-    color: #AAA;
+    color: #2e9ac9;
 }
 
 .footer a:hover {
