@@ -35,6 +35,22 @@
 
 .lobby-screen .player-panel .stat-table {
     margin-bottom: 20px;
+    width: 100%;
+    min-width: 260px;
+}
+
+.lobby-screen .player-panel .stat-table .name {
+    text-align: center;
+    font-size: 16px;
+}
+
+.lobby-screen .player-panel .stat-table .name b {
+    color: #FFF;
+    padding-left: 10px;
+}
+
+.lobby-screen .player-panel .player-card {
+    width: 90%;
 }
 
 .lobby-screen button {
@@ -86,12 +102,12 @@
 }
 
 .lobby-screen .top .stat-table .row {
-    font-size: 14px;
-    line-height: 14px;
+    font-size: 13px;
+    line-height: 16px;
 }
 
 .lobby-screen .top .stat-table .row .place {
-    font-size: 12px;
+    font-size: 11px;
     opacity: 0.2;
 }
 

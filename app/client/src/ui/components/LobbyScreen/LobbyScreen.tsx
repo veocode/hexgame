@@ -54,10 +54,9 @@ export const LobbyScreen: React.FC<LobbyScreenProps> = ({ game }) => {
                 <div className='player-panel-col'>
                     <div className='player-panel'>
                         <PlayerCard info={game.getPlayer().authInfo} />
-                        <div className='stat-table' style={{ width: '300px' }}>
+                        <div className='stat-table'>
                             <div className='row'>
-                                <div className='name'>{texts.Points}:</div>
-                                <div className='value'>{lobbyData?.score.total}</div>
+                                <div className='name'>{texts.Points}: <b>{lobbyData?.score.total}</b></div>
                             </div>
                         </div>
                         <button className='button-primary' onClick={() => game.searchAndStart()}>{texts.Play}</button>
