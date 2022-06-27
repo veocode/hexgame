@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GameServer = void 0;
 const https = require("https");
+const cron = require("node-cron");
 const mongoose_1 = require("mongoose");
 const socket_io_1 = require("socket.io");
 const config_1 = require("./config");
@@ -22,6 +23,12 @@ const profilemodel_1 = require("./client/profilemodel");
 const logger_1 = require("./shared/logger");
 class GameServer {
     constructor() {
+        this.cronJobs = {
+            'reset-points-daily': {
+                interval: '0 0 * * *',
+                handler: this.resetPointsDaily
+            }
+        };
         this.sockets = {};
         this.gameManager = new manager_1.GameManager();
         logger_1.logger.log(`Starting server...`);
@@ -33,6 +40,7 @@ class GameServer {
             this.bindSocketServerEvents();
             this.httpServer.listen(port, () => {
                 logger_1.logger.log(`Server listening at port ${port}...`);
+                this.scheduleCronJobs();
             });
         }).catch(err => this.halt(`Database connection error: ${err}`));
     }
@@ -132,6 +140,21 @@ class GameServer {
     unregisterSocket(socket) {
         if (socket.id in this.sockets)
             delete this.sockets[socket.id];
+    }
+    scheduleCronJobs() {
+        Object.keys(this.cronJobs).forEach(jobName => {
+            const job = this.cronJobs[jobName];
+            logger_1.logger.log(`CRON Scheduling: ${jobName} (${job.interval})`);
+            cron.schedule(job.interval, () => {
+                logger_1.logger.log(`CRON Running: ${jobName}`);
+                job.handler.call(this);
+            });
+        });
+    }
+    resetPointsDaily() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield profilemodel_1.ProfileModel.resetScore('today');
+        });
     }
 }
 exports.GameServer = GameServer;

@@ -5,11 +5,11 @@ class Logger {
     }
 
     log(...args: any[]) {
-        console.log(`[${this.date()}] `, ...args);
+        console.log(`[${this.date()}]`, ...args);
     }
 
     error(...args: any[]) {
-        console.error(`[${this.date()}] [ERROR] `, ...args);
+        console.error(`[${this.date()}]`, '[ERROR]', ...args);
     }
 
 }

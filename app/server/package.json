@@ -20,6 +20,8 @@
   "dependencies": {
     "mongodb": "^4.7.0",
     "mongoose": "^6.4.0",
-    "socket.io": "^4.5.1"
+    "node-cron": "^3.0.1",
+    "socket.io": "^4.5.1",
+    "uuid": "^8.3.2"
   }
 }

@@ -1,6 +1,7 @@
-import * as https from 'https'
-import mongoose from 'mongoose'
-import { Server as SocketIOServer, Socket } from 'socket.io'
+import * as https from 'https';
+import * as cron from 'node-cron';
+import mongoose from 'mongoose';
+import { Server as SocketIOServer, Socket } from 'socket.io';
 import { Config } from './config';
 import { GameManager } from './game/manager';
 import { Client } from './client/client';
@@ -19,7 +20,21 @@ interface TopPlayerInfo {
 
 type TopPlayersDict = { [period: string]: TopPlayerInfo[] };
 
+type CronJobsList = {
+    [name: string]: {
+        interval: string
+        handler: () => void
+    }
+};
+
 export class GameServer {
+
+    private cronJobs: CronJobsList = {
+        'reset-points-daily': {
+            interval: '0 0 * * *',
+            handler: this.resetPointsDaily
+        }
+    }
 
     private sockets: { [key: string]: Socket } = {};
     private gameManager: GameManager = new GameManager();
@@ -40,6 +55,7 @@ export class GameServer {
 
             this.httpServer.listen(port, () => {
                 logger.log(`Server listening at port ${port}...`)
+                this.scheduleCronJobs();
             });
 
         }).catch(err => this.halt(`Database connection error: ${err}`));
@@ -147,6 +163,21 @@ export class GameServer {
 
     unregisterSocket(socket: Socket) {
         if (socket.id in this.sockets) delete this.sockets[socket.id];
+    }
+
+    scheduleCronJobs() {
+        Object.keys(this.cronJobs).forEach(jobName => {
+            const job = this.cronJobs[jobName];
+            logger.log(`CRON Scheduling: ${jobName} (${job.interval})`)
+            cron.schedule(job.interval, () => {
+                logger.log(`CRON Running: ${jobName}`);
+                job.handler.call(this);
+            });
+        })
+    }
+
+    async resetPointsDaily() {
+        await ProfileModel.resetScore('today');
     }
 
 }

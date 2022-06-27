@@ -6,10 +6,10 @@ class Logger {
         return (new Date()).toLocaleString();
     }
     log(...args) {
-        console.log(`[${this.date()}] `, ...args);
+        console.log(`[${this.date()}]`, ...args);
     }
     error(...args) {
-        console.error(`[${this.date()}] [ERROR] `, ...args);
+        console.error(`[${this.date()}]`, '[ERROR]', ...args);
     }
 }
 exports.logger = new Logger();

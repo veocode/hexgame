@@ -47,7 +47,14 @@ schema.statics.getTopPlayers = function (period, count) {
     return __awaiter(this, void 0, void 0, function* () {
         const sortDict = {};
         sortDict[`score.${period}`] = -1;
-        return yield exports.ProfileModel.find({ sourceId: { $ne: 'bot' } }).sort(sortDict).limit(count).exec();
+        return yield this.find({ sourceId: { $ne: 'bot' } }).sort(sortDict).limit(count).exec();
+    });
+};
+schema.statics.resetScore = function (period) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const updateDict = { $set: {} };
+        updateDict.$set[`score.${period}`] = 0;
+        yield this.updateMany({}, updateDict, { multi: true }).exec();
     });
 };
 schema.methods.getFullName = function () {

@@ -26,6 +26,7 @@ export interface IProfileModelMethods extends Model<IProfile, {}, IProfileMethod
     getBySourceId(sourceId: string): Promise<ProfileModelType>;
     getOrCreateByAuthInfo(authInfo: AuthInfo): Promise<ProfileModelType>;
     getTopPlayers(period: string, count: number): Promise<ProfileModelType[]>;
+    resetScore(period: string): Promise<void>;
 }
 
 const schema = new Schema<IProfile, IProfileModelMethods, IProfileMethods>({
@@ -63,7 +64,13 @@ schema.statics.getOrCreateByAuthInfo = async function (authInfo: AuthInfo): Prom
 schema.statics.getTopPlayers = async function (period: string, count: number): Promise<ProfileModelType[]> {
     const sortDict: { [key: string]: SortOrder } = {};
     sortDict[`score.${period}`] = -1;
-    return await ProfileModel.find({ sourceId: { $ne: 'bot' } }).sort(sortDict).limit(count).exec();
+    return await this.find({ sourceId: { $ne: 'bot' } }).sort(sortDict).limit(count).exec();
+}
+
+schema.statics.resetScore = async function (period: string): Promise<void> {
+    const updateDict: { [key: string]: any } = { $set: {} };
+    updateDict.$set[`score.${period}`] = 0;
+    await this.updateMany({}, updateDict, { multi: true }).exec();
 }
 
 schema.methods.getFullName = function (): string {
