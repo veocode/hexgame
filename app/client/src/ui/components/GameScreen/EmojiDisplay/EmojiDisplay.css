@@ -1,5 +1,6 @@
 .emoji-display {
     width: 100%;
+    max-width: 1000px;
     position: relative;
 }
 
