@@ -115,7 +115,7 @@ export class GameManager {
         }
 
         setTimeout(async () => {
-            if (client.isSearchingGame()) {
+            if (client.isConnected() && client.isSearchingGame()) {
                 client.setInGame();
 
                 const botProfile = await Profile.createAndLoad({

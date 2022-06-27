@@ -19,19 +19,20 @@ const client_1 = require("./client/client");
 const fs_1 = require("fs");
 const profile_1 = require("./client/profile");
 const profilemodel_1 = require("./client/profilemodel");
+const logger_1 = require("./shared/logger");
 class GameServer {
     constructor() {
         this.sockets = {};
         this.gameManager = new manager_1.GameManager();
-        console.log(`Starting server with configuration: `, config_1.Config);
+        logger_1.logger.log(`Starting server...`);
         const port = config_1.Config.sockets.port;
         this.connectDatabase().then(() => {
-            console.log(`Connected to database...`);
+            logger_1.logger.log(`Connected to database...`);
             this.createHttpServer();
             this.createSocketServer();
             this.bindSocketServerEvents();
             this.httpServer.listen(port, () => {
-                console.log(`Server listening at port ${port}...`);
+                logger_1.logger.log(`Server listening at port ${port}...`);
             });
         }).catch(err => this.halt(`Database connection error: ${err}`));
     }
@@ -122,7 +123,7 @@ class GameServer {
         });
     }
     halt(errorMessage) {
-        console.log(`FATAL: ${errorMessage}`);
+        logger_1.logger.error(errorMessage);
         process.exit(1);
     }
     registerSocket(socket) {

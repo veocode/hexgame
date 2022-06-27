@@ -89,7 +89,7 @@ class GameManager {
             return this.createMatch(client, opponentClient);
         }
         setTimeout(() => __awaiter(this, void 0, void 0, function* () {
-            if (client.isSearchingGame()) {
+            if (client.isConnected() && client.isSearchingGame()) {
                 client.setInGame();
                 const botProfile = yield profile_1.Profile.createAndLoad({
                     sourceId: 'bot',

@@ -143,7 +143,6 @@ export class Game {
 
     bindSocketEvents() {
         this.socket.on("connect_error", e => {
-            alert(e.message);
             this.connect();
         });
 

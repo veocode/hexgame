@@ -8,6 +8,7 @@ import { readFileSync } from 'fs';
 import { AuthInfo } from './client/authinfo';
 import { Profile } from './client/profile';
 import { ProfileModel } from './client/profilemodel';
+import { logger } from './shared/logger';
 
 interface TopPlayerInfo {
     place: number,
@@ -27,18 +28,18 @@ export class GameServer {
     private socketServer: SocketIOServer;
 
     constructor() {
-        console.log(`Starting server with configuration: `, Config);
+        logger.log(`Starting server...`);
 
         const port = Config.sockets.port;
         this.connectDatabase().then(() => {
-            console.log(`Connected to database...`);
+            logger.log(`Connected to database...`);
 
             this.createHttpServer();
             this.createSocketServer();
             this.bindSocketServerEvents();
 
             this.httpServer.listen(port, () => {
-                console.log(`Server listening at port ${port}...`);
+                logger.log(`Server listening at port ${port}...`)
             });
 
         }).catch(err => this.halt(`Database connection error: ${err}`));
@@ -136,7 +137,7 @@ export class GameServer {
     }
 
     halt(errorMessage: string) {
-        console.log(`FATAL: ${errorMessage}`);
+        logger.error(errorMessage);
         process.exit(1);
     }
 

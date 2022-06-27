@@ -36,6 +36,7 @@ services:
       SERVER_CORS_ORIGIN: ${SERVER_CORS_ORIGIN}
       SERVER_MONGODB_URL: ${MONGODB_URL}
       SERVER_MONGODB_DATABASE: ${MONGODB_DATABASE}
+      SERVER_ADMIN_NICKNAME: ${SERVER_ADMIN_NICKNAME}
     working_dir: /opt/app
     command: forever -o /opt/app/logs/server.out.log -e /opt/app/logs/server.err.log ./src/index.js
     depends_on:
