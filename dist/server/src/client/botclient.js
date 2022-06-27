@@ -39,6 +39,9 @@ class BotClient extends client_1.Client {
     isBot() {
         return true;
     }
+    isConnected() {
+        return true;
+    }
     getId() {
         if (this.botId)
             return this.botId;

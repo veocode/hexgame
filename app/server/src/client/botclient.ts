@@ -67,6 +67,10 @@ export class BotClient extends Client {
         return true;
     }
 
+    isConnected(): boolean {
+        return true;
+    }
+
     getId(): string {
         if (this.botId) return this.botId;
         return this.botId = generateId();
