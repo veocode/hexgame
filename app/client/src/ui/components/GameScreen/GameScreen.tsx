@@ -56,7 +56,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ match }) => {
                         : ''}
                     <div className='button'>
                         {match.isSpectating()
-                            ? <button onClick={() => match.getGame().setManagement()}>{texts.Quit}</button>
+                            ? <button onClick={() => match.getGame().stopSpectating()}>{texts.Quit}</button>
                             : <div>
                                 <button onClick={() => match.getGame().searchAndStart()}>{texts.PlayAgain}</button>
                                 <button onClick={() => match.getGame().setLobby()}>{texts.Quit}</button>
@@ -69,7 +69,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ match }) => {
     }
 
     return (
-        <div className='game-screen'>
+        <div className='game-screen screen'>
             <StatePanel
                 scores={matchScores}
             />
@@ -87,12 +87,14 @@ export const GameScreen: React.FC<GameScreenProps> = ({ match }) => {
                     onCellClick={id => match.onCellClick(id)}
                     playerColors={match.getPlayerColors()}
                 />
-                {(!isEmojisLocked && !match.isSpectating()) ? <EmojiSelector onSelected={emoji => match.sendEmoji(emoji)} /> : ''}
-                {match.isSpectating()
-                    ? <div className='spectator-panel'><span>Spectator Mode</span><button onClick={() => match.getGame().setManagement()}>Quit</button></div>
-                    : ''}
+                {match.isSpectating() ?
+                    <div className='spectator-panel'>
+                        <span>Spectator Mode</span>
+                        <button onClick={() => match.getGame().stopSpectating()}>Quit</button>
+                    </div> : ''}
                 {resultBox}
             </div>
+            {(!isEmojisLocked && !match.isSpectating()) ? <EmojiSelector onSelected={emoji => match.sendEmoji(emoji)} /> : ''}
         </div>
     );
 };

@@ -76,6 +76,9 @@ class GameManager {
         client.on('game:spectate-request', ({ matchId }) => {
             this.spectateMatchByClient(client, matchId);
         });
+        client.on('game:spectate-stop', () => {
+            this.removeSpectator(client);
+        });
     }
     searchGameForClient(client) {
         client.setSearchingGame();
@@ -198,6 +201,11 @@ class GameManager {
             return;
         const match = this.matches[matchId];
         match.addSpectator(client);
+    }
+    removeSpectator(client) {
+        const match = client.getMatch();
+        if (match)
+            match.removeSpectator(client);
     }
 }
 exports.GameManager = GameManager;

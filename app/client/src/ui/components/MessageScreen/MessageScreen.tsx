@@ -7,7 +7,7 @@ interface MessageScreenProps {
 
 export const MessageScreen: React.FC<MessageScreenProps> = ({ text }) => {
     return (
-        <div className='message-screen'>
+        <div className='message-screen screen'>
             <div className='message'>
                 {text}
             </div>

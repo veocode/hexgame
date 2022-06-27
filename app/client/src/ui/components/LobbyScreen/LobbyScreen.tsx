@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { Game } from '../../../game/game';
 import { getLocaleTexts } from '../../../game/locales';
+import { Logo } from '../App/Logo/Logo';
 import { PlayerCard } from '../LoginScreen/PlayerCard/PlayerCard';
 import './LobbyScreen.css';
 
@@ -44,31 +45,9 @@ export const LobbyScreen: React.FC<LobbyScreenProps> = ({ game }) => {
     }
 
     return (
-        <div className='lobby-screen'>
-            <div className='lobby-panel'>
-                {game.getPlayer().authInfo.lang === 'ru'
-                    ?
-                    <div className='logo logo-ru'>
-                        <span>Г</span>
-                        <span className='e'>
-                            <span className='bg pulse'></span>
-                            <span className='bg'></span>
-                            <span className='letter'>E</span>
-                        </span>
-                        <span>К</span>
-                        <span>С</span>
-                    </div>
-                    :
-                    <div className='logo logo-en'>
-                        <span>H</span>
-                        <span className='e'>
-                            <span className='bg pulse'></span>
-                            <span className='bg'></span>
-                            <span className='letter'>E</span>
-                        </span>
-                        <span>X</span>
-                    </div>
-                }
+        <div className='lobby-screen screen'>
+            <div className='lobby-panel scrollable'>
+                <Logo lang={game.getPlayer().authInfo.lang} scale={0.65} margin={15} />
                 <section className='welcome'>
                     <PlayerCard info={game.getPlayer().authInfo} />
                     <div className='stat-table' style={{ width: '300px' }}>
@@ -77,8 +56,11 @@ export const LobbyScreen: React.FC<LobbyScreenProps> = ({ game }) => {
                             <div className='value'>{lobbyData?.score.total}</div>
                         </div>
                     </div>
-                    <button className='button button-play' onClick={() => game.searchAndStart()}>{texts.Play}</button>
-                    <button onClick={() => game.setTutorial()}>{texts.HowTo}</button>
+                    <button className='button-primary' onClick={() => game.searchAndStart()}>{texts.Play}</button>
+                    {game.getPlayer().isAdmin()
+                        ? <button onClick={() => game.setManagement()}>Live Stats</button>
+                        : <button onClick={() => game.setTutorial()}>{texts.HowTo}</button>
+                    }
                 </section>
                 {tops}
             </div>

@@ -47,7 +47,7 @@ schema.statics.getTopPlayers = function (period, count) {
     return __awaiter(this, void 0, void 0, function* () {
         const sortDict = {};
         sortDict[`score.${period}`] = -1;
-        return yield exports.ProfileModel.find({ $ne: { sourceId: 'bot' } }).sort(sortDict).limit(count).exec();
+        return yield exports.ProfileModel.find({ sourceId: { $ne: 'bot' } }).sort(sortDict).limit(count).exec();
     });
 };
 schema.methods.getFullName = function () {

@@ -109,6 +109,7 @@ export class GameMatch {
     }
 
     addSpectator(spectator: Client) {
+        spectator.setMatch(this);
         this.spectators.add(spectator);
 
         spectator.send('game:match:start-spectating', {
@@ -262,12 +263,12 @@ export class GameMatch {
     requestNextMove() {
         const player = this.currentPlayer();
 
-        if (!player && !this.hasActivePlayers()) {
+        if ((!player || !player.isConnected()) && !this.hasActivePlayers()) {
             this.terminate();
             return
         }
 
-        if (!player) {
+        if ((!player || !player.isConnected())) {
             this.finishWithNoMoves(PlayerHasNoMovesReasons.Left);
             return;
         }
@@ -344,7 +345,13 @@ export class GameMatch {
         player.stopTurnTimeout();
         if (player.getTag() === this.currentPlayerTag) {
             player.addMissedTurn();
-            if (player.getMissedTurns() == MaxMissedTurnsCount) player.disconnect();
+            if (player.getMissedTurns() == MaxMissedTurnsCount) {
+                if (player.isConnected()) {
+                    player.disconnect();
+                } else {
+                    return this.finishWithNoMoves(PlayerHasNoMovesReasons.Left);
+                }
+            }
             this.nextTurn();
         }
     }

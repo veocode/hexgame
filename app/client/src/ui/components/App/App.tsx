@@ -8,8 +8,8 @@ import { getLocaleTexts, getUserLang } from '../../../game/locales';
 import { TutorialScreen } from '../TutorialScreen/TutorialScreen';
 import { ManagementScreen } from '../ManagementScreen/ManagementScreen';
 import { VkBridge } from '../../../vk/bridge';
-import './App.css';
 import { LobbyScreen } from '../LobbyScreen/LobbyScreen';
+import './App.css';
 
 
 const texts = getLocaleTexts();

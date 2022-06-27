@@ -43,9 +43,9 @@ export const ManagementScreen: React.FC<ManagementScreenProps> = ({ game }) => {
             <div className='management-panel'>
                 <h1>Live Stats</h1>
                 <section>
-                    <button onClick={() => game.searchAndStart()}>Play</button>
+                    <button onClick={() => game.setLobby()}>Lobby</button>
                     <button onClick={() => game.startSandbox()}>Map Editor</button>
-                    <button onClick={() => game.setLoggedOut()}>Log out</button>
+                    <button onClick={() => game.setLoggedOut()}>Logout</button>
                 </section>
                 <section>
                     <h3>Summary</h3>

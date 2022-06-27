@@ -5,20 +5,21 @@
     margin-bottom: 20px;
     justify-content: center;
     align-items: center;
-    background: #707a85;
-    border-radius: 10px;
+    background: #414750;
+    border-radius: 5px;
     width: 260px;
     height: 64px;
     line-height: 64px;
 }
 
 .player-card .avatar {
-    width: 48px;
-    height: 48px;
+    width: 42px;
+    height: 42px;
     margin-right: 10px;
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
+    background-image: url(../../../images/avatar.svg);
     border-radius: 50%;
     border: solid 2px #FFF;
 }

@@ -205,6 +205,11 @@ export class Game {
         this.socket.emit('game:spectate-request', { matchId });
     }
 
+    stopSpectating() {
+        this.socket.emit('game:spectate-stop');
+        this.setManagement();
+    }
+
     createPlayer(info: PlayerAuthInfo, isGuest: boolean = false) {
         return this.player = new Player(info, isGuest);
     }

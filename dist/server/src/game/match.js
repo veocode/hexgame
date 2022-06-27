@@ -77,6 +77,7 @@ class GameMatch {
         return this.players[types_1.PlayerTag.Player1] !== null || this.players[types_1.PlayerTag.Player2] !== null;
     }
     addSpectator(spectator) {
+        spectator.setMatch(this);
         this.spectators.add(spectator);
         spectator.send('game:match:start-spectating', {
             map: this.map.serialize(),
@@ -208,11 +209,11 @@ class GameMatch {
     }
     requestNextMove() {
         const player = this.currentPlayer();
-        if (!player && !this.hasActivePlayers()) {
+        if ((!player || !player.isConnected()) && !this.hasActivePlayers()) {
             this.terminate();
             return;
         }
-        if (!player) {
+        if ((!player || !player.isConnected())) {
             this.finishWithNoMoves(types_1.PlayerHasNoMovesReasons.Left);
             return;
         }
@@ -280,8 +281,14 @@ class GameMatch {
         player.stopTurnTimeout();
         if (player.getTag() === this.currentPlayerTag) {
             player.addMissedTurn();
-            if (player.getMissedTurns() == MaxMissedTurnsCount)
-                player.disconnect();
+            if (player.getMissedTurns() == MaxMissedTurnsCount) {
+                if (player.isConnected()) {
+                    player.disconnect();
+                }
+                else {
+                    return this.finishWithNoMoves(types_1.PlayerHasNoMovesReasons.Left);
+                }
+            }
             this.nextTurn();
         }
     }
