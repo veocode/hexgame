@@ -280,7 +280,14 @@ export class GameMatch {
         })
 
         player.send('game:match:move-request');
-        player.getOpponent().send('game:match:move-pending');
+
+        const opponent = player.getOpponent();
+        if (!opponent || !opponent.isConnected()) {
+            this.terminate();
+            return;
+        }
+
+        opponent.send('game:match:move-pending');
 
         player.setTurnTimeout(() => this.onPlayerTurnTimeOut(player), MaxTurnTimeSeconds * 1000);
     }
