@@ -122,3 +122,7 @@
     margin-left: 15px;
     height: 30px;
 }
+
+.management-screen .stat-table .name {
+    padding-right: 10px;
+}
