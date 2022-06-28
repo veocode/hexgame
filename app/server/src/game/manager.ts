@@ -4,6 +4,7 @@ import { Maps } from "./maps";
 import { BotClient } from "../client/botclient";
 import { PlayerTag } from "../shared/types";
 import { Profile } from "../client/profile";
+import { ProfileModel } from "../client/profilemodel";
 
 interface ServerPlayerDescription {
     nickname: string,
@@ -244,5 +245,17 @@ export class GameManager {
     removeSpectator(client) {
         const match = client.getMatch();
         if (match) match.removeSpectator(client);
+    }
+
+    async reloadClientProfiles() {
+        if (!this.clients.count()) { return; }
+        const promises: Promise<void>[] = [];
+        this.clients.forEach(client => promises.push(client.getProfile().reload()));
+        return await Promise.all(promises);
+    }
+
+    async resetPointsDaily() {
+        await ProfileModel.resetScore('today');
+        await this.reloadClientProfiles();
     }
 }

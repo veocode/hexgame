@@ -16,6 +16,7 @@ const maps_1 = require("./maps");
 const botclient_1 = require("../client/botclient");
 const types_1 = require("../shared/types");
 const profile_1 = require("../client/profile");
+const profilemodel_1 = require("../client/profilemodel");
 class GameManager {
     constructor() {
         this.admins = new client_1.ClientList;
@@ -203,6 +204,22 @@ class GameManager {
         const match = client.getMatch();
         if (match)
             match.removeSpectator(client);
+    }
+    reloadClientProfiles() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!this.clients.count()) {
+                return;
+            }
+            const promises = [];
+            this.clients.forEach(client => promises.push(client.getProfile().reload()));
+            return yield Promise.all(promises);
+        });
+    }
+    resetPointsDaily() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield profilemodel_1.ProfileModel.resetScore('today');
+            yield this.reloadClientProfiles();
+        });
     }
 }
 exports.GameManager = GameManager;

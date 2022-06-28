@@ -20,6 +20,7 @@ export interface IProfileMethods {
     getFullName(): string;
     updateVisitedAt(): void;
     addScore(points: number): void;
+    reload(): Promise<void>;
 }
 
 export interface IProfileModelMethods extends Model<IProfile, {}, IProfileMethods> {
@@ -88,6 +89,12 @@ schema.methods.addScore = async function (points: number) {
     this.score.week = Math.max(this.score.week + points, 0)
     this.score.month = Math.max(this.score.month + points, 0)
     await this.save();
+}
+
+schema.methods.reload = async function () {
+    const record = await this.constructor.findById(this);
+    Object.assign(this, record);
+    console.log('reloaded profile: ', this.nickname);
 }
 
 export type ProfileModelType = HydratedDocument<IProfile, IProfileMethods>;

@@ -23,14 +23,14 @@ const profilemodel_1 = require("./client/profilemodel");
 const logger_1 = require("./shared/logger");
 class GameServer {
     constructor() {
+        this.sockets = {};
+        this.gameManager = new manager_1.GameManager();
         this.cronJobs = {
             'reset-points-daily': {
                 interval: '0 0 * * *',
-                handler: this.resetPointsDaily
+                handler: () => this.gameManager.resetPointsDaily()
             }
         };
-        this.sockets = {};
-        this.gameManager = new manager_1.GameManager();
         logger_1.logger.log(`Starting server...`);
         const port = config_1.Config.sockets.port;
         this.connectDatabase().then(() => {
@@ -59,6 +59,8 @@ class GameServer {
     }
     createSocketServer() {
         this.socketServer = new socket_io_1.Server(this.httpServer, {
+            pingTimeout: 6000,
+            pingInterval: 9000,
             transports: ['websocket', 'polling'],
             cors: {
                 origin: config_1.Config.sockets.corsOrigin,
@@ -149,11 +151,6 @@ class GameServer {
                 logger_1.logger.log(`CRON Running: ${jobName}`);
                 job.handler.call(this);
             });
-        });
-    }
-    resetPointsDaily() {
-        return __awaiter(this, void 0, void 0, function* () {
-            yield profilemodel_1.ProfileModel.resetScore('today');
         });
     }
 }

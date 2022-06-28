@@ -30,6 +30,11 @@ class Profile {
             this.model.save();
         });
     }
+    reload() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.model.reload();
+        });
+    }
     static createAndLoad(authInfo) {
         return __awaiter(this, void 0, void 0, function* () {
             const profile = new Profile(authInfo);

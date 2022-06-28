@@ -29,15 +29,15 @@ type CronJobsList = {
 
 export class GameServer {
 
+    private sockets: { [key: string]: Socket } = {};
+    private gameManager: GameManager = new GameManager();
+
     private cronJobs: CronJobsList = {
         'reset-points-daily': {
             interval: '0 0 * * *',
-            handler: this.resetPointsDaily
+            handler: () => this.gameManager.resetPointsDaily()
         }
     }
-
-    private sockets: { [key: string]: Socket } = {};
-    private gameManager: GameManager = new GameManager();
 
     private httpServer: https.Server;
     private socketServer: SocketIOServer;
@@ -75,6 +75,8 @@ export class GameServer {
 
     createSocketServer() {
         this.socketServer = new SocketIOServer(this.httpServer, {
+            pingTimeout: 6000,
+            pingInterval: 9000,
             transports: ['websocket', 'polling'],
             cors: {
                 origin: Config.sockets.corsOrigin,
@@ -174,10 +176,6 @@ export class GameServer {
                 job.handler.call(this);
             });
         })
-    }
-
-    async resetPointsDaily() {
-        await ProfileModel.resetScore('today');
     }
 
 }

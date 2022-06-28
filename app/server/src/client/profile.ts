@@ -31,6 +31,10 @@ export class Profile {
         this.model.save();
     }
 
+    async reload(): Promise<void> {
+        await this.model.reload();
+    }
+
     static async createAndLoad(authInfo: AuthInfo) {
         const profile = new Profile(authInfo);
         await profile.load();

@@ -75,5 +75,12 @@ schema.methods.addScore = function (points) {
         yield this.save();
     });
 };
+schema.methods.reload = function () {
+    return __awaiter(this, void 0, void 0, function* () {
+        const record = yield this.constructor.findById(this);
+        Object.assign(this, record);
+        console.log('reloaded profile: ', this.nickname);
+    });
+};
 exports.ProfileModel = (0, mongoose_1.model)('ProfileModel', schema);
 //# sourceMappingURL=profilemodel.js.map
