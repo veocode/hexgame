@@ -31,14 +31,15 @@
     text-align: center;
     left: 50%;
     transform: translate(-50%, 0);
-    color: #AAA;
+    color: #808791;
     width: 100%;
     font-size: 14px;
     z-index: 2;
+    line-height: 24px;
 }
 
 .footer a {
-    color: #2e9ac9;
+    color: #39a8d8;
 }
 
 .footer a:hover {

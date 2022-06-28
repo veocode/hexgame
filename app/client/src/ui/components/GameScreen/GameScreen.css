@@ -54,17 +54,11 @@
     position: fixed;
     width: 100%;
     height: 100%;
-    background: radial-gradient(rgba(23, 30, 39, 0.75), rgba(23, 30, 39, 0.45), rgba(23, 30, 39, 0), 50% 55%);
     animation: growIn .65s ease-in;
     display: flex;
     justify-content: center;
     align-items: center;
-}
-
-@media (orientation: portrait) {
-    .game-screen .result-wrap {
-        background: radial-gradient(rgba(23, 30, 39, 0.75), rgba(23, 30, 39, 0.45), rgba(23, 30, 39, 0), 50% 35%);
-    }
+    z-index: 200;
 }
 
 .game-screen .result-box {
@@ -73,6 +67,7 @@
     border-radius: 10px;
     width: 95%;
     max-width: 350px;
+    box-shadow: 0 0 40px rgb(23, 30, 39);
 }
 
 .game-screen .result-box .message {
@@ -88,15 +83,14 @@
     color: #a4aeb9;
     border: solid 1px #616b75;
     border-radius: 10px;
-    padding: 15px 25px;
+    padding: 16px 25px;
     margin-bottom: 20px;
 }
 
 .game-screen .result-box .result-points .row {
     display: flex;
-    line-height: 32px;
     border-bottom: dashed 1px #616b75;
-    padding: 4px 0;
+    padding: 8px 0;
 }
 
 .game-screen .result-box .result-points .row:first-child {
@@ -116,12 +110,18 @@
 .game-screen .result-box .result-points .row .points {
     padding: 0 15px;
     margin-left: 10px;
-    height: 32px;
-    line-height: 32px;
     width: 25%;
     text-align: center;
     color: #FFF;
     font-weight: bold;
+}
+
+.game-screen .result-box .result-points .row .points.positive {
+    color: #58e693;
+}
+
+.game-screen .result-box .result-points .row .points.negative {
+    color: #fd7070;
 }
 
 .game-screen .result-box button {

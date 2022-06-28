@@ -35,6 +35,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ match }) => {
     if (matchResult) {
         const points = matchResult.pointsEarned;
         const signedPoints = points > 0 ? `+${points}` : `${points}`;
+        const signClass = points > 0 ? 'positive' : 'negative';
 
         resultBox = (
             <div className='result-wrap'>
@@ -46,7 +47,11 @@ export const GameScreen: React.FC<GameScreenProps> = ({ match }) => {
                         <div className='result-points'>
                             <div className='row'>
                                 <div className='label'>{texts.PointsEarned}:</div>
-                                <div className='points'>{signedPoints}</div>
+                                <div className={`points ${signClass}`}>{signedPoints}</div>
+                            </div>
+                            <div className='row'>
+                                <div className='label'>{texts.PointsToday}:</div>
+                                <div className='points'>{matchResult.pointsToday}</div>
                             </div>
                             <div className='row'>
                                 <div className='label'>{texts.PointsTotal}:</div>

@@ -53,6 +53,7 @@ export interface ServerMatchResult {
     isWithdraw: boolean,
     isNoMoves: boolean,
     pointsEarned: number,
+    pointsToday: number,
     pointsTotal: number,
     scores: MatchServerScoreDict
 }

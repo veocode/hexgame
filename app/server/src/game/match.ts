@@ -70,8 +70,7 @@ export class GameMatch {
 
     removePlayer(player: Client) {
         const tag = player.getTag();
-        if ((tag in this.players) && (this.players[tag].id === player.id)) {
-
+        if (tag in this.players) {
             this.players[tag] = null;
 
             if (tag === this.currentPlayerTag) {
@@ -187,8 +186,10 @@ export class GameMatch {
         this.forEachPlayer(player => {
             if (!player) return;
 
+            const playerScores = player.getProfile().getScore();
             const pointsEarned = scores[player.getTag()].delta;
-            const pointsTotal = Math.max(player.getProfile().getTotalScore() + pointsEarned, 0);
+            const pointsToday = Math.max(playerScores.today + pointsEarned, 0);
+            const pointsTotal = Math.max(playerScores.total + pointsEarned, 0);
 
             const matchResult = {
                 winner: winnerTag,
@@ -196,6 +197,7 @@ export class GameMatch {
                 isWithdraw,
                 isNoMoves,
                 pointsEarned,
+                pointsToday,
                 pointsTotal,
                 scores
             };
