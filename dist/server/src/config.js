@@ -12,6 +12,7 @@ const defaultMongo = {
     database: 'hexgame'
 };
 exports.Config = {
+    host: env('SERVER_HOST', isDev ? 'http://localhost:3000' : 'https://playhex.online'),
     db: {
         url: env('SERVER_MONGODB_URL', `mongodb://${defaultMongo.user}@${defaultMongo.host}:${defaultMongo.port}`),
         name: env('SERVER_MONGODB_DATABASE', defaultMongo.database),

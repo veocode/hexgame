@@ -43,7 +43,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ match }) => {
                     <div className='message'>
                         {matchResult.message}
                     </div>
-                    {points !== 0 && !match.isSpectating() ?
+                    {points !== 0 && !match.isSpectating() && !matchResult.isLinkedGame ?
                         <div className='result-points'>
                             <div className='row'>
                                 <div className='label'>{texts.PointsEarned}:</div>

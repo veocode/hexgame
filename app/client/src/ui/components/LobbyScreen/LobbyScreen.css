@@ -55,6 +55,11 @@
 
 .lobby-screen button {
     min-width: 200px;
+    margin-bottom: 5px;
+}
+
+.lobby-screen button:last-child {
+    margin: 0;
 }
 
 .lobby-screen .tops-panel {

@@ -60,6 +60,7 @@ export const LobbyScreen: React.FC<LobbyScreenProps> = ({ game }) => {
                             </div>
                         </div>
                         <button className='button-primary' onClick={() => game.searchAndStart()}>{texts.Play}</button>
+                        <button className='button-secondary' onClick={() => game.startLinkedGame()}>{texts.LinkPlay}</button>
                         {game.getPlayer().isAdmin()
                             ? <button onClick={() => game.setManagement()}>Live Stats</button>
                             : <button onClick={() => game.setTutorial()}>{texts.HowTo}</button>

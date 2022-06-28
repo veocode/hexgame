@@ -36,7 +36,10 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ game }) => {
                 <div className='inputs'>
                     <Logo lang={game.getPlayer().authInfo.lang} scale={0.85} />
                     {userInput}
-                    <button onClick={() => onPlayClick()} className='button-primary'>{texts.LogIn}</button>
+                    {game.queryParams.get('g')
+                        ? <button onClick={() => onPlayClick()} className='button-secondary'>{texts.LinkPlay}!</button>
+                        : <button onClick={() => onPlayClick()} className='button-primary'>{texts.LogIn}</button>
+                    }
                     <button onClick={() => game.setTutorial()}>{texts.HowTo}</button>
                 </div>
             </div>

@@ -3,43 +3,16 @@ import { PlayerTag } from "../shared/types";
 import { GameMatch } from "../game/match";
 import { AuthInfo } from "./authinfo";
 import { Profile } from "./profile";
+import { List } from "../game/utils";
+import { LinkedGame } from "../game/linked";
 
-export class ClientList {
+export enum ClientState {
+    Idle = 0,
+    SearchingGame,
+    InGame,
+}
 
-    private clients: { [key: string]: Client } = {};
-
-    add(client: Client) {
-        this.clients[client.id] = client;
-    }
-
-    remove(client: Client): boolean {
-        if (client.id in this.clients) {
-            delete this.clients[client.id];
-            return true;
-        }
-        return false;
-    }
-
-    includes(client: Client) {
-        return client.id in this.clients;
-    }
-
-    count() {
-        return Object.keys(this.clients).length;
-    }
-
-    forEach(callback: (client: Client) => void) {
-        Object.values(this.clients).forEach(client => {
-            callback(client);
-        })
-    }
-
-    forEachExcept(exceptClient: Client, callback: (client: Client) => void) {
-        Object.values(this.clients).forEach(client => {
-            if (client.id === exceptClient.id) return;
-            callback(client);
-        })
-    }
+export class ClientList extends List<Client> {
 
     send(eventName, ...args: any[]) {
         this.forEach(client => client.send(eventName, ...args));
@@ -51,15 +24,10 @@ export class ClientList {
 
 }
 
-export enum ClientState {
-    Idle = 0,
-    SearchingGame,
-    InGame,
-}
-
 export class Client {
 
     public readonly id: string;
+    public linkedGame: LinkedGame | null = null;
 
     protected state: ClientState = ClientState.Idle;
     protected opponent: Client;

@@ -10,6 +10,7 @@ import { ManagementScreen } from '../ManagementScreen/ManagementScreen';
 import { VkBridge } from '../../../vk/bridge';
 import { LobbyScreen } from '../LobbyScreen/LobbyScreen';
 import './App.css';
+import { LinkScreen } from '../LinkScreen/LinkScreen';
 
 
 const texts = getLocaleTexts();
@@ -59,6 +60,10 @@ export const App: React.FC<{}> = () => {
 
   if (state === GameState.SearchingGame) {
     childComponents = <MessageScreen text={texts.SearchingOpponent} />;
+  }
+
+  if (state === GameState.LinkReady) {
+    childComponents = <LinkScreen game={game} url={game.linkedGameUrl} />;
   }
 
   if (state === GameState.Started || state === GameState.Over) {

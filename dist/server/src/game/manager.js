@@ -17,11 +17,14 @@ const botclient_1 = require("../client/botclient");
 const types_1 = require("../shared/types");
 const profile_1 = require("../client/profile");
 const profilemodel_1 = require("../client/profilemodel");
+const linked_1 = require("./linked");
+const utils_1 = require("./utils");
 class GameManager {
     constructor() {
         this.admins = new client_1.ClientList;
         this.clients = new client_1.ClientList;
         this.matches = {};
+        this.linkedGames = new utils_1.List();
         this.mapPool = [];
     }
     getRandomMap() {
@@ -50,11 +53,23 @@ class GameManager {
                 }
             }
         }
+        if (client.linkedGame) {
+            this.cancelClientLinkedGame(client);
+        }
         this.sendStatsToAdmins();
     }
     bindClientEvents(client) {
         client.on('game:search-request', () => {
             this.searchGameForClient(client);
+        });
+        client.on('game:link:create', () => {
+            this.createLinkedGame(client);
+        });
+        client.on('game:link:join', ({ gameId }) => {
+            this.joinLinkedGame(gameId, client);
+        });
+        client.on('game:link:cancel', () => {
+            this.cancelClientLinkedGame(client);
         });
         client.on('game:stats-request', () => {
             if (!client.isAdmin())
@@ -102,7 +117,34 @@ class GameManager {
             }
         }), 3000);
     }
-    createMatch(player1, player2) {
+    createLinkedGame(client) {
+        const game = new linked_1.LinkedGame();
+        game.addClient(client);
+        client.linkedGame = game;
+        this.linkedGames.add(game);
+        game.whenCancelled(() => {
+            this.linkedGames.remove(game);
+        });
+        game.whenReady(gameClients => {
+            this.createMatch(gameClients[0], gameClients[1], game);
+        });
+        client.send('game:link:ready', {
+            url: game.getUrl()
+        });
+    }
+    joinLinkedGame(gameId, client) {
+        if (!this.linkedGames.hasId(gameId)) {
+            return client.send('game:link:not-found');
+        }
+        this.linkedGames.getById(gameId).addClient(client);
+    }
+    cancelClientLinkedGame(client) {
+        if (!client.linkedGame)
+            return;
+        client.linkedGame.removeClient(client);
+        client.linkedGame = null;
+    }
+    createMatch(player1, player2, linkedGame = null) {
         const match = new match_1.GameMatch(this.getRandomMap());
         player1.setOpponent(player2);
         player1.setMatch(match);
@@ -110,9 +152,11 @@ class GameManager {
         player2.setMatch(match);
         match.addPlayer(player1);
         match.addPlayer(player2);
+        if (linkedGame)
+            match.setLinkedGame(linkedGame);
         match.start();
         match.whenOver((scores) => {
-            if (scores) {
+            if (scores && !match.hasLinkedGame()) {
                 const tags = [types_1.PlayerTag.Player1, types_1.PlayerTag.Player2];
                 tags.forEach(tag => {
                     const player = match.getPlayer(tag);

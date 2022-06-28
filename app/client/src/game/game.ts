@@ -1,9 +1,11 @@
 import { io, Socket } from "socket.io-client";
 import { Player, PlayerAuthInfo } from './player';
-import { getUserLang } from "./locales";
+import { getLocaleTexts, getUserLang } from "./locales";
 import { Match } from "./match";
 import { Sandbox } from "./sandbox";
 import { SpectateMatch } from "./spectate";
+
+const texts = getLocaleTexts();
 
 export enum GameState {
     Loading,
@@ -15,6 +17,7 @@ export enum GameState {
     Over,
     Sandbox,
     Tutorial,
+    LinkReady,
     Management
 }
 
@@ -68,7 +71,10 @@ type TopPlayersUpdatedCallback = (topPlayers: TopPlayersDict) => void;
 
 export class Game {
 
+    public readonly queryParams = new URLSearchParams(window.location.search);
+
     public readonly socket: Socket;
+    public linkedGameUrl: string = '';
 
     private state: GameState = GameState.Loading;
     private lobbyData: LobbyData | null = null;
@@ -132,8 +138,21 @@ export class Game {
         this.socket.once('game:logged', ({ isAdmin, topPlayers, score }) => {
             if (isAdmin) {
                 this.player.setAdmin();
-                return this.setManagement();
             }
+
+            const linkedGameId = this.queryParams.get('g');
+            if (linkedGameId) {
+                this.setLoading();
+                this.socket.emit('game:link:join', { gameId: linkedGameId });
+                return;
+            }
+
+            if (isAdmin) {
+                this.player.setAdmin();
+                this.setManagement();
+                return;
+            }
+
             this.setLobby({
                 topPlayers,
                 score
@@ -170,6 +189,17 @@ export class Game {
 
         this.socket.on('game:stats', (stats: GameServerStats) => {
             if (this.callbacks.StatsUpdated) this.callbacks.StatsUpdated(stats);
+        });
+
+        this.socket.on('game:link:ready', ({ url }) => {
+            this.linkedGameUrl = url;
+            this.setLinkReady();
+        });
+
+        this.socket.on('game:link:not-found', () => {
+            this.setLoading();
+            alert(texts.LinkNotFound);
+            window.location.href = '/';
         });
     }
 
@@ -208,6 +238,16 @@ export class Game {
     stopSpectating() {
         this.socket.emit('game:spectate-stop');
         this.setManagement();
+    }
+
+    startLinkedGame() {
+        this.setLoading();
+        this.socket.emit('game:link:create');
+    }
+
+    cancelLinkedGame() {
+        this.socket.emit('game:link:cancel');
+        this.setLobby();
     }
 
     createPlayer(info: PlayerAuthInfo, isGuest: boolean = false) {
@@ -327,13 +367,21 @@ export class Game {
         this.setState(GameState.Tutorial);
     }
 
+    isLinkReady(): boolean {
+        return this.state === GameState.LinkReady;
+    }
+
+    setLinkReady() {
+        this.setState(GameState.LinkReady);
+    }
+
     isManagement(): boolean {
         return this.state === GameState.Management;
     }
 
     setManagement() {
         this.setState(GameState.Management);
-        this.askForUpdatedStats();
+        this.askForUpdatedAdminStats();
     }
 
     isStarted() {
@@ -362,7 +410,7 @@ export class Game {
         }
     }
 
-    askForUpdatedStats() {
+    askForUpdatedAdminStats() {
         this.socket.emit('game:stats-request');
     }
 

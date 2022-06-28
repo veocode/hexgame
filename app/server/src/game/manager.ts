@@ -5,6 +5,8 @@ import { BotClient } from "../client/botclient";
 import { PlayerTag } from "../shared/types";
 import { Profile } from "../client/profile";
 import { ProfileModel } from "../client/profilemodel";
+import { LinkedGame } from "./linked";
+import { List } from "./utils";
 
 interface ServerPlayerDescription {
     nickname: string,
@@ -39,6 +41,8 @@ export class GameManager {
     private clients: ClientList = new ClientList;
     private matches: { [key: string]: GameMatch } = {};
 
+    private linkedGames: List<LinkedGame> = new List<LinkedGame>();
+
     private mapPool: number[][] = [];
 
     private getRandomMap(): number[] {
@@ -71,12 +75,28 @@ export class GameManager {
             }
         }
 
+        if (client.linkedGame) {
+            this.cancelClientLinkedGame(client);
+        }
+
         this.sendStatsToAdmins();
     }
 
     bindClientEvents(client: Client) {
         client.on('game:search-request', () => {
             this.searchGameForClient(client);
+        });
+
+        client.on('game:link:create', () => {
+            this.createLinkedGame(client);
+        });
+
+        client.on('game:link:join', ({ gameId }) => {
+            this.joinLinkedGame(gameId, client);
+        });
+
+        client.on('game:link:cancel', () => {
+            this.cancelClientLinkedGame(client);
         });
 
         client.on('game:stats-request', () => {
@@ -132,7 +152,41 @@ export class GameManager {
         }, 3000);
     }
 
-    createMatch(player1: Client, player2: Client) {
+    createLinkedGame(client: Client) {
+        const game = new LinkedGame();
+
+        game.addClient(client);
+        client.linkedGame = game;
+        this.linkedGames.add(game);
+
+        game.whenCancelled(() => {
+            this.linkedGames.remove(game);
+        })
+
+        game.whenReady(gameClients => {
+            this.createMatch(gameClients[0], gameClients[1], game);
+        })
+
+        client.send('game:link:ready', {
+            url: game.getUrl()
+        })
+    }
+
+    joinLinkedGame(gameId: string, client: Client) {
+        if (!this.linkedGames.hasId(gameId)) {
+            return client.send('game:link:not-found');
+        }
+
+        this.linkedGames.getById(gameId).addClient(client);
+    }
+
+    cancelClientLinkedGame(client: Client) {
+        if (!client.linkedGame) return;
+        client.linkedGame.removeClient(client);
+        client.linkedGame = null;
+    }
+
+    createMatch(player1: Client, player2: Client, linkedGame: LinkedGame | null = null) {
         const match = new GameMatch(this.getRandomMap());
 
         player1.setOpponent(player2);
@@ -143,10 +197,12 @@ export class GameManager {
 
         match.addPlayer(player1);
         match.addPlayer(player2);
+
+        if (linkedGame) match.setLinkedGame(linkedGame);
         match.start();
 
         match.whenOver((scores: MatchScoreList | null) => {
-            if (scores) {
+            if (scores && !match.hasLinkedGame()) {
                 const tags = [PlayerTag.Player1, PlayerTag.Player2];
                 tags.forEach(tag => {
                     const player = match.getPlayer(tag);

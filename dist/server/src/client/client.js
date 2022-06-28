@@ -1,39 +1,15 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Client = exports.ClientState = exports.ClientList = void 0;
+exports.Client = exports.ClientList = exports.ClientState = void 0;
 const types_1 = require("../shared/types");
-class ClientList {
-    constructor() {
-        this.clients = {};
-    }
-    add(client) {
-        this.clients[client.id] = client;
-    }
-    remove(client) {
-        if (client.id in this.clients) {
-            delete this.clients[client.id];
-            return true;
-        }
-        return false;
-    }
-    includes(client) {
-        return client.id in this.clients;
-    }
-    count() {
-        return Object.keys(this.clients).length;
-    }
-    forEach(callback) {
-        Object.values(this.clients).forEach(client => {
-            callback(client);
-        });
-    }
-    forEachExcept(exceptClient, callback) {
-        Object.values(this.clients).forEach(client => {
-            if (client.id === exceptClient.id)
-                return;
-            callback(client);
-        });
-    }
+const utils_1 = require("../game/utils");
+var ClientState;
+(function (ClientState) {
+    ClientState[ClientState["Idle"] = 0] = "Idle";
+    ClientState[ClientState["SearchingGame"] = 1] = "SearchingGame";
+    ClientState[ClientState["InGame"] = 2] = "InGame";
+})(ClientState = exports.ClientState || (exports.ClientState = {}));
+class ClientList extends utils_1.List {
     send(eventName, ...args) {
         this.forEach(client => client.send(eventName, ...args));
     }
@@ -42,16 +18,11 @@ class ClientList {
     }
 }
 exports.ClientList = ClientList;
-var ClientState;
-(function (ClientState) {
-    ClientState[ClientState["Idle"] = 0] = "Idle";
-    ClientState[ClientState["SearchingGame"] = 1] = "SearchingGame";
-    ClientState[ClientState["InGame"] = 2] = "InGame";
-})(ClientState = exports.ClientState || (exports.ClientState = {}));
 class Client {
     constructor(socket, profile, isAdministrator = false) {
         this.socket = socket;
         this.profile = profile;
+        this.linkedGame = null;
         this.state = ClientState.Idle;
         this.tag = 0;
         this.isAdministrator = false;

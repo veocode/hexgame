@@ -2,6 +2,7 @@ import { HexMap, HexNeighborLevel } from '../shared/hexmap';
 import { PlayerHasNoMovesReasons, PlayerTag } from '../shared/types';
 import { Client, ClientList } from '../client/client';
 import { generateId } from './utils';
+import { LinkedGame } from './linked';
 
 const MaxPlayers: number = 2;
 const MaxTurnTimeSeconds: number = 30;
@@ -32,6 +33,8 @@ export class GameMatch {
     private currentPlayerTag: PlayerTag = PlayerTag.Player1;
     private turnCounter: number = 0;
 
+    private linkedGame: LinkedGame | null = null;
+
     private callbacks: {
         Over?: MatchOverCallback | null
     } = {};
@@ -48,6 +51,18 @@ export class GameMatch {
 
     getTurn(): number {
         return this.turnCounter;
+    }
+
+    setLinkedGame(linkedGame: LinkedGame) {
+        this.linkedGame = linkedGame;
+    }
+
+    hasLinkedGame(): boolean {
+        return this.linkedGame !== null;
+    }
+
+    getLinkedGame(): LinkedGame | null {
+        return this.linkedGame;
     }
 
     hasBot(): boolean {
@@ -183,11 +198,13 @@ export class GameMatch {
                 : PlayerTag.Player2
         }
 
+        const isLinkedGame = this.hasLinkedGame();
+
         this.forEachPlayer(player => {
             if (!player) return;
 
             const playerScores = player.getProfile().getScore();
-            const pointsEarned = scores[player.getTag()].delta;
+            const pointsEarned = isLinkedGame ? 0 : scores[player.getTag()].delta;
             const pointsToday = Math.max(playerScores.today + pointsEarned, 0);
             const pointsTotal = Math.max(playerScores.total + pointsEarned, 0);
 
@@ -196,6 +213,7 @@ export class GameMatch {
                 isWinner: !isWithdraw && winnerTag === player.getTag(),
                 isWithdraw,
                 isNoMoves,
+                isLinkedGame,
                 pointsEarned,
                 pointsToday,
                 pointsTotal,

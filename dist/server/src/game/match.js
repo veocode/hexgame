@@ -18,6 +18,7 @@ class GameMatch {
         this.spectators = new client_1.ClientList();
         this.currentPlayerTag = types_1.PlayerTag.Player1;
         this.turnCounter = 0;
+        this.linkedGame = null;
         this.callbacks = {};
         this.id = (0, utils_1.generateId)();
         this.map = new hexmap_1.HexMap();
@@ -28,6 +29,15 @@ class GameMatch {
     }
     getTurn() {
         return this.turnCounter;
+    }
+    setLinkedGame(linkedGame) {
+        this.linkedGame = linkedGame;
+    }
+    hasLinkedGame() {
+        return this.linkedGame !== null;
+    }
+    getLinkedGame() {
+        return this.linkedGame;
     }
     hasBot() {
         let hasBot = false;
@@ -139,11 +149,12 @@ class GameMatch {
                 ? types_1.PlayerTag.Player1
                 : types_1.PlayerTag.Player2;
         }
+        const isLinkedGame = this.hasLinkedGame();
         this.forEachPlayer(player => {
             if (!player)
                 return;
             const playerScores = player.getProfile().getScore();
-            const pointsEarned = scores[player.getTag()].delta;
+            const pointsEarned = isLinkedGame ? 0 : scores[player.getTag()].delta;
             const pointsToday = Math.max(playerScores.today + pointsEarned, 0);
             const pointsTotal = Math.max(playerScores.total + pointsEarned, 0);
             const matchResult = {
@@ -151,6 +162,7 @@ class GameMatch {
                 isWinner: !isWithdraw && winnerTag === player.getTag(),
                 isWithdraw,
                 isNoMoves,
+                isLinkedGame,
                 pointsEarned,
                 pointsToday,
                 pointsTotal,

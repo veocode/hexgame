@@ -41,9 +41,18 @@ button.active {
   background: linear-gradient(#2e9ac9, #1e617e);
   color: #FFF;
   font-weight: bold;
-  margin-bottom: 8px;
 }
 
 .button-primary:hover {
   background: linear-gradient(#32A6D9, #24779b);
+}
+
+.button-secondary {
+  background: linear-gradient(#1e7e49, #155842);
+  color: #FFF;
+  font-weight: bold;
+}
+
+.button-secondary:hover {
+  background: linear-gradient(#218a50, #19664c);
 }
