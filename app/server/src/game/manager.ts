@@ -39,7 +39,7 @@ export class GameManager {
 
     private admins: ClientList = new ClientList;
     private clients: ClientList = new ClientList;
-    private matches: { [key: string]: GameMatch } = {};
+    private matches: List<GameMatch> = new List<GameMatch>();
 
     private linkedGames: List<LinkedGame> = new List<LinkedGame>();
 
@@ -219,14 +219,12 @@ export class GameManager {
     }
 
     addMatch(match: GameMatch) {
-        this.matches[match.id] = match;
+        this.matches.add(match);
         this.sendStatsToAdmins();
     }
 
     removeMatch(match: GameMatch) {
-        if (match.id in this.matches) {
-            delete this.matches[match.id];
-        }
+        this.matches.remove(match);
         this.sendStatsToAdmins();
     }
 
@@ -244,7 +242,7 @@ export class GameManager {
             });
         })
 
-        Object.values(this.matches).forEach(match => {
+        this.matches.forEach(match => {
             if (match.hasBot()) botCount++;
 
             matches.push({
@@ -293,8 +291,8 @@ export class GameManager {
     }
 
     spectateMatchByClient(client: Client, matchId: string) {
-        if (!(matchId in this.matches)) return;
-        const match = this.matches[matchId];
+        if (!this.matches.hasId(matchId)) return;
+        const match = this.matches.getById(matchId);
         match.addSpectator(client);
     }
 
@@ -313,5 +311,20 @@ export class GameManager {
     async resetPointsDaily() {
         await ProfileModel.resetScore('today');
         await this.reloadClientProfiles();
+    }
+
+    async killZombieMatches() {
+        this.matches.forEach(match => {
+            let hasAlivePlayers = false;
+            match.forEachPlayer(player => {
+                if (player.isBot()) return;
+                if (!player.isConnected()) return;
+                hasAlivePlayers = true;
+            });
+            if (!hasAlivePlayers || match.getPlayersCount() != 2) {
+                console.log(`killed match: ${match.id}`);
+                match.terminate();
+            }
+        })
     }
 }

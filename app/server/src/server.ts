@@ -22,8 +22,9 @@ type TopPlayersDict = { [period: string]: TopPlayerInfo[] };
 
 type CronJobsList = {
     [name: string]: {
-        interval: string
-        handler: () => void
+        interval: string,
+        handler: () => void,
+        noLog?: boolean
     }
 };
 
@@ -36,6 +37,11 @@ export class GameServer {
         'reset-points-daily': {
             interval: '0 0 * * *',
             handler: () => this.gameManager.resetPointsDaily()
+        },
+        'kill-zombie-matches': {
+            interval: '*/2 * * * *',
+            handler: () => this.gameManager.killZombieMatches(),
+            noLog: true
         }
     }
 
@@ -170,9 +176,9 @@ export class GameServer {
     scheduleCronJobs() {
         Object.keys(this.cronJobs).forEach(jobName => {
             const job = this.cronJobs[jobName];
-            logger.log(`CRON Scheduling: ${jobName} (${job.interval})`)
+            logger.log(`CRON Schedule${job.noLog ? ' silently' : ''}: ${jobName} (${job.interval})`)
             cron.schedule(job.interval, () => {
-                logger.log(`CRON Running: ${jobName}`);
+                if (!job.noLog) logger.log(`CRON Running: ${jobName}`);
                 job.handler.call(this);
             });
         })

@@ -29,6 +29,11 @@ class GameServer {
             'reset-points-daily': {
                 interval: '0 0 * * *',
                 handler: () => this.gameManager.resetPointsDaily()
+            },
+            'kill-zombie-matches': {
+                interval: '*/2 * * * *',
+                handler: () => this.gameManager.killZombieMatches(),
+                noLog: true
             }
         };
         logger_1.logger.log(`Starting server...`);
@@ -146,9 +151,10 @@ class GameServer {
     scheduleCronJobs() {
         Object.keys(this.cronJobs).forEach(jobName => {
             const job = this.cronJobs[jobName];
-            logger_1.logger.log(`CRON Scheduling: ${jobName} (${job.interval})`);
+            logger_1.logger.log(`CRON Schedule${job.noLog ? ' silently' : ''}: ${jobName} (${job.interval})`);
             cron.schedule(job.interval, () => {
-                logger_1.logger.log(`CRON Running: ${jobName}`);
+                if (!job.noLog)
+                    logger_1.logger.log(`CRON Running: ${jobName}`);
                 job.handler.call(this);
             });
         });

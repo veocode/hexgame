@@ -23,7 +23,7 @@ class GameManager {
     constructor() {
         this.admins = new client_1.ClientList;
         this.clients = new client_1.ClientList;
-        this.matches = {};
+        this.matches = new utils_1.List();
         this.linkedGames = new utils_1.List();
         this.mapPool = [];
     }
@@ -171,13 +171,11 @@ class GameManager {
         this.addMatch(match);
     }
     addMatch(match) {
-        this.matches[match.id] = match;
+        this.matches.add(match);
         this.sendStatsToAdmins();
     }
     removeMatch(match) {
-        if (match.id in this.matches) {
-            delete this.matches[match.id];
-        }
+        this.matches.remove(match);
         this.sendStatsToAdmins();
     }
     getStats() {
@@ -193,7 +191,7 @@ class GameManager {
                 lang: client.getAuthInfo().lang
             });
         });
-        Object.values(this.matches).forEach(match => {
+        this.matches.forEach(match => {
             var _a, _b;
             if (match.hasBot())
                 botCount++;
@@ -239,9 +237,9 @@ class GameManager {
         }
     }
     spectateMatchByClient(client, matchId) {
-        if (!(matchId in this.matches))
+        if (!this.matches.hasId(matchId))
             return;
-        const match = this.matches[matchId];
+        const match = this.matches.getById(matchId);
         match.addSpectator(client);
     }
     removeSpectator(client) {
@@ -263,6 +261,24 @@ class GameManager {
         return __awaiter(this, void 0, void 0, function* () {
             yield profilemodel_1.ProfileModel.resetScore('today');
             yield this.reloadClientProfiles();
+        });
+    }
+    killZombieMatches() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.matches.forEach(match => {
+                let hasAlivePlayers = false;
+                match.forEachPlayer(player => {
+                    if (player.isBot())
+                        return;
+                    if (!player.isConnected())
+                        return;
+                    hasAlivePlayers = true;
+                });
+                if (!hasAlivePlayers || match.getPlayersCount() != 2) {
+                    console.log(`killed match: ${match.id}`);
+                    match.terminate();
+                }
+            });
         });
     }
 }
