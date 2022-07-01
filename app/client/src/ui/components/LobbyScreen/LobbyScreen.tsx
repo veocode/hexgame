@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useState } from 'react';
 import { Game } from '../../../game/game';
 import { getLocaleTexts } from '../../../game/locales';
 import { Logo } from '../App/Logo/Logo';
@@ -12,34 +12,33 @@ interface LobbyScreenProps {
 };
 
 export const LobbyScreen: React.FC<LobbyScreenProps> = ({ game }) => {
+    const [currentPeriod, setCurrentPeriod] = useState<string>('today');
+
     const lobbyData = game.getLobbyData();
 
     const tops: JSX.Element[] = [];
+    const topPeriods = ['today', 'total'];
 
     if (lobbyData) {
-        const periods = ['today', 'total'];
-
-        periods.forEach(period => {
+        topPeriods.forEach(period => {
             const playerRows: JSX.Element[] = [];
             if (period in lobbyData.topPlayers) {
                 lobbyData.topPlayers[period].forEach((topPlayer, index) => {
                     playerRows.push(
                         <div className='row' key={index}>
                             <div className='place'>#{topPlayer.place}</div>
-                            <div className='name nickname'>{topPlayer.name} - <b>{topPlayer.points}</b></div>
+                            <div className='name nickname'>{topPlayer.name}</div>
+                            <div className='value'>{topPlayer.points}</div>
                         </div>
                     )
                 })
 
                 tops.push(
-                    <section key={period} className={`top-${period}`}>
-                        <div className='top'>
-                            <h3>{texts[`TopPlayers_${period}`]}</h3>
-                            <div className='stat-table score-table'>
-                                {playerRows}
-                            </div>
+                    <div className={`top scrollable${currentPeriod === period ? ' active' : ''}`}>
+                        <div className='stat-table score-table'>
+                            {playerRows}
                         </div>
-                    </section>
+                    </div>
                 )
             }
         })
@@ -54,9 +53,12 @@ export const LobbyScreen: React.FC<LobbyScreenProps> = ({ game }) => {
                 <div className='player-panel-col'>
                     <div className='player-panel'>
                         <PlayerCard info={game.getPlayer().authInfo} />
-                        <div className='stat-table'>
+                        <div className='stat-table player-points'>
                             <div className='row'>
                                 <div className='name'>{texts.Points}: <b>{lobbyData?.score.total}</b></div>
+                            </div>
+                            <div className='row'>
+                                <div className='name'>{texts.PointsToday}: <b>{lobbyData?.score.today}</b></div>
                             </div>
                         </div>
                         <button className='button-primary' onClick={() => game.searchAndStart()}>{texts.Play}</button>
@@ -67,8 +69,23 @@ export const LobbyScreen: React.FC<LobbyScreenProps> = ({ game }) => {
                         }
                     </div>
                 </div>
-                <div className='tops-panel scrollable'>
-                    {tops}
+                <div className='tops-panel'>
+                    <div className="top-widget">
+                        <div className='header'>
+                            <div className='title'>{texts.TopPlayers}</div>
+                            <ul className='periods'>
+                                {topPeriods.map((period: string): JSX.Element =>
+                                    <li
+                                        className={`period${currentPeriod === period ? ' active' : ''}`}
+                                        onClick={() => setCurrentPeriod(period)}
+                                    >{texts[`TopPlayers_${period}`]}</li>
+                                )}
+                            </ul>
+                        </div>
+                        <div className='tops scrollable'>
+                            {tops}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
