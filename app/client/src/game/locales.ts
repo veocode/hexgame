@@ -236,7 +236,7 @@ const Locales: LocaleDefinitionList = {
             PointsToday: 'Очков за сегодня',
             PointsTotal: 'Всего очков',
             Points: 'Ваши очки рейтинга',
-            TopPlayers: 'Лучшие игроки',
+            TopPlayers: '👑 Топ игроки',
             TopPlayers_today: 'Cегодня',
             TopPlayers_total: 'Все',
             HowTo: 'Правила игры',

@@ -10,7 +10,7 @@
     display: flex;
     width: 100%;
     max-width: 650px;
-    max-height: 355px;
+    max-height: 420px;
     justify-content: center;
     overflow: hidden;
 }
@@ -103,6 +103,7 @@
     font-size: 14px;
     border-radius: 5px;
     cursor: pointer;
+    max-height: 24px;
 }
 
 .lobby-screen .top-widget .header .periods li:hover {
@@ -171,6 +172,24 @@
 .lobby-screen .top .stat-table .row .value {
     flex-grow: 0.2;
     text-align: right;
+}
+
+.lobby-screen .top .stat-table .row:nth-child(2) .name,
+.lobby-screen .top .stat-table .row:nth-child(3) .name {
+    font-weight: normal;
+}
+
+.lobby-screen .top .stat-table .row:nth-child(1) .name {
+    color: #FFC83D;
+    font-weight: bold;
+}
+
+.lobby-screen .top .stat-table .row:nth-child(2) .name {
+    color: #d1e3ff;
+}
+
+.lobby-screen .top .stat-table .row:nth-child(3) .name {
+    color: #ff8d00;
 }
 
 @media (max-width: 540px) {
