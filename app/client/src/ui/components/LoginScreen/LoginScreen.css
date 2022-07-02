@@ -38,11 +38,11 @@
     line-height: 24px;
 }
 
-.footer a {
+.login-screen a {
     color: #39a8d8;
 }
 
-.footer a:hover {
+.login-screen a:hover {
     color: #FFF;
 }
 
@@ -50,4 +50,8 @@
     .footer {
         display: none;
     }
+}
+
+.login-screen .io-banner {
+    margin-top: 20px;
 }

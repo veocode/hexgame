@@ -41,11 +41,16 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ game }) => {
                         : <button onClick={() => onPlayClick()} className='button-primary'>{texts.LogIn}</button>
                     }
                     <button onClick={() => game.setTutorial()}>{texts.HowTo}</button>
+                    <div className='io-banner'>
+                        {game.getPlayer().authInfo.lang == 'en' ? '🌐 Play more ' : '🌐 '}
+                        <a href='https://iogames.space' target='_blank'>
+                            io games
+                        </a>
+                    </div>
                 </div>
             </div>
             {game.getPlayer().isGuest() ?
                 <div className='footer'>
-                    🌐 <a href="https://playhex.online" target='_top'>playhex.online</a><br />
                     send feedback to <a href="mailto:me@veocode.ru">me@veocode.ru</a>
                 </div> : ''}
         </div>
