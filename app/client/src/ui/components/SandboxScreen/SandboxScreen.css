@@ -16,6 +16,11 @@
     margin-bottom: 10px;
 }
 
+.sandbox-screen .toolbar.maps .tool-button {
+    padding: 5px 10px;
+}
+
+
 .sandbox-screen .toolbar .tool-button:last-child {
     margin-right: 0;
 }
