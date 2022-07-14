@@ -5,6 +5,7 @@ const Locales: LocaleDefinitionList = {
         name: 'English',
         displayName: '🇺🇸',
         texts: {
+            OfferToPlay: 'Offer to play',
             LogIn: 'Log In',
             Play: 'Play!',
             Accept: 'Accept',
@@ -68,6 +69,7 @@ const Locales: LocaleDefinitionList = {
         name: 'Español',
         displayName: '🇪🇸',
         texts: {
+            OfferToPlay: 'Oferta para jugar',
             LogIn: 'Iniciar sesión',
             Play: '¡Tocar!',
             Accept: 'Aceptar',
@@ -131,6 +133,7 @@ const Locales: LocaleDefinitionList = {
         name: 'Deutsch',
         displayName: '🇩🇪',
         texts: {
+            OfferToPlay: 'Biete an zu spielen',
             LogIn: 'Einloggen',
             Play: 'Spielen!',
             Accept: 'Annehmen',
@@ -194,6 +197,7 @@ const Locales: LocaleDefinitionList = {
         name: 'Français',
         displayName: '🇫🇷',
         texts: {
+            OfferToPlay: 'Offre de jouer',
             LogIn: 'Connexion',
             Play: 'Jouer!',
             Accept: 'Accepter',
@@ -257,6 +261,7 @@ const Locales: LocaleDefinitionList = {
         name: 'Русский',
         displayName: '🇷🇺',
         texts: {
+            OfferToPlay: 'Предложить сыграть',
             LogIn: 'Войти',
             Play: 'Играть!',
             Accept: 'Принять',

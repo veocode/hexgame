@@ -85,7 +85,7 @@ export const LobbyScreen: React.FC<LobbyScreenProps> = ({ game }) => {
                                 className='btn-play button-primary'
                                 title={'Offer to Play'}
                                 onClick={() => game.sendInviteToPlayer(matchDescription.player1.id, matchDescription.player1.nickname)}
-                            >💬</button>}
+                            >⚔️</button>}
                     </div>
                 </div>
             )
@@ -103,9 +103,9 @@ export const LobbyScreen: React.FC<LobbyScreenProps> = ({ game }) => {
                     <div className='actions'>
                         <button
                             className='btn-play button-primary'
-                            title={'Offer to Play'}
+                            title={texts.OfferToPlay}
                             onClick={() => game.sendInviteToPlayer(playerDescription.id, playerDescription.nickname)}
-                        >💬</button>
+                        >⚔️</button>
                     </div>
                 </div>
             )
