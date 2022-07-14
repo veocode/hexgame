@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { KeyboardEvent, useRef } from 'react';
 import { Game } from '../../../game/game';
 import { getLocaleTexts } from '../../../game/locales';
 import { LocaleSelector } from './LocaleSelector/LocaleSelector';
@@ -16,17 +16,21 @@ export const LoginScreen: React.FC<LoginScreenProps> = ({ game }) => {
     const nicknameInput = useRef<HTMLInputElement>(null);
     const nickname = game.getPlayer().authInfo.nickname;
 
-    const onPlayClick = async () => {
+    const onPlayClick = () => {
         if (game.getPlayer().isGuest()) {
             const nickname = (nicknameInput.current?.value || 'unnamed').substring(0, 12);
             localStorage.setItem('hexgame:nickname', nickname);
             game.getPlayer().authInfo.nickname = nickname;
         }
-        await game.login();
+        game.login();
+    };
+
+    const onInputKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Enter') onPlayClick();
     };
 
     let userInput: JSX.Element = game.getPlayer().isGuest()
-        ? <input type='text' maxLength={12} defaultValue={nickname} ref={nicknameInput} />
+        ? <input type='text' maxLength={12} defaultValue={nickname} onKeyDown={(e: KeyboardEvent) => onInputKeyDown(e)} ref={nicknameInput} />
         : <PlayerCard info={game.getPlayer().authInfo} />;
 
     return (

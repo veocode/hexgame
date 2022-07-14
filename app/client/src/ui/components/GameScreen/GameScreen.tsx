@@ -61,11 +61,23 @@ export const GameScreen: React.FC<GameScreenProps> = ({ match }) => {
                         : ''}
                     <div className='button'>
                         {match.isSpectating()
-                            ? <button onClick={() => match.getGame().stopSpectating()}>{texts.Quit}</button>
-                            : <div>
-                                <button onClick={() => match.getGame().searchAndStart()}>{texts.PlayAgain}</button>
-                                <button onClick={() => match.getGame().setLobby()}>{texts.Quit}</button>
+                            ? <button onClick={() => match.getGame().stopSpectating()}>{texts.Close}</button>
+                            :
+                            <div>
+                                {
+                                    match.hasBot()
+                                        ?
+                                        <div>
+                                            <button onClick={() => match.getGame().startWithBot()}>{texts.PlayAgain}</button>
+                                            <button onClick={() => match.getGame().setLobby()}>{texts.Quit}</button>
+                                        </div>
+                                        :
+                                        <div>
+                                            <button onClick={() => match.getGame().setLobby()}>{texts.Close}</button>
+                                        </div>
+                                }
                             </div>
+
                         }
                     </div>
                 </div>
@@ -94,8 +106,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ match }) => {
                 />
                 {match.isSpectating() ?
                     <div className='spectator-panel'>
-                        <span>Spectator Mode</span>
-                        <button onClick={() => match.getGame().stopSpectating()}>Quit</button>
+                        <button onClick={() => match.getGame().stopSpectating()}>{texts.Quit}</button>
                     </div> : ''}
                 {resultBox}
             </div>

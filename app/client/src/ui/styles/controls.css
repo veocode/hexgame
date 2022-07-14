@@ -20,16 +20,16 @@ input[type=text]:focus {
 button {
   padding: 10px 20px;
   border-radius: 5px;
-  border: none;
-  background: linear-gradient(#4d545f, #40454e);
-  box-shadow: 0 1px 2px #1f2227;
+  border: solid 2px #4d545f;
+  background: none;
+  box-shadow: 0 0 3px #1f2227;
   color: #d3dbe7;
   font-size: 16px;
   cursor: pointer;
 }
 
 button:hover {
-  background: linear-gradient(#535a66, #414750);
+  border-color: #5c6472;
   color: #FFF;
 }
 
@@ -38,21 +38,25 @@ button.active {
 }
 
 .button-primary {
-  background: linear-gradient(#2e9ac9, #1e617e);
-  color: #FFF;
+  border-color: #34a4d4;
+  color: #34a4d4;
   font-weight: bold;
+  background: rgb(20 103 139 / 15%);
 }
 
 .button-primary:hover {
-  background: linear-gradient(#32A6D9, #24779b);
+  border-color: #38b0e4;
+  color: #38b0e4;
 }
 
 .button-secondary {
-  background: linear-gradient(#1e7e49, #155842);
-  color: #FFF;
+  border-color: #22af62;
+  color: #22af62;
   font-weight: bold;
+  background: rgb(24 133 73 / 5%);
 }
 
 .button-secondary:hover {
-  background: linear-gradient(#218a50, #19664c);
+  border-color: #28d174;
+  color: #28d174;
 }

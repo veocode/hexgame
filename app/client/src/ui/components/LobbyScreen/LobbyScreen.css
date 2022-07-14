@@ -9,8 +9,7 @@
     flex-grow: 1;
     display: flex;
     width: 100%;
-    max-width: 650px;
-    max-height: 420px;
+    max-width: 1000px;
     justify-content: center;
     overflow: hidden;
 }
@@ -23,6 +22,7 @@
     flex-direction: column;
     margin-bottom: 20px;
     padding: 20px;
+    min-width: 240px;
 }
 
 .lobby-screen .player-panel .player-card {
@@ -32,7 +32,7 @@
 
 .lobby-screen .player-panel .stat-table {
     margin: 20px 0;
-    width: 90%;
+    width: 100%;
 }
 
 .lobby-screen .player-panel .stat-table .row {
@@ -71,11 +71,10 @@
 }
 
 .lobby-screen .top-widget {
-    margin-left: 20px;
+    margin-left: 10px;
     color: #a4aeb9;
     font-weight: lighter;
     margin-bottom: 10px;
-    width: 95%;
     height: 100%;
     border-radius: 5px;
     display: flex;
@@ -195,7 +194,6 @@
 @media (max-width: 540px) {
     .lobby-screen .player-panel-col {
         flex-grow: 1;
-        min-height: 282px;
     }
 
     .lobby-screen .body {
@@ -218,7 +216,7 @@
     .lobby-screen .top-widget .tops {
         overflow: auto;
         align-items: flex-start;
-        height: calc(100vh - 495px);
+        height: calc(100vh - 450px);
     }
 }
 
@@ -226,4 +224,63 @@
     .lobby-screen .logo {
         display: none;
     }
+}
+
+.lobby-screen .matches-list {
+    padding: 0 10px;
+}
+
+.lobby-screen .matches-list .row {
+    display: flex;
+    width: 100%;
+    line-height: 30px;
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+    border-bottom: dashed 1px #555b61;
+    font-size: 14px;
+}
+
+.lobby-screen .matches-list .row:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.lobby-screen .matches-list .row .text {
+    flex-grow: 1;
+    text-align: left;
+}
+
+.lobby-screen .matches-list .row .text .player {
+    color: #FFF;
+}
+
+.lobby-screen .matches-list .row .vs {
+    padding: 0 8px;
+}
+
+.lobby-screen .matches-list .row .actions {
+    display: flex;
+}
+
+.lobby-screen .matches-list .row button {
+    width: auto;
+    min-width: auto;
+    height: 30px;
+    line-height: 30px;
+    padding: 0 15px;
+    margin-left: 5px;
+}
+
+.lobby-screen .matches-list .row .btn-play {
+    font-size: 13px;
+}
+
+.lobby-screen .empty {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }

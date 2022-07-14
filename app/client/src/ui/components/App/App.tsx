@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Game, GameState } from '../../../game/game';
+import { Game, GameInviteState, GameState } from '../../../game/game';
 import { MessageScreen } from '../MessageScreen/MessageScreen';
 import { LoginScreen } from '../LoginScreen/LoginScreen';
 import { GameScreen } from '../GameScreen/GameScreen';
@@ -11,6 +11,7 @@ import { VkBridge } from '../../../vk/bridge';
 import { LobbyScreen } from '../LobbyScreen/LobbyScreen';
 import './App.css';
 import { LinkScreen } from '../LinkScreen/LinkScreen';
+import { Invite } from './Invite/Invite';
 
 
 const texts = getLocaleTexts();
@@ -95,6 +96,7 @@ export const App: React.FC<{}> = () => {
         >
           <div className='icon'></div>
         </button> : ''}
+      <Invite game={game} />
     </div>
   );
 };

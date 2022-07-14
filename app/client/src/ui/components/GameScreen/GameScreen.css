@@ -130,8 +130,9 @@
 }
 
 .game-screen .spectator-panel {
-    position: absolute;
-    bottom: 10%;
+    position: fixed;
+    bottom: 19px;
+    left: 60px;
     color: #FFF;
 }
 

@@ -36,16 +36,19 @@ const botNames = [
     'hexdude',
     'hexmaster',
     'hexrookie',
-    'hexsports',
-    'hexallday',
-    'hexonomical',
-    'hexomorfin',
-    'hexotoxin',
     'hexonaut',
     'hexhomie',
     'hexist',
     'hexoid',
-    'hexxeh',
+    'hexdroid',
+    'hexgosu',
+    'hexguru',
+    'hexpal',
+    'hexbuddy',
+    'hexmachine',
+    'hexminator',
+    'hexbot',
+    'hexlord',
 ];
 
 export class BotClient extends Client {
@@ -61,6 +64,7 @@ export class BotClient extends Client {
 
     constructor(profile: Profile) {
         super(null, profile);
+        this.botNickname = profile.nickname;
     }
 
     isBot(): boolean {
@@ -134,14 +138,18 @@ export class BotClient extends Client {
     private respondWithMove() {
         const moves = this.getPossibleMoves();
 
-        const chanceToCaptureJump = this.match.getTurn() < 5 ? 0.2 : 0.7;
-        const chanceToEmojiOnBigCapture = 0.15;
-        const chanceToEmojiOnCapture = 0.08;
+        const chanceToCaptureJump = this.match.getTurn() < 10 ? 0.08 : 0.65;
+        const chanceToEmojiOnBigCapture = 0.66;
+        const chanceToEmojiOnCapture = 0.15;
+
+        if (moves.far.length <= 2 && this.match.getTurn() >= 16) {
+            return this.makeMove(this.getRandomArrayItem(moves.far));
+        }
 
         if (moves.maxCapture && (moves.maxCaptureProfit > 1 || Math.random() <= chanceToCaptureJump)) {
-            if (moves.maxCaptureProfit >= 4) {
+            if (moves.maxCaptureProfit >= 5) {
                 if (Math.random() <= chanceToEmojiOnBigCapture) this.sendEmoji('😎', 1500);
-            } else if (moves.maxCaptureProfit >= 3) {
+            } else if (moves.maxCaptureProfit >= 4) {
                 if (Math.random() <= chanceToEmojiOnCapture) this.sendEmoji('😀', 1500);
             }
             return this.makeMove(moves.maxCapture);

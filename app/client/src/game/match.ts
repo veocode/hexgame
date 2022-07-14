@@ -21,7 +21,8 @@ export interface MatchOptions {
     map: number[],
     playerTag: number,
     initialScores: MatchServerScoreDict,
-    maxTurnTime: number
+    maxTurnTime: number,
+    hasBot: boolean
 }
 
 export interface MatchStateMessage {
@@ -127,6 +128,10 @@ export class Match {
 
     isSpectating(): boolean {
         return false;
+    }
+
+    hasBot(): boolean {
+        return this.options.hasBot;
     }
 
     getInitialStateMessage() {

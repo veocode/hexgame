@@ -38,6 +38,8 @@ export class Client {
     protected turnTimeout: NodeJS.Timeout | null;
     protected missedTurnsCount: number = 0;
 
+    protected inviteBlacklist: string[] = [];
+
     constructor(
         private readonly socket: Socket | null,
         protected profile: Profile,
@@ -109,7 +111,6 @@ export class Client {
     }
 
     setOpponent(client: Client | null) {
-        if (client) this.setInGame();
         this.opponent = client;
     }
 
@@ -161,6 +162,13 @@ export class Client {
         return this.state === ClientState.InGame;
     }
 
+    isInGameWithHuman(): boolean {
+        if (!this.isInGame()) return false;
+        const opponent = this.getOpponent();
+        if (!opponent) return false;
+        return !opponent.isBot();
+    }
+
     setTurnTimeout(callback: () => void, ms: number = 10000) {
         this.stopTurnTimeout();
         this.turnTimeout = setTimeout(() => callback(), ms);
@@ -181,6 +189,18 @@ export class Client {
 
     getMissedTurns(): number {
         return this.missedTurnsCount;
+    }
+
+    addToBlacklist(clientId: string) {
+        this.inviteBlacklist.push(clientId);
+    }
+
+    isBlacklisted(clientId: string): boolean {
+        return this.inviteBlacklist.indexOf(clientId) >= 0;
+    }
+
+    clearBlacklist() {
+        this.inviteBlacklist = [];
     }
 
 }

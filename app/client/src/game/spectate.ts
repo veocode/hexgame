@@ -9,7 +9,8 @@ export interface SpectateMatchOptions {
     map: number[],
     currentPlayer: number,
     initialScores: MatchServerScoreDict,
-    maxTurnTime: number
+    maxTurnTime: number,
+    hasBot: boolean
 }
 
 export class SpectateMatch extends Match {
@@ -28,16 +29,16 @@ export class SpectateMatch extends Match {
     }
 
     getInitialStateMessage() {
-        return `${this.getPlayerName(this.opts.currentPlayer)} ходит`;
+        return `⏳ ${this.getPlayerName(this.opts.currentPlayer)}`;
     }
 
     onMoveStarted(player: PlayerTag) {
         this.updateStateMessage({
-            text: `${this.getPlayerName(player)} ходит (30)`,
+            text: `⏳ ${this.getPlayerName(player)} (30)`,
         })
         this.turnTimer.start(this.maxTurnTime, () => {
             this.updateStateMessage({
-                text: this.turnTimer.formatLeft(`${this.getPlayerName(player)} ходит`),
+                text: this.turnTimer.formatLeft(`⏳ ${this.getPlayerName(player)}`),
             })
         });
         this.map.resetHighlight();
@@ -70,7 +71,7 @@ export class SpectateMatch extends Match {
             reasons[PlayerHasNoMovesReasons.NoMoves] = texts.OpponentNoMoves;
 
             const winnerTag = loserTag === PlayerTag.Player1 ? PlayerTag.Player2 : PlayerTag.Player1;
-            this.updateStateMessage({ text: `${this.getPlayerName(loserTag)} не может ходить` });
+            this.updateStateMessage({ text: `🔴 ${this.getPlayerName(loserTag)}` });
 
             setTimeout(() => {
                 const emptyCells = this.getMap().getCells().filter(cell => cell.isEmpty());
@@ -97,7 +98,7 @@ export class SpectateMatch extends Match {
 
             const message = result.isWithdraw
                 ? texts.MatchWithdraw
-                : `${this.getPlayerName(result.winner)} победил`;
+                : `👑 ${this.getPlayerName(result.winner)}`;
 
             this.setOver(result.isNoMoves, {
                 message,

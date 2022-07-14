@@ -21,31 +21,32 @@ export enum GameState {
     Management
 }
 
+export enum GameInviteState {
+    None,
+    Pending,
+    Declined,
+    Accepted,
+    Incoming,
+    Expired,
+}
+
 export interface GameServerPlayerDescription {
+    id: string,
     nickname: string,
-    lang: string,
+    isBot: boolean,
+    lang: string
 }
 
 export interface GameServerMatchDescription {
     id: string,
-    player1: string,
-    player2: string
+    player1: GameServerPlayerDescription,
+    player2: GameServerPlayerDescription,
+    hasBot: boolean
 }
 
 export interface GameServerStats {
-    bots: number,
-    players: {
-        count: number,
-        list: GameServerPlayerDescription[]
-    },
-    admins: {
-        count: number,
-        list: string[]
-    },
-    matches: {
-        count: number,
-        list: GameServerMatchDescription[]
-    }
+    idlePlayers: GameServerPlayerDescription[],
+    matches: GameServerMatchDescription[]
 }
 
 interface TopPlayerInfo {
@@ -65,8 +66,14 @@ interface LobbyData {
     }
 }
 
+export interface GameInvite {
+    playerId?: string,
+    nickname?: string
+}
+
 type StateUpdatedCallback = (state: GameState) => void;
 type StatsUpdatedCallback = (result: GameServerStats) => void;
+type InviteStateUpdatedCallback = (state: GameInviteState, message?: string) => void;
 type TopPlayersUpdatedCallback = (topPlayers: TopPlayersDict) => void;
 
 export class Game {
@@ -79,6 +86,9 @@ export class Game {
     private state: GameState = GameState.Loading;
     private lobbyData: LobbyData | null = null;
 
+    private inviteState: GameInviteState = GameInviteState.None;
+    private invite: GameInvite = {};
+
     protected player: Player;
     private match: Match | null = null;
     private sandbox: Sandbox | null = null;
@@ -86,6 +96,7 @@ export class Game {
     private callbacks: {
         StateUpdated?: StateUpdatedCallback | null,
         StatsUpdated?: StatsUpdatedCallback | null,
+        InviteStateUpdated?: InviteStateUpdatedCallback | null,
         TopPlayersUpdated?: TopPlayersUpdatedCallback | null
     } = {};
 
@@ -147,11 +158,7 @@ export class Game {
                 return;
             }
 
-            if (isAdmin) {
-                this.player.setAdmin();
-                this.setManagement();
-                return;
-            }
+            if (isAdmin) this.player.setAdmin();
 
             this.setLobby({
                 topPlayers,
@@ -169,21 +176,23 @@ export class Game {
             this.connect();
         });
 
-        this.socket.on('game:match:start', ({ playerTag, map, scores, maxTurnTime }) => {
+        this.socket.on('game:match:start', ({ playerTag, map, scores, maxTurnTime, hasBot }) => {
             this.startMatch(new Match(this, {
                 map,
                 playerTag,
                 initialScores: scores,
-                maxTurnTime
+                maxTurnTime,
+                hasBot
             }));
         });
 
-        this.socket.on('game:match:start-spectating', ({ currentPlayer, map, scores, maxTurnTime }) => {
+        this.socket.on('game:match:start-spectating', ({ currentPlayer, map, scores, maxTurnTime, hasBot }) => {
             this.startMatch(new SpectateMatch(this, {
                 map,
                 currentPlayer,
                 initialScores: scores,
-                maxTurnTime
+                maxTurnTime,
+                hasBot
             }));
         });
 
@@ -201,18 +210,47 @@ export class Game {
             alert(texts.LinkNotFound);
             window.location.href = '/';
         });
+
+        this.socket.on('game:invite-request', ({ playerId, nickname }) => {
+            this.invite = {
+                playerId,
+                nickname
+            };
+
+            this.setInviteState(GameInviteState.Incoming);
+            console.log('game:invite-request');
+        });
+
+        this.socket.on('game:invite-response', ({ isAccepted, message }) => {
+            if (isAccepted) {
+                return this.setInviteState(GameInviteState.Accepted);
+            }
+            return this.setInviteState(GameInviteState.Declined, message);
+        })
+
+        this.socket.on('game:invite-expired', () => {
+            return this.setInviteState(GameInviteState.Expired);
+        })
+
+        this.socket.on('game:invite-cancel', () => {
+            return this.cancelInvite();
+        })
     }
 
     startMatch(match: Match) {
-        this.match = match;
+        this.setLoading();
+        setTimeout(() => {
+            this.cancelInvite();
+            this.match = match;
 
-        this.match.whenOver(() => {
-            this.setOver();
-            this.match?.unbindSocketEvents();
-            this.match = null;
-        });
+            this.match.whenOver(() => {
+                this.setOver();
+                this.match?.unbindSocketEvents();
+                this.match = null;
+            });
 
-        this.setStarted();
+            this.setStarted();
+        }, 200);
     }
 
     async connectAndStart() {
@@ -227,8 +265,9 @@ export class Game {
         }, 200);
     }
 
-    async searchAndStart(nickname?: string) {
-        setTimeout(() => this.setSearchingGame(), 600);
+    async startWithBot() {
+        this.setLoading();
+        setTimeout(() => this.socket.emit('game:start-bot'), 600);
     }
 
     startSpectating(matchId: string) {
@@ -237,7 +276,7 @@ export class Game {
 
     stopSpectating() {
         this.socket.emit('game:spectate-stop');
-        this.setManagement();
+        this.setLobby();
     }
 
     startLinkedGame() {
@@ -260,6 +299,25 @@ export class Game {
 
     whenTopPlayersUpdated(callback: TopPlayersUpdatedCallback) {
         this.callbacks.TopPlayersUpdated = callback;
+    }
+
+    whenInviteStateUpdated(callback: InviteStateUpdatedCallback) {
+        this.callbacks.InviteStateUpdated = callback;
+    }
+
+    private setInviteState(state: GameInviteState, message?: string) {
+        this.inviteState = state;
+        if (this.callbacks.InviteStateUpdated) {
+            this.callbacks.InviteStateUpdated(state, message);
+        }
+    }
+
+    getInviteState(): GameInviteState {
+        return this.inviteState;
+    }
+
+    getInvite(): GameInvite {
+        return this.invite;
     }
 
     whenStatsUpdated(callback: StatsUpdatedCallback) {
@@ -322,6 +380,7 @@ export class Game {
             })
         } else {
             this.setState(GameState.Lobby);
+            this.askForUpdatedLobbyStats();
         }
     }
 
@@ -339,7 +398,6 @@ export class Game {
 
     setSearchingGame() {
         this.setState(GameState.SearchingGame);
-        this.socket.emit('game:search-request');
     }
 
     isSandbox(): boolean {
@@ -381,7 +439,6 @@ export class Game {
 
     setManagement() {
         this.setState(GameState.Management);
-        this.askForUpdatedAdminStats();
     }
 
     isStarted() {
@@ -410,8 +467,47 @@ export class Game {
         }
     }
 
-    askForUpdatedAdminStats() {
+    askForUpdatedLobbyStats() {
         this.socket.emit('game:stats-request');
+    }
+
+    sendInviteToPlayer(playerId: string, nickname: string) {
+        if (this.inviteState !== GameInviteState.None) return;
+
+        this.invite = {
+            playerId,
+            nickname
+        };
+        this.socket.emit('game:invite-request', this.invite);
+        this.setInviteState(GameInviteState.Pending);
+    }
+
+    cancelInvite() {
+        if (this.inviteState === GameInviteState.Pending) {
+            this.socket.emit('game:invite-cancel');
+        }
+        this.setInviteState(GameInviteState.None);
+    }
+
+    acceptInvite() {
+        if (this.inviteState === GameInviteState.Incoming) {
+            this.socket.emit('game:invite-response', {
+                toPlayerId: this.invite.playerId,
+                isAccepted: true
+            });
+
+            this.setInviteState(GameInviteState.Accepted);
+        }
+    }
+
+    declineInvite() {
+        if (this.inviteState === GameInviteState.Incoming) {
+            this.socket.emit('game:invite-response', {
+                toPlayerId: this.invite.playerId,
+                isAccepted: false
+            });
+            this.setInviteState(GameInviteState.None);
+        }
     }
 
 }

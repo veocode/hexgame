@@ -5,7 +5,7 @@ import { generateId } from './utils';
 import { LinkedGame } from './linked';
 
 const MaxPlayers: number = 2;
-const MaxTurnTimeSeconds: number = 30;
+const MaxTurnTimeSeconds: number = 30000;
 const MaxMissedTurnsCount: number = 3;
 
 const Delay = {
@@ -98,6 +98,11 @@ export class GameMatch {
         return this.players[tag];
     }
 
+    getPlayerId(tag: PlayerTag): string {
+        const player = this.getPlayer(tag);
+        return player ? player.id : '';
+    }
+
     bindPlayerEvents(player: Client) {
         player.on('game:match:move-response', ({ fromId, toId }) => this.onPlayerMoveResponse(player, fromId, toId));
         player.on('game:match:move-cell-selected', ({ id }) => this.onPlayerCellSelected(player, id));
@@ -130,7 +135,8 @@ export class GameMatch {
             map: this.map.serialize(),
             scores: this.getPlayerScores(),
             currentPlayer: this.currentPlayerTag,
-            maxTurnTime: MaxTurnTimeSeconds
+            maxTurnTime: MaxTurnTimeSeconds,
+            hasBot: this.hasBot(),
         });
     }
 
@@ -164,7 +170,8 @@ export class GameMatch {
                 playerTag: player.getTag(),
                 map: this.map.serialize(),
                 scores: this.getPlayerScores(),
-                maxTurnTime: MaxTurnTimeSeconds
+                maxTurnTime: MaxTurnTimeSeconds,
+                hasBot: this.hasBot()
             });
         });
 
