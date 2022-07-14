@@ -27,6 +27,7 @@ class Client {
         this.tag = 0;
         this.isAdministrator = false;
         this.missedTurnsCount = 0;
+        this.inviteBlacklist = [];
         this.id = socket ? socket.id : this.getId();
         if (isAdministrator)
             this.setAdmin();
@@ -79,8 +80,6 @@ class Client {
         return this.opponent;
     }
     setOpponent(client) {
-        if (client)
-            this.setInGame();
         this.opponent = client;
     }
     getMatch() {
@@ -119,6 +118,14 @@ class Client {
     isInGame() {
         return this.state === ClientState.InGame;
     }
+    isInGameWithHuman() {
+        if (!this.isInGame())
+            return false;
+        const opponent = this.getOpponent();
+        if (!opponent)
+            return false;
+        return !opponent.isBot();
+    }
     setTurnTimeout(callback, ms = 10000) {
         this.stopTurnTimeout();
         this.turnTimeout = setTimeout(() => callback(), ms);
@@ -135,6 +142,15 @@ class Client {
     }
     getMissedTurns() {
         return this.missedTurnsCount;
+    }
+    addToBlacklist(clientId) {
+        this.inviteBlacklist.push(clientId);
+    }
+    isBlacklisted(clientId) {
+        return this.inviteBlacklist.indexOf(clientId) >= 0;
+    }
+    clearBlacklist() {
+        this.inviteBlacklist = [];
     }
 }
 exports.Client = Client;

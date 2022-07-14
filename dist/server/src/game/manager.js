@@ -25,6 +25,7 @@ class GameManager {
         this.clients = new client_1.ClientList;
         this.matches = new utils_1.List();
         this.linkedGames = new utils_1.List();
+        this.invites = {};
         this.mapPool = [];
     }
     getRandomMap() {
@@ -39,7 +40,7 @@ class GameManager {
         if (client.isAdmin())
             this.admins.add(client);
         this.bindClientEvents(client);
-        this.sendStatsToAdmins();
+        this.sendLobbyStats();
     }
     removeClient(client) {
         if (client.isAdmin())
@@ -56,11 +57,14 @@ class GameManager {
         if (client.linkedGame) {
             this.cancelClientLinkedGame(client);
         }
-        this.sendStatsToAdmins();
+        if (client.id in this.invites) {
+            this.cancelInvite(client);
+        }
+        this.sendLobbyStats();
     }
     bindClientEvents(client) {
-        client.on('game:search-request', () => {
-            this.searchGameForClient(client);
+        client.on('game:start-bot', () => {
+            this.createBotGame(client);
         });
         client.on('game:link:create', () => {
             this.createLinkedGame(client);
@@ -72,9 +76,7 @@ class GameManager {
             this.cancelClientLinkedGame(client);
         });
         client.on('game:stats-request', () => {
-            if (!client.isAdmin())
-                return;
-            this.sendStatsToAdmin(client);
+            this.sendLobbyStatsToClient(client);
         });
         client.on('game:maps', () => {
             if (!client.isAdmin())
@@ -92,20 +94,19 @@ class GameManager {
         client.on('game:spectate-stop', () => {
             this.removeSpectator(client);
         });
-    }
-    searchGameForClient(client) {
-        client.setSearchingGame();
-        let opponentClient;
-        this.clients.forEachExcept(client, otherClient => {
-            if (opponentClient || !otherClient.isSearchingGame())
-                return;
-            opponentClient = otherClient;
+        client.on('game:invite-request', ({ playerId }) => {
+            this.sendPlayInvite(client, playerId);
         });
-        if (opponentClient) {
-            return this.createMatch(client, opponentClient);
-        }
-        setTimeout(() => __awaiter(this, void 0, void 0, function* () {
-            if (client.isConnected() && client.isSearchingGame()) {
+        client.on('game:invite-cancel', () => {
+            this.cancelInvite(client);
+        });
+        client.on('game:invite-response', ({ toPlayerId, isAccepted }) => {
+            this.sendPlayInviteResponse(client, toPlayerId, isAccepted);
+        });
+    }
+    createBotGame(client) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (client.isConnected()) {
                 client.setInGame();
                 const botProfile = yield profile_1.Profile.createAndLoad({
                     sourceId: 'bot',
@@ -115,7 +116,7 @@ class GameManager {
                 const botOpponent = new botclient_1.BotClient(botProfile);
                 this.createMatch(client, botOpponent);
             }
-        }), 3000);
+        });
     }
     createLinkedGame(client) {
         const game = new linked_1.LinkedGame();
@@ -145,6 +146,13 @@ class GameManager {
         client.linkedGame = null;
     }
     createMatch(player1, player2, linkedGame = null) {
+        var _a, _b;
+        if (player1.isInGame())
+            (_a = player1.getMatch()) === null || _a === void 0 ? void 0 : _a.terminate();
+        if (player2.isInGame())
+            (_b = player2.getMatch()) === null || _b === void 0 ? void 0 : _b.terminate();
+        player1.setInGame();
+        player2.setInGame();
         const match = new match_1.GameMatch(this.getRandomMap());
         player1.setOpponent(player2);
         player1.setMatch(match);
@@ -162,71 +170,76 @@ class GameManager {
                     const player = match.getPlayer(tag);
                     if (player) {
                         const points = scores[tag].delta;
+                        player.setIdle();
                         player.getProfile().addScore(points);
+                        player.clearBlacklist();
                     }
                 });
             }
             this.removeMatch(match);
         });
         this.addMatch(match);
+        player1.clearBlacklist();
+        player2.clearBlacklist();
     }
     addMatch(match) {
         this.matches.add(match);
-        this.sendStatsToAdmins();
+        this.sendLobbyStats();
     }
     removeMatch(match) {
         this.matches.remove(match);
-        this.sendStatsToAdmins();
+        this.sendLobbyStats();
     }
     getStats() {
-        let botCount = 0;
-        let admins = [];
-        let players = [];
-        let matches = [];
+        const idlePlayers = [];
+        const matches = [];
         this.clients.forEach(client => {
-            if (client.isAdmin())
-                return admins.push(client.getNicknameWithIcon());
-            players.push({
-                nickname: client.getNicknameWithIcon(),
+            if (!client.isIdle())
+                return;
+            idlePlayers.push({
+                id: client.id,
+                nickname: client.getNickname(),
+                isBot: false,
                 lang: client.getAuthInfo().lang
             });
         });
         this.matches.forEach(match => {
-            var _a, _b;
-            if (match.hasBot())
-                botCount++;
+            const player1 = match.getPlayer(types_1.PlayerTag.Player1);
+            const player2 = match.getPlayer(types_1.PlayerTag.Player2);
+            if (!player1 || !player2)
+                return;
             matches.push({
                 id: match.id,
-                player1: (_a = match.getPlayer(types_1.PlayerTag.Player1)) === null || _a === void 0 ? void 0 : _a.getNicknameWithIcon(),
-                player2: (_b = match.getPlayer(types_1.PlayerTag.Player2)) === null || _b === void 0 ? void 0 : _b.getNicknameWithIcon(false)
+                player1: {
+                    id: player1.id,
+                    nickname: player1.getNickname(),
+                    isBot: player1.isBot(),
+                    lang: player1.getAuthInfo().lang
+                },
+                player2: {
+                    id: player2.id,
+                    nickname: player2.getNickname(),
+                    isBot: player2.isBot(),
+                    lang: player2.getAuthInfo().lang
+                },
+                hasBot: match.hasBot()
             });
         });
         return {
-            players: {
-                count: players.length,
-                list: players
-            },
-            bots: botCount,
-            admins: {
-                count: admins.length,
-                list: admins
-            },
-            matches: {
-                count: matches.length,
-                list: matches
-            }
+            idlePlayers,
+            matches
         };
     }
-    sendStatsToAdmins() {
+    sendLobbyStats() {
         const stats = this.getStats();
-        this.admins.forEach(admin => {
-            admin.send('game:stats', stats);
+        this.clients.forEach(client => {
+            if (!client.isInGame()) {
+                client.send('game:stats', stats);
+            }
         });
     }
-    sendStatsToAdmin(admin) {
-        if (!admin.isAdmin())
-            return;
-        admin.send('game:stats', this.getStats());
+    sendLobbyStatsToClient(client) {
+        client.send('game:stats', this.getStats());
     }
     sendMapToEditor(client, mapId) {
         if (mapId >= 0 && mapId < maps_1.Maps.length) {
@@ -268,6 +281,8 @@ class GameManager {
             this.matches.forEach(match => {
                 let hasAlivePlayers = false;
                 match.forEachPlayer(player => {
+                    if (!player)
+                        return;
                     if (player.isBot())
                         return;
                     if (!player.isConnected())
@@ -280,6 +295,87 @@ class GameManager {
                 }
             });
         });
+    }
+    cancelInvite(inviter) {
+        if (inviter.id in this.invites) {
+            const invited = this.clients.getById(this.invites[inviter.id]);
+            if (invited) {
+                invited.send('game:invite-cancel');
+            }
+            delete this.invites[inviter.id];
+        }
+    }
+    sendPlayInvite(inviter, opponentId) {
+        inviter.clearBlacklist();
+        const opponent = this.clients.getById(opponentId);
+        if (!opponent || !opponent.isConnected()) {
+            return inviter.send('game:invite-response', {
+                isAccepted: false,
+                message: 'not-found'
+            });
+        }
+        if (opponent.isInGameWithHuman()) {
+            return inviter.send('game:invite-response', {
+                isAccepted: false,
+                message: 'busy'
+            });
+        }
+        if (opponent.isBlacklisted(inviter.id)) {
+            return inviter.send('game:invite-response', {
+                isAccepted: false,
+            });
+        }
+        this.invites[inviter.id] = opponentId;
+        opponent.send('game:invite-request', {
+            playerId: inviter.id,
+            nickname: inviter.getNickname()
+        });
+    }
+    sendPlayInviteResponse(invited, inviterId, isAccepted) {
+        if (!isAccepted) {
+            invited.addToBlacklist(inviterId);
+        }
+        const inviter = this.clients.getById(inviterId);
+        if (!inviter || !inviter.isConnected()) {
+            if (isAccepted)
+                invited.send('game:invite-expired');
+            return;
+        }
+        if (!(inviterId in this.invites) || this.invites[inviterId] != invited.id) {
+            if (isAccepted)
+                invited.send('game:invite-expired');
+            return;
+        }
+        delete this.invites[inviterId];
+        if (!isAccepted) {
+            inviter.send('game:invite-response', {
+                isAccepted: false,
+                message: 'rejected'
+            });
+            if (Object.values(this.invites).includes(invited.id)) {
+                let isNextInviteFound = false;
+                Object.keys(this.invites).forEach(inviterId => {
+                    if (!isNextInviteFound && this.invites[inviterId] === invited.id) {
+                        const inviter = this.clients.getById(inviterId);
+                        this.sendPlayInvite(inviter, invited.id);
+                    }
+                });
+            }
+            return;
+        }
+        inviter.send('game:invite-response', {
+            isAccepted: true,
+            message: 'accepted'
+        });
+        if (Object.values(this.invites).includes(invited.id)) {
+            Object.keys(this.invites).forEach(inviterId => {
+                if (this.invites[inviterId] === invited.id) {
+                    const inviter = this.clients.getById(inviterId);
+                    this.cancelInvite(inviter);
+                }
+            });
+        }
+        this.createMatch(inviter, invited);
     }
 }
 exports.GameManager = GameManager;

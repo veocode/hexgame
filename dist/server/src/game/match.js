@@ -6,7 +6,7 @@ const types_1 = require("../shared/types");
 const client_1 = require("../client/client");
 const utils_1 = require("./utils");
 const MaxPlayers = 2;
-const MaxTurnTimeSeconds = 30;
+const MaxTurnTimeSeconds = 30000;
 const MaxMissedTurnsCount = 3;
 const Delay = {
     noMovesFillPerCell: 200,
@@ -66,6 +66,10 @@ class GameMatch {
     getPlayer(tag) {
         return this.players[tag];
     }
+    getPlayerId(tag) {
+        const player = this.getPlayer(tag);
+        return player ? player.id : '';
+    }
     bindPlayerEvents(player) {
         player.on('game:match:move-response', ({ fromId, toId }) => this.onPlayerMoveResponse(player, fromId, toId));
         player.on('game:match:move-cell-selected', ({ id }) => this.onPlayerCellSelected(player, id));
@@ -93,7 +97,8 @@ class GameMatch {
             map: this.map.serialize(),
             scores: this.getPlayerScores(),
             currentPlayer: this.currentPlayerTag,
-            maxTurnTime: MaxTurnTimeSeconds
+            maxTurnTime: MaxTurnTimeSeconds,
+            hasBot: this.hasBot(),
         });
     }
     removeSpectator(spectators) {
@@ -120,7 +125,8 @@ class GameMatch {
                 playerTag: player.getTag(),
                 map: this.map.serialize(),
                 scores: this.getPlayerScores(),
-                maxTurnTime: MaxTurnTimeSeconds
+                maxTurnTime: MaxTurnTimeSeconds,
+                hasBot: this.hasBot()
             });
         });
         setTimeout(() => this.requestNextMove(), Delay.betweenMoves);
