@@ -17,8 +17,9 @@ enum LobbyTabs {
 }
 
 export const LobbyScreen: React.FC<LobbyScreenProps> = ({ game }) => {
-    const [tab, setTab] = useState<LobbyTabs>(LobbyTabs.MatchesAndPlayers);
+    const [tab, setTab] = useState<LobbyTabs>(LobbyTabs.TopPlayers);
     const [topPeriodTab, setTopPeriodTab] = useState<string>('today');
+    const [isBotSelectorVisible, setBotSelectorVisible] = useState<boolean>(false);
     const [stats, setStats] = useState<GameServerStats | null>(null);
 
     game.whenStatsUpdated((stats: GameServerStats) => setStats(stats));
@@ -28,7 +29,7 @@ export const LobbyScreen: React.FC<LobbyScreenProps> = ({ game }) => {
     const matches: JSX.Element[] = [];
 
     const tops: JSX.Element[] = [];
-    const topPeriods = ['today', 'total'];
+    const topPeriods = ['today', 'month', 'total'];
 
     if (lobbyData && tab === LobbyTabs.TopPlayers) {
         topPeriods.forEach(period => {
@@ -45,7 +46,7 @@ export const LobbyScreen: React.FC<LobbyScreenProps> = ({ game }) => {
                 })
 
                 tops.push(
-                    <div className={`top scrollable${topPeriodTab === period ? ' active' : ''}`}>
+                    <div key={`top-${period}`} className={`top scrollable${topPeriodTab === period ? ' active' : ''}`}>
                         <div className='stat-table score-table'>
                             {playerRows}
                         </div>
@@ -118,7 +119,7 @@ export const LobbyScreen: React.FC<LobbyScreenProps> = ({ game }) => {
             </div>
             <div className='body'>
                 <div className='player-panel-col'>
-                    <div className='player-panel'>
+                    <div className='player-panel scrollable'>
                         <PlayerCard info={game.getPlayer().authInfo} />
                         <div className='stat-table player-points'>
                             <div className='row'>
@@ -128,12 +129,12 @@ export const LobbyScreen: React.FC<LobbyScreenProps> = ({ game }) => {
                                 <div className='name'>{texts.PointsToday}: <b>{lobbyData?.score.today || '0'}</b></div>
                             </div>
                         </div>
-                        <button className='button-primary' onClick={() => game.startWithBot()}>{texts.PlayWithBot}</button>
-                        <button className='button-secondary' onClick={() => game.startLinkedGame()}>{texts.LinkPlay}</button>
                         {tab === LobbyTabs.MatchesAndPlayers
                             ? <button className='button' onClick={() => setTab(LobbyTabs.TopPlayers)}>{texts.TopPlayers}</button>
                             : <button className='button' onClick={() => setTab(LobbyTabs.MatchesAndPlayers)}>{texts.PlayWithHuman}</button>
                         }
+                        <button className='button-primary' onClick={() => setBotSelectorVisible(true)}>{texts.PlayWithBot}</button>
+                        <button className='button-secondary' onClick={() => game.startLinkedGame()}>{texts.LinkPlay}</button>
                     </div>
                 </div>
                 {tab === LobbyTabs.MatchesAndPlayers
@@ -177,6 +178,18 @@ export const LobbyScreen: React.FC<LobbyScreenProps> = ({ game }) => {
                     </div>
                 }
             </div>
+            {isBotSelectorVisible &&
+                <div className='modal-wrap' onClick={() => setBotSelectorVisible(false)}>
+                    <div className='modal-popup'>
+                        <div className='message'>{texts.Difficulty}</div>
+                        <div className='buttons'>
+                            <button onClick={() => game.startWithBot('easy')}>{texts.Easy}</button>
+                            <button onClick={() => game.startWithBot('normal')}>{texts.Normal}</button>
+                            <button onClick={() => game.startWithBot('hard')}>{texts.Expert}</button>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
     );
 };

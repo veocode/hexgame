@@ -1,7 +1,7 @@
 import { Client, ClientList } from "../client/client";
 import { GameMatch, MatchScoreList } from "./match";
 import { Maps } from "./maps";
-import { BotClient } from "../client/botclient";
+import { BotClient, BotDifficulty } from "../client/botclient";
 import { PlayerTag } from "../shared/types";
 import { Profile } from "../client/profile";
 import { ProfileModel } from "../client/profilemodel";
@@ -81,8 +81,11 @@ export class GameManager {
     }
 
     bindClientEvents(client: Client) {
-        client.on('game:start-bot', () => {
-            this.createBotGame(client);
+        client.on('game:start-bot', (opts = {}) => {
+            let difficulty = BotDifficulty.Normal;
+            if (opts.difficultyName === 'easy') difficulty = BotDifficulty.Easy;
+            if (opts.difficultyName === 'hard') difficulty = BotDifficulty.Hard;
+            this.createBotGame(client, difficulty);
         });
 
         client.on('game:link:create', () => {
@@ -132,17 +135,17 @@ export class GameManager {
         });
     }
 
-    async createBotGame(client: Client) {
+    async createBotGame(client: Client, difficulty: BotDifficulty) {
         if (client.isConnected()) {
             client.setInGame();
 
             const botProfile = await Profile.createAndLoad({
                 sourceId: 'bot',
-                nickname: BotClient.getRandomName(),
+                nickname: BotClient.getRandomName(difficulty),
                 lang: '??'
             })
 
-            const botOpponent = new BotClient(botProfile);
+            const botOpponent = new BotClient(botProfile, difficulty);
             this.createMatch(client, botOpponent);
         }
     }
@@ -319,6 +322,11 @@ export class GameManager {
 
     async resetPointsDaily() {
         await ProfileModel.resetScore('today');
+        await this.reloadClientProfiles();
+    }
+
+    async resetPointsMonthly() {
+        await ProfileModel.resetScore('month');
         await this.reloadClientProfiles();
     }
 

@@ -23,6 +23,7 @@
     margin-bottom: 20px;
     padding: 20px;
     min-width: 240px;
+    height: 100%;
 }
 
 .lobby-screen .player-panel .player-card {
@@ -211,9 +212,10 @@
     .lobby-screen .top-widget {
         margin: 0;
         width: 100%;
+        height: 100%;
     }
 
-    .lobby-screen .top-widget .tops {
+    .lobby-screen .top-widget .scrollable {
         overflow: auto;
         align-items: flex-start;
         height: calc(100vh - 450px);

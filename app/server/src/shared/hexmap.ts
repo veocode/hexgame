@@ -32,6 +32,12 @@ export class HexMap {
         this.initNeighborsCache();
     }
 
+    clone(): HexMap {
+        const clone = new HexMap();
+        clone.setCells(this.getCells());
+        return clone;
+    }
+
     getWidth(): number {
         return this.width;
     }
@@ -54,6 +60,10 @@ export class HexMap {
         return [...this.cells];
     }
 
+    setCells(cells: HexMapCell[]) {
+        this.cells = [...cells];
+    }
+
     isCellExists(id: number): boolean {
         return !this.cells[id].isNone();
     }
@@ -68,6 +78,15 @@ export class HexMap {
 
     isCellOccupiedBy(id: number, player: PlayerTag): boolean {
         return this.cells[id].isOccupiedBy(player);
+    }
+
+    getCellsOccupiedByPlayerCount(player: PlayerTag): number {
+        let count = 0;
+        this.getCells().forEach(cell => {
+            if (!cell.isOccupiedBy(player)) return;
+            count += 1;
+        });
+        return count;
     }
 
     getCellCoordinatesById(id: number): Point2D {

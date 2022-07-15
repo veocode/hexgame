@@ -5,6 +5,7 @@ import { AuthInfo } from "./authinfo";
 import { Profile } from "./profile";
 import { List } from "../game/utils";
 import { LinkedGame } from "../game/linked";
+import { BotDifficulty } from "./botclient";
 
 export enum ClientState {
     Idle = 0,
@@ -49,6 +50,10 @@ export class Client {
         if (isAdministrator) this.setAdmin();
     }
 
+    getScoreMultiplier(): number {
+        return 1;
+    }
+
     isBot(): boolean {
         return false;
     }
@@ -80,7 +85,7 @@ export class Client {
     }
 
     getNicknameWithIcon(isPrepend: boolean = true): string {
-        const icon = this.isBot() ? '🤖' : (this.isGuest() ? '👤' : '👨🏼‍💼');
+        const icon = this.isGuest() ? '👤' : '👨🏼‍💼';
         return isPrepend ? `${icon} ${this.profile.authInfo.nickname}` : `${this.profile.authInfo.nickname} ${icon}`;
     }
 

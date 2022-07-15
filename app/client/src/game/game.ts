@@ -93,6 +93,8 @@ export class Game {
     private match: Match | null = null;
     private sandbox: Sandbox | null = null;
 
+    private botDifficulty: string = 'normal';
+
     private callbacks: {
         StateUpdated?: StateUpdatedCallback | null,
         StatsUpdated?: StatsUpdatedCallback | null,
@@ -218,7 +220,6 @@ export class Game {
             };
 
             this.setInviteState(GameInviteState.Incoming);
-            console.log('game:invite-request');
         });
 
         this.socket.on('game:invite-response', ({ isAccepted, message }) => {
@@ -265,9 +266,13 @@ export class Game {
         }, 200);
     }
 
-    async startWithBot() {
+    async startWithBot(difficultyName?: string) {
+        if (difficultyName) {
+            this.botDifficulty = difficultyName;
+        }
+        difficultyName = difficultyName || this.botDifficulty;
         this.setLoading();
-        setTimeout(() => this.socket.emit('game:start-bot'), 600);
+        setTimeout(() => this.socket.emit('game:start-bot', { difficultyName }), 600);
     }
 
     startSpectating(matchId: string) {

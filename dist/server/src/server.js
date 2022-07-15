@@ -30,6 +30,10 @@ class GameServer {
                 interval: '0 0 * * *',
                 handler: () => this.gameManager.resetPointsDaily()
             },
+            'reset-points-monthly': {
+                interval: '0 2 1 * *',
+                handler: () => this.gameManager.resetPointsMonthly()
+            },
             'kill-zombie-matches': {
                 interval: '*/2 * * * *',
                 handler: () => this.gameManager.killZombieMatches(),
@@ -94,7 +98,7 @@ class GameServer {
             this.gameManager.addClient(client);
             socket.on("disconnect", () => this.gameManager.removeClient(client));
             client.on("game:lobby", () => this.sendLobbyData(client));
-            const topPlayers = yield this.getTopPlayers(['today', 'total'], 5);
+            const topPlayers = yield this.getTopPlayers(['today', 'month', 'total']);
             socket.emit('game:logged', {
                 clientId: client.id,
                 isAdmin: client.isAdmin(),
@@ -110,7 +114,7 @@ class GameServer {
     }
     sendLobbyData(client) {
         return __awaiter(this, void 0, void 0, function* () {
-            const topPlayers = yield this.getTopPlayers(['today', 'total'], 5);
+            const topPlayers = yield this.getTopPlayers(['today', 'month', 'total']);
             const score = client.getProfile().getScore();
             client.send('game:lobby', {
                 topPlayers,
@@ -118,12 +122,12 @@ class GameServer {
             });
         });
     }
-    getTopPlayers(periods, count) {
+    getTopPlayers(periods, count = 20) {
         return __awaiter(this, void 0, void 0, function* () {
             const topPlayers = {};
             const periodPromises = [];
             periods.forEach(period => {
-                periodPromises.push(profilemodel_1.ProfileModel.getTopPlayers(period, 10).then(players => {
+                periodPromises.push(profilemodel_1.ProfileModel.getTopPlayers(period, count).then(players => {
                     topPlayers[period] = players.map((profile, index) => {
                         return {
                             place: index + 1,

@@ -214,8 +214,10 @@ export class GameMatch {
         this.forEachPlayer(player => {
             if (!player) return;
 
+            const opponentMultiplier = player.getOpponent().getScoreMultiplier();
+
             const playerScores = player.getProfile().getScore();
-            const pointsEarned = isLinkedGame ? 0 : scores[player.getTag()].delta;
+            const pointsEarned = isLinkedGame ? 0 : Math.round(scores[player.getTag()].delta * opponentMultiplier);
             const pointsToday = Math.max(playerScores.today + pointsEarned, 0);
             const pointsTotal = Math.max(playerScores.total + pointsEarned, 0);
 

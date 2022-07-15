@@ -22,45 +22,74 @@ type PossibleMoveList = {
     far: PossibleMove[],
 }
 
-const botNames = [
-    'hexmaniac',
-    'hexoholic',
-    'hexxer',
-    'hexfan',
-    'hexbro',
-    'hexman',
-    'hexdude',
-    'hexmaster',
-    'hexrookie',
-    'hexonaut',
-    'hexhomie',
-    'hexist',
-    'hexoid',
-    'hexdroid',
-    'hexgosu',
-    'hexguru',
-    'hexpal',
-    'hexbuddy',
-    'hexmachine',
-    'hexminator',
-    'hexbot',
-    'hexlord',
-];
+const botNames = {
+    easy: [
+        'hexrookie',
+        'hexnoob',
+        'hexlamer',
+        'hexstart',
+        'hexeasy',
+    ],
+    normal: [
+        'hexoholic',
+        'hexfan',
+        'hexbro',
+        'hexman',
+        'hexdude',
+        'hexonaut',
+        'hexhomie',
+        'hexpal',
+        'hexbuddy',
+        'hexxer',
+    ],
+    hard: [
+        'hexmaniac',
+        'hexgosu',
+        'hexguru',
+        'hexmachine',
+        'hexminator',
+        'hexlord',
+        'hexmaster',
+    ],
+};
+
+export enum BotDifficulty {
+    Easy,
+    Normal,
+    Hard
+}
 
 export class BotClient extends Client {
+
+    private difficulty: BotDifficulty;
 
     private botId: string = '';
     private botNickname: string = '';
 
     private callbacks: CallbackDict = {};
 
-    static getRandomName(): string {
-        return botNames[Math.floor(Math.random() * botNames.length)];
+    static getRandomName(difficulty: BotDifficulty): string {
+        let names = botNames.normal;
+        if (difficulty === BotDifficulty.Easy) names = botNames.easy;
+        if (difficulty === BotDifficulty.Hard) names = botNames.hard;
+        return names[Math.floor(Math.random() * names.length)];
     }
 
-    constructor(profile: Profile) {
+    constructor(profile: Profile, difficulty: BotDifficulty) {
         super(null, profile);
+        this.difficulty = difficulty;
         this.botNickname = profile.nickname;
+    }
+
+    getScoreMultiplier(): number {
+        switch (this.difficulty) {
+            case BotDifficulty.Easy:
+                return 0.25;
+            case BotDifficulty.Normal:
+                return 1;
+            case BotDifficulty.Hard:
+                return 1.25;
+        }
     }
 
     isBot(): boolean {
@@ -77,8 +106,12 @@ export class BotClient extends Client {
     }
 
     getNickname(): string {
-        if (this.botNickname) return this.botNickname;
-        return this.botNickname = this.shuffleArray(botNames)[0];
+        return this.botNickname;
+    }
+
+    getNicknameWithIcon(isPrepend: boolean = true): string {
+        const icon = '🤖';
+        return isPrepend ? `${icon} ${this.botNickname}` : `${this.botNickname} ${icon}`;
     }
 
     private callback(eventName: string, data: any) {
@@ -132,9 +165,60 @@ export class BotClient extends Client {
     }
 
     private respondWithMove() {
-        const moves = this.getPossibleMoves();
+        switch (this.difficulty) {
+            case BotDifficulty.Easy:
+                return this.makeMove(this.getMoveEasy());
+            case BotDifficulty.Normal:
+                return this.makeMove(this.getMoveNormal());
+            case BotDifficulty.Hard:
+                return this.makeMove(this.getMoveHard());
+        }
+    }
 
-        if (moves.all.length === 1) return this.makeMove(moves.all[0]);
+    getMoveEasy(): PossibleMove {
+        const map = this.match.getMap();
+        const moves = this.getPossibleMoves(map);
+
+        if (Math.random() <= .35) {
+            return this.getRandomArrayItem(moves.all);
+        }
+
+        if (Math.random() <= .55) {
+            moves.all.sort((move1, move2) => move2.profit - move1.profit);
+        }
+
+        return this.getRandomArrayItem(moves.all.slice(0, 3));
+    }
+
+    getMoveNormal(): PossibleMove {
+        const map = this.match.getMap();
+        const moves = this.getPossibleMoves(map);
+        moves.all.sort((move1, move2) => move2.profit - move1.profit);
+        return moves.all[0];
+    }
+
+    getMoveHard(): PossibleMove {
+        const map = this.match.getMap();
+        const moves = this.getPossibleMoves(map);
+        if (moves.all.length === 1) return moves.all[0];
+
+        const opponentTag = this.getOpponentTag();
+        let nextTurnMap = new HexMap();
+        moves.all.forEach(move => {
+            nextTurnMap = this.getMapAfterMove(nextTurnMap.deserealize(map.serialize()), move);
+            const opponentHasNow = nextTurnMap.getCellsOccupiedByPlayerCount(opponentTag);
+            const opponentMoves = this.getPossibleMoves(nextTurnMap, opponentTag, this.getTag());
+
+            if (opponentMoves.all.length > 0) {
+                opponentMoves.all.sort((move1, move2) => move2.profit - move1.profit);
+
+                nextTurnMap = this.getMapAfterMove(nextTurnMap, opponentMoves.all[0], opponentTag);
+                const opponentWillHave = nextTurnMap.getCellsOccupiedByPlayerCount(opponentTag);
+
+                const futureOpponentProfit = opponentWillHave - opponentHasNow;
+                move.profit -= futureOpponentProfit;
+            }
+        });
 
         moves.all.sort((move1, move2) => {
             if (move1.profit === move2.profit) {
@@ -143,13 +227,7 @@ export class BotClient extends Client {
             return move2.profit - move1.profit;
         });
 
-        return this.makeMove(moves.all[0]);
-    }
-
-    private getNextBestMove(moves: PossibleMoveList): PossibleMove {
-        if (moves.all.length === 1) {
-            return moves.all[0];
-        }
+        return moves.all[0];
     }
 
     private makeMove(move: PossibleMove) {
@@ -167,10 +245,11 @@ export class BotClient extends Client {
         }, 300)
     }
 
-    getPossibleMoves(map?: HexMap, myTag?: PlayerTag, opponentTag?: PlayerTag): PossibleMoveList {
-        map = map || this.match.getMap();
+    getPossibleMoves(map: HexMap, myTag?: PlayerTag, opponentTag?: PlayerTag): PossibleMoveList {
         myTag = myTag || this.getTag();
         opponentTag = opponentTag || this.getOpponent().getTag();
+
+        const isEasy = this.difficulty === BotDifficulty.Easy;
 
         const moves: PossibleMoveList = {
             all: [],
@@ -192,9 +271,13 @@ export class BotClient extends Client {
             const hasMoves = hasNear || hasFar;
             if (!hasMoves) { return; }
 
-            const ownToLoseInCounter = map.isCellCanBeAttacked(cell.id, opponentTag)
-                ? map.getCellAllyNeighbors(cell.id, myTag).length
-                : 0;
+            let ownToLoseInCounter = 0;
+
+            if (!isEasy) {
+                ownToLoseInCounter = map.isCellCanBeAttacked(cell.id, opponentTag)
+                    ? map.getCellAllyNeighbors(cell.id, myTag).length
+                    : 0;
+            }
 
             levels.forEach(level => {
                 emptyNeighbors[level].forEach(emptyCellId => {
@@ -202,17 +285,13 @@ export class BotClient extends Client {
                     const hostiles = map.getCellHostileNeighbors(emptyCellId, myTag);
                     const isJump = level === HexNeighborLevel.Far;
 
-                    let hostileToCapture = 0;
-                    hostiles.forEach(hostileId => {
-                        const hostileProfit = map.isCellCanBeAttacked(hostileId, opponentTag, hostiles) ? 1 : 2;
-                        hostileToCapture += hostileProfit;
-                    })
+                    let hostileToCapture = (isJump && !isEasy ? 0 : 1) + hostiles.length;
 
                     const move: PossibleMove = {
                         id: `${cell.id}-${emptyCell.id}`,
                         fromCell: cell,
                         toCell: emptyCell,
-                        profit: hostileToCapture - ownToLoseInCounter + (isJump ? 0 : 1),
+                        profit: hostileToCapture - (isJump ? ownToLoseInCounter : 0),
                         isJump,
                     };
 
@@ -223,6 +302,20 @@ export class BotClient extends Client {
         });
 
         return moves;
+    }
+
+    private getMapAfterMove(map: HexMap, move: PossibleMove, myTag?: PlayerTag) {
+        myTag = myTag || this.getTag();
+        map.occupyCell(move.toCell.id, myTag);
+
+        const hostileIds = map.getCellHostileNeighbors(move.toCell.id);
+        if (hostileIds.length > 0) {
+            hostileIds.forEach(hostileId => {
+                map.occupyCell(hostileId, myTag)
+            });
+        }
+
+        return map;
     }
 
     shuffleArray(sourceArray: any[]): any[] {

@@ -38,6 +38,10 @@ export class GameServer {
             interval: '0 0 * * *',
             handler: () => this.gameManager.resetPointsDaily()
         },
+        'reset-points-monthly': {
+            interval: '0 2 1 * *',
+            handler: () => this.gameManager.resetPointsMonthly()
+        },
         'kill-zombie-matches': {
             interval: '*/2 * * * *',
             handler: () => this.gameManager.killZombieMatches(),
@@ -115,7 +119,7 @@ export class GameServer {
         socket.on("disconnect", () => this.gameManager.removeClient(client));
         client.on("game:lobby", () => this.sendLobbyData(client));
 
-        const topPlayers = await this.getTopPlayers(['today', 'total'], 5);
+        const topPlayers = await this.getTopPlayers(['today', 'month', 'total']);
 
         socket.emit('game:logged', {
             clientId: client.id,
@@ -132,7 +136,7 @@ export class GameServer {
     }
 
     async sendLobbyData(client: Client) {
-        const topPlayers = await this.getTopPlayers(['today', 'total'], 5);
+        const topPlayers = await this.getTopPlayers(['today', 'month', 'total']);
         const score = client.getProfile().getScore();
 
         client.send('game:lobby', {
@@ -141,11 +145,11 @@ export class GameServer {
         })
     }
 
-    async getTopPlayers(periods: string[], count: number): Promise<TopPlayersDict> {
+    async getTopPlayers(periods: string[], count: number = 20): Promise<TopPlayersDict> {
         const topPlayers: TopPlayersDict = {};
         const periodPromises = [];
         periods.forEach(period => {
-            periodPromises.push(ProfileModel.getTopPlayers(period, 10).then(players => {
+            periodPromises.push(ProfileModel.getTopPlayers(period, count).then(players => {
                 topPlayers[period] = players.map((profile, index) => {
                     return {
                         place: index + 1,

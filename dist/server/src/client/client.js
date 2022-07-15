@@ -32,6 +32,9 @@ class Client {
         if (isAdministrator)
             this.setAdmin();
     }
+    getScoreMultiplier() {
+        return 1;
+    }
     isBot() {
         return false;
     }
@@ -56,7 +59,7 @@ class Client {
         return this.profile.nickname;
     }
     getNicknameWithIcon(isPrepend = true) {
-        const icon = this.isBot() ? '🤖' : (this.isGuest() ? '👤' : '👨🏼‍💼');
+        const icon = this.isGuest() ? '👤' : '👨🏼‍💼';
         return isPrepend ? `${icon} ${this.profile.authInfo.nickname}` : `${this.profile.authInfo.nickname} ${icon}`;
     }
     isAdmin() {

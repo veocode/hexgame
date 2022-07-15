@@ -32,6 +32,12 @@ export class HexMap {
         this.initNeighborsCache();
     }
 
+    clone(): HexMap {
+        const clone = new HexMap();
+        clone.setCells(this.getCells());
+        return clone;
+    }
+
     getWidth(): number {
         return this.width;
     }
@@ -54,6 +60,10 @@ export class HexMap {
         return [...this.cells];
     }
 
+    setCells(cells: HexMapCell[]) {
+        this.cells = [...cells];
+    }
+
     isCellExists(id: number): boolean {
         return !this.cells[id].isNone();
     }
@@ -68,6 +78,15 @@ export class HexMap {
 
     isCellOccupiedBy(id: number, player: PlayerTag): boolean {
         return this.cells[id].isOccupiedBy(player);
+    }
+
+    getCellsOccupiedByPlayerCount(player: PlayerTag): number {
+        let count = 0;
+        this.getCells().forEach(cell => {
+            if (!cell.isOccupiedBy(player)) return;
+            count += 1;
+        });
+        return count;
     }
 
     getCellCoordinatesById(id: number): Point2D {
@@ -90,7 +109,6 @@ export class HexMap {
 
     getCellHostileNeighbors(id: number, hostileToTag: PlayerTag | null = null): number[] {
         const cell = this.cells[id];
-        if (!cell.isOccupied) return [];
 
         if (!hostileToTag) hostileToTag = cell.getOccupiedBy();
         const nearestNeighborIds = this.getCellNearestNeighborIds(id);
@@ -122,12 +140,13 @@ export class HexMap {
         return allyIds;
     }
 
-    isCellCanBeAttacked(id: number, attackedByTag: PlayerTag): boolean {
+    isCellCanBeAttacked(id: number, attackedByTag: PlayerTag, exceptIds: number[] = []): boolean {
         let isCanBeAttacked: boolean = false;
         Object.values(this.getCellNeighbors(id)).forEach(neighborIds => {
             if (isCanBeAttacked) return;
             neighborIds.forEach(neighborId => {
                 if (isCanBeAttacked) return;
+                if (exceptIds.includes(neighborId)) return;
                 isCanBeAttacked = this.cells[neighborId].isOccupiedBy(attackedByTag);
             })
         })

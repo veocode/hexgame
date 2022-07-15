@@ -25,6 +25,11 @@ class HexMap {
         }
         this.initNeighborsCache();
     }
+    clone() {
+        const clone = new HexMap();
+        clone.setCells(this.getCells());
+        return clone;
+    }
     getWidth() {
         return this.width;
     }
@@ -42,6 +47,9 @@ class HexMap {
     getCells() {
         return [...this.cells];
     }
+    setCells(cells) {
+        this.cells = [...cells];
+    }
     isCellExists(id) {
         return !this.cells[id].isNone();
     }
@@ -53,6 +61,15 @@ class HexMap {
     }
     isCellOccupiedBy(id, player) {
         return this.cells[id].isOccupiedBy(player);
+    }
+    getCellsOccupiedByPlayerCount(player) {
+        let count = 0;
+        this.getCells().forEach(cell => {
+            if (!cell.isOccupiedBy(player))
+                return;
+            count += 1;
+        });
+        return count;
     }
     getCellCoordinatesById(id) {
         return {

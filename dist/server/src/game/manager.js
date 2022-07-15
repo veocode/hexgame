@@ -63,8 +63,13 @@ class GameManager {
         this.sendLobbyStats();
     }
     bindClientEvents(client) {
-        client.on('game:start-bot', () => {
-            this.createBotGame(client);
+        client.on('game:start-bot', (opts = {}) => {
+            let difficulty = botclient_1.BotDifficulty.Normal;
+            if (opts.difficultyName === 'easy')
+                difficulty = botclient_1.BotDifficulty.Easy;
+            if (opts.difficultyName === 'hard')
+                difficulty = botclient_1.BotDifficulty.Hard;
+            this.createBotGame(client, difficulty);
         });
         client.on('game:link:create', () => {
             this.createLinkedGame(client);
@@ -104,16 +109,16 @@ class GameManager {
             this.sendPlayInviteResponse(client, toPlayerId, isAccepted);
         });
     }
-    createBotGame(client) {
+    createBotGame(client, difficulty) {
         return __awaiter(this, void 0, void 0, function* () {
             if (client.isConnected()) {
                 client.setInGame();
                 const botProfile = yield profile_1.Profile.createAndLoad({
                     sourceId: 'bot',
-                    nickname: botclient_1.BotClient.getRandomName(),
+                    nickname: botclient_1.BotClient.getRandomName(difficulty),
                     lang: '??'
                 });
-                const botOpponent = new botclient_1.BotClient(botProfile);
+                const botOpponent = new botclient_1.BotClient(botProfile, difficulty);
                 this.createMatch(client, botOpponent);
             }
         });
@@ -273,6 +278,12 @@ class GameManager {
     resetPointsDaily() {
         return __awaiter(this, void 0, void 0, function* () {
             yield profilemodel_1.ProfileModel.resetScore('today');
+            yield this.reloadClientProfiles();
+        });
+    }
+    resetPointsMonthly() {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield profilemodel_1.ProfileModel.resetScore('month');
             yield this.reloadClientProfiles();
         });
     }

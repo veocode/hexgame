@@ -1,44 +1,72 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BotClient = void 0;
+exports.BotClient = exports.BotDifficulty = void 0;
 const hexmap_1 = require("../shared/hexmap");
 const types_1 = require("../shared/types");
 const client_1 = require("./client");
 const utils_1 = require("../game/utils");
-const botNames = [
-    'hexmaniac',
-    'hexoholic',
-    'hexxer',
-    'hexfan',
-    'hexbro',
-    'hexman',
-    'hexdude',
-    'hexmaster',
-    'hexrookie',
-    'hexonaut',
-    'hexhomie',
-    'hexist',
-    'hexoid',
-    'hexdroid',
-    'hexgosu',
-    'hexguru',
-    'hexpal',
-    'hexbuddy',
-    'hexmachine',
-    'hexminator',
-    'hexbot',
-    'hexlord',
-];
+const botNames = {
+    easy: [
+        'hexrookie',
+        'hexnoob',
+        'hexlamer',
+        'hexstart',
+        'hexeasy',
+    ],
+    normal: [
+        'hexoholic',
+        'hexfan',
+        'hexbro',
+        'hexman',
+        'hexdude',
+        'hexonaut',
+        'hexhomie',
+        'hexpal',
+        'hexbuddy',
+        'hexxer',
+    ],
+    hard: [
+        'hexmaniac',
+        'hexgosu',
+        'hexguru',
+        'hexmachine',
+        'hexminator',
+        'hexlord',
+        'hexmaster',
+    ],
+};
+var BotDifficulty;
+(function (BotDifficulty) {
+    BotDifficulty[BotDifficulty["Easy"] = 0] = "Easy";
+    BotDifficulty[BotDifficulty["Normal"] = 1] = "Normal";
+    BotDifficulty[BotDifficulty["Hard"] = 2] = "Hard";
+})(BotDifficulty = exports.BotDifficulty || (exports.BotDifficulty = {}));
 class BotClient extends client_1.Client {
-    constructor(profile) {
+    constructor(profile, difficulty) {
         super(null, profile);
         this.botId = '';
         this.botNickname = '';
         this.callbacks = {};
+        this.difficulty = difficulty;
         this.botNickname = profile.nickname;
     }
-    static getRandomName() {
-        return botNames[Math.floor(Math.random() * botNames.length)];
+    static getRandomName(difficulty) {
+        let names = botNames.normal;
+        if (difficulty === BotDifficulty.Easy)
+            names = botNames.easy;
+        if (difficulty === BotDifficulty.Hard)
+            names = botNames.hard;
+        return names[Math.floor(Math.random() * names.length)];
+    }
+    getScoreMultiplier() {
+        switch (this.difficulty) {
+            case BotDifficulty.Easy:
+                return 0.25;
+            case BotDifficulty.Normal:
+                return 1;
+            case BotDifficulty.Hard:
+                return 1.25;
+        }
     }
     isBot() {
         return true;
@@ -52,9 +80,11 @@ class BotClient extends client_1.Client {
         return this.botId = (0, utils_1.generateId)();
     }
     getNickname() {
-        if (this.botNickname)
-            return this.botNickname;
-        return this.botNickname = this.shuffleArray(botNames)[0];
+        return this.botNickname;
+    }
+    getNicknameWithIcon(isPrepend = true) {
+        const icon = '🤖';
+        return isPrepend ? `${icon} ${this.botNickname}` : `${this.botNickname} ${icon}`;
     }
     callback(eventName, data) {
         if (eventName in this.callbacks) {
@@ -101,30 +131,58 @@ class BotClient extends client_1.Client {
         }
     }
     respondWithMove() {
-        const moves = this.getPossibleMoves();
-        const chanceToCaptureJump = this.match.getTurn() < 10 ? 0.02 : 0.08;
-        const chanceToEmojiOnBigCapture = 0.35;
-        const chanceToEmojiOnCapture = 0.1;
-        if (moves.maxCapture && (moves.maxCaptureProfit > 1 || Math.random() <= chanceToCaptureJump)) {
-            if (moves.maxCaptureProfit >= 5) {
-                if (Math.random() <= chanceToEmojiOnBigCapture)
-                    this.sendEmoji('😎', 1500);
-            }
-            else if (moves.maxCaptureProfit >= 4) {
-                if (Math.random() <= chanceToEmojiOnCapture)
-                    this.sendEmoji('😀', 1500);
-            }
-            return this.makeMove(moves.maxCapture);
+        switch (this.difficulty) {
+            case BotDifficulty.Easy:
+                return this.makeMove(this.getMoveEasy());
+            case BotDifficulty.Normal:
+                return this.makeMove(this.getMoveNormal());
+            case BotDifficulty.Hard:
+                return this.makeMove(this.getMoveHard());
         }
-        if (moves.near.length > 0)
-            return this.makeMove(this.getRandomArrayItem(moves.near));
-        if (moves.maxCapture)
-            return this.makeMove(moves.maxCapture);
-        if (moves.minLose)
-            return this.makeMove(moves.minLose);
-        if (moves.far.length > 0)
-            return this.makeMove(this.getRandomArrayItem(moves.far));
-        return this.makeMove(this.getRandomArrayItem(moves.all));
+    }
+    getMoveEasy() {
+        const map = this.match.getMap();
+        const moves = this.getPossibleMoves(map);
+        if (Math.random() <= .35) {
+            return this.getRandomArrayItem(moves.all);
+        }
+        if (Math.random() <= .55) {
+            moves.all.sort((move1, move2) => move2.profit - move1.profit);
+        }
+        return this.getRandomArrayItem(moves.all.slice(0, 3));
+    }
+    getMoveNormal() {
+        const map = this.match.getMap();
+        const moves = this.getPossibleMoves(map);
+        moves.all.sort((move1, move2) => move2.profit - move1.profit);
+        return moves.all[0];
+    }
+    getMoveHard() {
+        const map = this.match.getMap();
+        const moves = this.getPossibleMoves(map);
+        if (moves.all.length === 1)
+            return moves.all[0];
+        const opponentTag = this.getOpponentTag();
+        let nextTurnMap = new hexmap_1.HexMap();
+        moves.all.forEach(move => {
+            nextTurnMap = this.getMapAfterMove(nextTurnMap.deserealize(map.serialize()), move);
+            const opponentHasNow = nextTurnMap.getCellsOccupiedByPlayerCount(opponentTag);
+            const opponentMoves = this.getPossibleMoves(nextTurnMap, opponentTag, this.getTag());
+            if (opponentMoves.all.length > 0) {
+                opponentMoves.all.sort((move1, move2) => move2.profit - move1.profit);
+                nextTurnMap = this.getMapAfterMove(nextTurnMap, opponentMoves.all[0], opponentTag);
+                const opponentWillHave = nextTurnMap.getCellsOccupiedByPlayerCount(opponentTag);
+                const futureOpponentProfit = opponentWillHave - opponentHasNow;
+                move.profit -= futureOpponentProfit;
+            }
+        });
+        moves.all.sort((move1, move2) => {
+            if (move1.profit === move2.profit) {
+                return Math.random() < 0.5 ? 1 : -1;
+            }
+            return move2.profit - move1.profit;
+        });
+        return moves.all[0];
     }
     makeMove(move) {
         setTimeout(() => {
@@ -139,25 +197,21 @@ class BotClient extends client_1.Client {
             }, 1000);
         }, 300);
     }
-    getPossibleMoves() {
+    getPossibleMoves(map, myTag, opponentTag) {
+        myTag = myTag || this.getTag();
+        opponentTag = opponentTag || this.getOpponent().getTag();
+        const isEasy = this.difficulty === BotDifficulty.Easy;
         const moves = {
             all: [],
             far: [],
             near: [],
-            maxCapture: null,
-            maxCaptureProfit: 0,
-            minLose: null,
-            minLoseCount: 0
         };
         const levels = [
             hexmap_1.HexNeighborLevel.Near,
             hexmap_1.HexNeighborLevel.Far
         ];
-        let maxCaptureProfit = 0;
-        let minLose = 99999;
-        const map = this.match.getMap();
         map.getCells().forEach(cell => {
-            if (!cell.isOccupiedBy(this.getTag()))
+            if (!cell.isOccupiedBy(myTag))
                 return;
             const emptyNeighbors = map.getCellEmptyNeighbors(cell.id);
             const hasNear = emptyNeighbors[hexmap_1.HexNeighborLevel.Near].length > 0;
@@ -166,46 +220,42 @@ class BotClient extends client_1.Client {
             if (!hasMoves) {
                 return;
             }
-            const ownToLoseInCounter = map.isCellCanBeAttacked(cell.id, this.getOpponent().getTag())
-                ? map.getCellAllyNeighbors(cell.id, this.getTag()).length
-                : 0;
+            let ownToLoseInCounter = 0;
+            if (!isEasy) {
+                ownToLoseInCounter = map.isCellCanBeAttacked(cell.id, opponentTag)
+                    ? map.getCellAllyNeighbors(cell.id, myTag).length
+                    : 0;
+            }
             levels.forEach(level => {
                 emptyNeighbors[level].forEach(emptyCellId => {
                     const emptyCell = map.getCell(emptyCellId);
-                    const hostiles = map.getCellHostileNeighbors(emptyCellId, this.getTag());
+                    const hostiles = map.getCellHostileNeighbors(emptyCellId, myTag);
                     const isJump = level === hexmap_1.HexNeighborLevel.Far;
-                    let hostileToCapture = 0;
-                    hostiles.forEach(hostileId => {
-                        const hostileProfit = map.isCellCanBeAttacked(hostileId, this.getOpponent().getTag(), hostiles) ? 1 : 2;
-                        hostileToCapture += hostileProfit;
-                    });
+                    let hostileToCapture = (isJump && !isEasy ? 0 : 1) + hostiles.length;
                     const move = {
+                        id: `${cell.id}-${emptyCell.id}`,
                         fromCell: cell,
                         toCell: emptyCell,
-                        hostileToCapture,
-                        ownToLoseInCounter: isJump ? ownToLoseInCounter : 0,
+                        profit: hostileToCapture - (isJump ? ownToLoseInCounter : 0),
                         isJump,
                     };
                     moves.all.push(move);
                     move.isJump ? moves.far.push(move) : moves.near.push(move);
-                    const loseCounter = move.isJump ? ownToLoseInCounter : 0;
-                    if (hostileToCapture - move.ownToLoseInCounter > 0) {
-                        const captureProfit = (hostileToCapture - move.ownToLoseInCounter) + (move.isJump && Math.random() > 0.1 ? 0 : 1);
-                        if (captureProfit > 0 && captureProfit > maxCaptureProfit) {
-                            maxCaptureProfit = captureProfit;
-                            moves.maxCapture = move;
-                        }
-                    }
-                    if (loseCounter > 0 && loseCounter < minLose) {
-                        minLose = loseCounter;
-                        moves.minLose = move;
-                    }
                 });
             });
         });
-        moves.maxCaptureProfit = maxCaptureProfit;
-        moves.minLoseCount = minLose;
         return moves;
+    }
+    getMapAfterMove(map, move, myTag) {
+        myTag = myTag || this.getTag();
+        map.occupyCell(move.toCell.id, myTag);
+        const hostileIds = map.getCellHostileNeighbors(move.toCell.id);
+        if (hostileIds.length > 0) {
+            hostileIds.forEach(hostileId => {
+                map.occupyCell(hostileId, myTag);
+            });
+        }
+        return map;
     }
     shuffleArray(sourceArray) {
         const array = [...sourceArray];
