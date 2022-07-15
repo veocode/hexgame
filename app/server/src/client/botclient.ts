@@ -1,6 +1,6 @@
-import { HexNeighborLevel } from "../shared/hexmap";
+import { HexMap, HexNeighborLevel } from "../shared/hexmap";
 import { HexMapCell } from "../shared/hexmapcell";
-import { PlayerHasNoMovesReasons } from "../shared/types";
+import { PlayerHasNoMovesReasons, PlayerTag } from "../shared/types";
 import { Client } from "./client";
 import { generateId } from "../game/utils";
 import { Profile } from "./profile";
@@ -9,10 +9,10 @@ type SocketCallback = (...args: any[]) => void;
 type CallbackDict = { [eventName: string]: SocketCallback };
 
 type PossibleMove = {
+    id: string,
     fromCell: HexMapCell,
     toCell: HexMapCell,
-    hostileToCapture: number,
-    ownToLoseInCounter: number,
+    profit: number,
     isJump: boolean
 }
 
@@ -20,10 +20,6 @@ type PossibleMoveList = {
     all: PossibleMove[],
     near: PossibleMove[],
     far: PossibleMove[],
-    maxCapture: PossibleMove | null,
-    maxCaptureProfit: number,
-    minLose: PossibleMove | null
-    minLoseCount: number
 }
 
 const botNames = [
@@ -138,28 +134,22 @@ export class BotClient extends Client {
     private respondWithMove() {
         const moves = this.getPossibleMoves();
 
-        const chanceToCaptureJump = this.match.getTurn() < 10 ? 0.02 : 0.08;
-        const chanceToEmojiOnBigCapture = 0.35;
-        const chanceToEmojiOnCapture = 0.1;
+        if (moves.all.length === 1) return this.makeMove(moves.all[0]);
 
-        if (moves.maxCapture && (moves.maxCaptureProfit > 1 || Math.random() <= chanceToCaptureJump)) {
-            if (moves.maxCaptureProfit >= 5) {
-                if (Math.random() <= chanceToEmojiOnBigCapture) this.sendEmoji('😎', 1500);
-            } else if (moves.maxCaptureProfit >= 4) {
-                if (Math.random() <= chanceToEmojiOnCapture) this.sendEmoji('😀', 1500);
+        moves.all.sort((move1, move2) => {
+            if (move1.profit === move2.profit) {
+                return Math.random() < 0.5 ? 1 : -1;
             }
-            return this.makeMove(moves.maxCapture);
+            return move2.profit - move1.profit;
+        });
+
+        return this.makeMove(moves.all[0]);
+    }
+
+    private getNextBestMove(moves: PossibleMoveList): PossibleMove {
+        if (moves.all.length === 1) {
+            return moves.all[0];
         }
-
-        if (moves.near.length > 0) return this.makeMove(this.getRandomArrayItem(moves.near));
-
-        if (moves.maxCapture) return this.makeMove(moves.maxCapture);
-
-        if (moves.minLose) return this.makeMove(moves.minLose);
-
-        if (moves.far.length > 0) return this.makeMove(this.getRandomArrayItem(moves.far));
-
-        return this.makeMove(this.getRandomArrayItem(moves.all));
     }
 
     private makeMove(move: PossibleMove) {
@@ -177,15 +167,15 @@ export class BotClient extends Client {
         }, 300)
     }
 
-    getPossibleMoves(): PossibleMoveList {
+    getPossibleMoves(map?: HexMap, myTag?: PlayerTag, opponentTag?: PlayerTag): PossibleMoveList {
+        map = map || this.match.getMap();
+        myTag = myTag || this.getTag();
+        opponentTag = opponentTag || this.getOpponent().getTag();
+
         const moves: PossibleMoveList = {
             all: [],
             far: [],
             near: [],
-            maxCapture: null,
-            maxCaptureProfit: 0,
-            minLose: null,
-            minLoseCount: 0
         }
 
         const levels: HexNeighborLevel[] = [
@@ -193,12 +183,8 @@ export class BotClient extends Client {
             HexNeighborLevel.Far
         ];
 
-        let maxCaptureProfit = 0;
-        let minLose = 99999;
-
-        const map = this.match.getMap();
         map.getCells().forEach(cell => {
-            if (!cell.isOccupiedBy(this.getTag())) return;
+            if (!cell.isOccupiedBy(myTag)) return;
 
             const emptyNeighbors = map.getCellEmptyNeighbors(cell.id);
             const hasNear = emptyNeighbors[HexNeighborLevel.Near].length > 0;
@@ -206,54 +192,36 @@ export class BotClient extends Client {
             const hasMoves = hasNear || hasFar;
             if (!hasMoves) { return; }
 
-            const ownToLoseInCounter = map.isCellCanBeAttacked(cell.id, this.getOpponent().getTag())
-                ? map.getCellAllyNeighbors(cell.id, this.getTag()).length
+            const ownToLoseInCounter = map.isCellCanBeAttacked(cell.id, opponentTag)
+                ? map.getCellAllyNeighbors(cell.id, myTag).length
                 : 0;
 
             levels.forEach(level => {
                 emptyNeighbors[level].forEach(emptyCellId => {
                     const emptyCell = map.getCell(emptyCellId);
-                    const hostiles = map.getCellHostileNeighbors(emptyCellId, this.getTag());
+                    const hostiles = map.getCellHostileNeighbors(emptyCellId, myTag);
                     const isJump = level === HexNeighborLevel.Far;
 
                     let hostileToCapture = 0;
                     hostiles.forEach(hostileId => {
-                        const hostileProfit = map.isCellCanBeAttacked(hostileId, this.getOpponent().getTag(), hostiles) ? 1 : 2;
+                        const hostileProfit = map.isCellCanBeAttacked(hostileId, opponentTag, hostiles) ? 1 : 2;
                         hostileToCapture += hostileProfit;
                     })
 
                     const move: PossibleMove = {
+                        id: `${cell.id}-${emptyCell.id}`,
                         fromCell: cell,
                         toCell: emptyCell,
-                        hostileToCapture,
-                        ownToLoseInCounter: isJump ? ownToLoseInCounter : 0,
+                        profit: hostileToCapture - ownToLoseInCounter + (isJump ? 0 : 1),
                         isJump,
                     };
 
                     moves.all.push(move);
                     move.isJump ? moves.far.push(move) : moves.near.push(move);
-
-                    const loseCounter = move.isJump ? ownToLoseInCounter : 0;
-
-                    if (hostileToCapture - move.ownToLoseInCounter > 0) {
-                        const captureProfit = (hostileToCapture - move.ownToLoseInCounter) + (move.isJump && Math.random() > 0.1 ? 0 : 1);
-
-                        if (captureProfit > 0 && captureProfit > maxCaptureProfit) {
-                            maxCaptureProfit = captureProfit;
-                            moves.maxCapture = move;
-                        }
-                    }
-
-                    if (loseCounter > 0 && loseCounter < minLose) {
-                        minLose = loseCounter;
-                        moves.minLose = move;
-                    }
                 })
             })
         });
 
-        moves.maxCaptureProfit = maxCaptureProfit;
-        moves.minLoseCount = minLose;
         return moves;
     }
 
