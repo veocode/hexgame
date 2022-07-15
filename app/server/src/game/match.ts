@@ -127,6 +127,10 @@ export class GameMatch {
         return this.players[PlayerTag.Player1] !== null || this.players[PlayerTag.Player2] !== null;
     }
 
+    hasSpectator(spectator: Client) {
+        return this.spectators.hasId(spectator.id);
+    }
+
     addSpectator(spectator: Client) {
         spectator.setMatch(this);
         this.spectators.add(spectator);
@@ -140,8 +144,8 @@ export class GameMatch {
         });
     }
 
-    removeSpectator(spectators: Client) {
-        this.spectators.remove(spectators);
+    removeSpectator(spectator: Client) {
+        this.spectators.remove(spectator);
     }
 
     getSpectators(): ClientList {

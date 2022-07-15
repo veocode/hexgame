@@ -429,6 +429,15 @@ export class GameManager {
             })
         }
 
+        const invitedCurrentMatch = invited.getMatch();
+        if (invitedCurrentMatch) {
+            if (invitedCurrentMatch.hasSpectator(invited)) {
+                invitedCurrentMatch.removeSpectator(invited);
+            } else {
+                invitedCurrentMatch.removePlayer(invited);
+            }
+        }
+
         this.createMatch(inviter, invited);
     }
 }

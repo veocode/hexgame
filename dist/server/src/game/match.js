@@ -90,6 +90,9 @@ class GameMatch {
     hasActivePlayers() {
         return this.players[types_1.PlayerTag.Player1] !== null || this.players[types_1.PlayerTag.Player2] !== null;
     }
+    hasSpectator(spectator) {
+        return this.spectators.hasId(spectator.id);
+    }
     addSpectator(spectator) {
         spectator.setMatch(this);
         this.spectators.add(spectator);
@@ -101,8 +104,8 @@ class GameMatch {
             hasBot: this.hasBot(),
         });
     }
-    removeSpectator(spectators) {
-        this.spectators.remove(spectators);
+    removeSpectator(spectator) {
+        this.spectators.remove(spectator);
     }
     getSpectators() {
         return this.spectators;
