@@ -214,7 +214,7 @@ export class GameMatch {
         this.forEachPlayer(player => {
             if (!player) return;
 
-            const opponentMultiplier = player.getOpponent().getScoreMultiplier();
+            const opponentMultiplier = player.getOpponent()?.getScoreMultiplier() || 1;
 
             const playerScores = player.getProfile().getScore();
             const pointsEarned = isLinkedGame ? 0 : Math.round(scores[player.getTag()].delta * opponentMultiplier);

@@ -160,9 +160,10 @@ class GameMatch {
         }
         const isLinkedGame = this.hasLinkedGame();
         this.forEachPlayer(player => {
+            var _a;
             if (!player)
                 return;
-            const opponentMultiplier = player.getOpponent().getScoreMultiplier();
+            const opponentMultiplier = ((_a = player.getOpponent()) === null || _a === void 0 ? void 0 : _a.getScoreMultiplier()) || 1;
             const playerScores = player.getProfile().getScore();
             const pointsEarned = isLinkedGame ? 0 : Math.round(scores[player.getTag()].delta * opponentMultiplier);
             const pointsToday = Math.max(playerScores.today + pointsEarned, 0);
