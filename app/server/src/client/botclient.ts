@@ -138,13 +138,9 @@ export class BotClient extends Client {
     private respondWithMove() {
         const moves = this.getPossibleMoves();
 
-        const chanceToCaptureJump = this.match.getTurn() < 10 ? 0.08 : 0.65;
-        const chanceToEmojiOnBigCapture = 0.66;
-        const chanceToEmojiOnCapture = 0.15;
-
-        if (moves.far.length <= 2 && this.match.getTurn() >= 16) {
-            return this.makeMove(this.getRandomArrayItem(moves.far));
-        }
+        const chanceToCaptureJump = this.match.getTurn() < 10 ? 0.02 : 0.08;
+        const chanceToEmojiOnBigCapture = 0.35;
+        const chanceToEmojiOnCapture = 0.1;
 
         if (moves.maxCapture && (moves.maxCaptureProfit > 1 || Math.random() <= chanceToCaptureJump)) {
             if (moves.maxCaptureProfit >= 5) {
@@ -217,8 +213,14 @@ export class BotClient extends Client {
             levels.forEach(level => {
                 emptyNeighbors[level].forEach(emptyCellId => {
                     const emptyCell = map.getCell(emptyCellId);
-                    const hostileToCapture = map.getCellHostileNeighbors(emptyCellId, this.getTag()).length;
+                    const hostiles = map.getCellHostileNeighbors(emptyCellId, this.getTag());
                     const isJump = level === HexNeighborLevel.Far;
+
+                    let hostileToCapture = 0;
+                    hostiles.forEach(hostileId => {
+                        const hostileProfit = map.isCellCanBeAttacked(hostileId, this.getOpponent().getTag(), hostiles) ? 1 : 2;
+                        hostileToCapture += hostileProfit;
+                    })
 
                     const move: PossibleMove = {
                         fromCell: cell,

@@ -90,7 +90,6 @@ export class HexMap {
 
     getCellHostileNeighbors(id: number, hostileToTag: PlayerTag | null = null): number[] {
         const cell = this.cells[id];
-        if (!cell.isOccupied) return [];
 
         if (!hostileToTag) hostileToTag = cell.getOccupiedBy();
         const nearestNeighborIds = this.getCellNearestNeighborIds(id);
@@ -122,12 +121,13 @@ export class HexMap {
         return allyIds;
     }
 
-    isCellCanBeAttacked(id: number, attackedByTag: PlayerTag): boolean {
+    isCellCanBeAttacked(id: number, attackedByTag: PlayerTag, exceptIds: number[] = []): boolean {
         let isCanBeAttacked: boolean = false;
         Object.values(this.getCellNeighbors(id)).forEach(neighborIds => {
             if (isCanBeAttacked) return;
             neighborIds.forEach(neighborId => {
                 if (isCanBeAttacked) return;
+                if (exceptIds.includes(neighborId)) return;
                 isCanBeAttacked = this.cells[neighborId].isOccupiedBy(attackedByTag);
             })
         })

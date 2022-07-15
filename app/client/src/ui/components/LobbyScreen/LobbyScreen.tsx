@@ -25,7 +25,6 @@ export const LobbyScreen: React.FC<LobbyScreenProps> = ({ game }) => {
 
     const lobbyData = game.getLobbyData();
 
-    const players: JSX.Element[] = [];
     const matches: JSX.Element[] = [];
 
     const tops: JSX.Element[] = [];
