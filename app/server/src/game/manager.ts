@@ -189,7 +189,7 @@ export class GameManager {
         player1.setInGame();
         player2.setInGame();
 
-        map = map.length ? map : this.getRandomMap();
+        map = map && map.length ? map : this.getRandomMap();
         const match = new GameMatch(map);
 
         player1.setOpponent(player2);
