@@ -1,31 +1,3 @@
-.lobby-screen.screen {
-    display: flex;
-    flex-direction: column;
-    justify-content: start;
-    color: #a4aeb9;
-}
-
-.lobby-screen .body {
-    flex-grow: 1;
-    display: flex;
-    width: 100%;
-    max-width: 1000px;
-    justify-content: center;
-    overflow: hidden;
-}
-
-.lobby-screen .player-panel {
-    background: #3a4049;
-    border-radius: 5px;
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 20px;
-    padding: 20px;
-    min-width: 240px;
-    height: 100%;
-}
-
 .lobby-screen .player-panel .player-card {
     width: 100%;
     margin: 0;
@@ -56,78 +28,6 @@
 .lobby-screen .player-panel .stat-table .name b {
     color: #FFF;
     padding-left: 10px;
-}
-
-.lobby-screen button {
-    min-width: 200px;
-    margin-bottom: 5px;
-}
-
-.lobby-screen button:last-child {
-    margin: 0;
-}
-
-.lobby-screen .tops-panel {
-    flex-grow: 1;
-}
-
-.lobby-screen .top-widget {
-    margin-left: 10px;
-    color: #a4aeb9;
-    font-weight: lighter;
-    margin-bottom: 10px;
-    height: 100%;
-    border-radius: 5px;
-    display: flex;
-    flex-direction: column;
-}
-
-.lobby-screen .top-widget .header {
-    padding: 10px;
-    border-radius: 5px 5px 0 0;
-    background: #3A4049;
-    display: flex;
-}
-
-.lobby-screen .top-widget .header .periods,
-.lobby-screen .top-widget .header .periods li {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-}
-
-.lobby-screen .top-widget .header .periods li {
-    margin-left: 10px;
-    padding: 0 10px;
-    font-size: 14px;
-    border-radius: 5px;
-    cursor: pointer;
-    max-height: 24px;
-}
-
-.lobby-screen .top-widget .header .periods li:hover {
-    color: #FFF;
-}
-
-.lobby-screen .top-widget .header .periods li.active {
-    background: #7a8596;
-    color: #FFF;
-}
-
-.lobby-screen .top-widget .header .title {
-    flex-grow: 1;
-    text-align: left;
-    font-weight: normal;
-}
-
-.lobby-screen .top-widget .tops {
-    flex-grow: 1;
-    background: linear-gradient(#3A4049, #434a53);
-    border-radius: 0 0 5px 5px;
-    position: relative;
-    width: 100%;
-    height: 100%;
 }
 
 .lobby-screen .top {
@@ -192,42 +92,6 @@
     color: #ff8d00;
 }
 
-@media (max-width: 540px) {
-    .lobby-screen .player-panel-col {
-        flex-grow: 1;
-    }
-
-    .lobby-screen .body {
-        display: block;
-        overflow: hidden;
-        height: 100%;
-        max-height: none;
-    }
-
-    .lobby-screen .body>* {
-        float: left;
-        width: 100%;
-    }
-
-    .lobby-screen .top-widget {
-        margin: 0;
-        width: 100%;
-        height: 100%;
-    }
-
-    .lobby-screen .top-widget .scrollable {
-        overflow: auto;
-        align-items: flex-start;
-        height: calc(100vh - 450px);
-    }
-}
-
-@media (max-height: 400px) {
-    .lobby-screen .logo {
-        display: none;
-    }
-}
-
 .lobby-screen .matches-list {
     padding: 0 10px;
 }
@@ -275,14 +139,4 @@
 
 .lobby-screen .matches-list .row .btn-play {
     font-size: 13px;
-}
-
-.lobby-screen .empty {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
 }

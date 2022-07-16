@@ -5,6 +5,7 @@ import './ui/styles/global.css';
 import './ui/styles/animations.css';
 import './ui/styles/controls.css';
 import './ui/styles/blocks.css';
+import './ui/styles/layouts.css';
 
 
 const root = ReactDOM.createRoot(

@@ -71,6 +71,7 @@ export interface GameInvite {
     nickname?: string
 }
 
+type AlertCallback = (isShow: boolean) => void;
 type StateUpdatedCallback = (state: GameState) => void;
 type StatsUpdatedCallback = (result: GameServerStats) => void;
 type InviteStateUpdatedCallback = (state: GameInviteState, message?: string) => void;
@@ -94,8 +95,13 @@ export class Game {
     private sandbox: Sandbox | null = null;
 
     private botDifficulty: string = 'normal';
+    private botMap: number[] = [];
+
+    private isAlerting: boolean = false;
+    private alertMessage: string = '';
 
     private callbacks: {
+        Alert?: AlertCallback | null,
         StateUpdated?: StateUpdatedCallback | null,
         StatsUpdated?: StatsUpdatedCallback | null,
         InviteStateUpdated?: InviteStateUpdatedCallback | null,
@@ -135,8 +141,31 @@ export class Game {
         }, true);
     }
 
+    alert(message: string) {
+        this.isAlerting = true;
+        this.alertMessage = message;
+        this.callbacks.Alert?.call(this, true);
+    }
+
+    isAlert(): boolean {
+        return this.isAlerting;
+    }
+
+    getAlertMessage(): string {
+        return this.alertMessage;
+    }
+
+    cancelAlert() {
+        this.isAlerting = false;
+        this.callbacks.Alert?.call(this, false);
+    }
+
     getMatch(): Match | null {
         return this.match;
+    }
+
+    whenAlert(callback: AlertCallback) {
+        this.callbacks.Alert = callback;
     }
 
     connect() {
@@ -266,13 +295,13 @@ export class Game {
         }, 200);
     }
 
-    async startWithBot(difficultyName?: string) {
-        if (difficultyName) {
-            this.botDifficulty = difficultyName;
-        }
+    async startWithBot(difficultyName?: string, map?: number[]) {
+        if (difficultyName) this.botDifficulty = difficultyName;
         difficultyName = difficultyName || this.botDifficulty;
+        if (map) this.botMap = map;
+        map = map || this.botMap;
         this.setLoading();
-        setTimeout(() => this.socket.emit('game:start-bot', { difficultyName }), 600);
+        setTimeout(() => this.socket.emit('game:start-bot', { difficultyName, map }), 600);
     }
 
     startSpectating(matchId: string) {

@@ -1,34 +1,103 @@
-.sandbox-screen .hex-none {
-    opacity: .25;
-    cursor: pointer;
-}
+    .sandbox-screen .hex-field {
+        --hex-height: calc((100vw - 60px) / 10);
+        --hex-width: calc(var(--hex-height) * 0.87);
+        margin: 20px 0;
+    }
 
-.sandbox-screen .toolbar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 20px;
-    flex-wrap: wrap;
-}
+    @media (min-width: 500px) {
+        .sandbox-screen .hex-field {
+            --hex-height: calc((100vw - 60px) / 20);
+        }
+    }
 
-.sandbox-screen .toolbar .tool-button {
-    margin-right: 5px;
-    margin-bottom: 10px;
-}
+    @media (min-width: 1500px) {
+        .sandbox-screen .hex-field {
+            --hex-height: calc((100vw - 60px) / 30);
+        }
+    }
 
-.sandbox-screen .toolbar.maps .tool-button {
-    padding: 5px 10px;
-}
+    @media (min-width: 2300px) {
+        .sandbox-screen .hex-field {
+            --hex-height: calc((100vw - 60px) / 45);
+        }
+    }
 
+    .sandbox-screen .main-widget .content {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 
-.sandbox-screen .toolbar .tool-button:last-child {
-    margin-right: 0;
-}
+    .sandbox-screen .hex-none {
+        opacity: .1;
+        cursor: pointer;
+        background-image: url(../../images/hex-white.svg);
+    }
 
-.sandbox-screen .toolbar .tool-button.special {
-    margin-left: 10px;
-}
+    .sandbox-screen .hex.hex-none {
+        visibility: visible;
+    }
 
-.sandbox-screen .hex.hex-none {
-    visibility: visible;
-}
+    .sandbox-screen .hex-none:hover {
+        opacity: .25;
+    }
+
+    .sandbox-screen .toolbar {
+        width: 100%;
+    }
+
+    .sandbox-screen .toolbar section {
+        padding: 10px;
+        border: dashed 1px #555b61;
+        border-radius: 5px;
+        margin-bottom: 10px;
+
+    }
+
+    .sandbox-screen .toolbar h4 {
+        margin: 0;
+        font-weight: normal;
+        padding-bottom: 5px;
+        margin-bottom: 10px;
+        border-bottom: dashed 1px #555b61;
+    }
+
+    .sandbox-screen .toolbar .content {
+        display: flex;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .sandbox-screen .toolbar .content button {
+        width: 48px;
+        height: 48px;
+        min-width: 48px;
+        margin-right: 5px;
+        position: relative;
+    }
+
+    .sandbox-screen .toolbar .content button:last-child {
+        margin-right: 0;
+    }
+
+    .sandbox-screen .toolbar .content button i {
+        position: absolute;
+        display: block;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+    }
+
+    .sandbox-screen .toolbar .content button.tool-cell i {
+        background: url(../../images/hex.svg) no-repeat center;
+        background-size: 70%;
+    }
+
+    .sandbox-screen .toolbar .content button.tool-player1 i {
+        background: url(../../images/hex-own.svg) no-repeat center;
+    }
+
+    .sandbox-screen .toolbar .content button.tool-player2 i {
+        background: url(../../images/hex-enemy.svg) no-repeat center;
+    }

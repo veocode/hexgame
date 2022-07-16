@@ -85,7 +85,8 @@ export class GameManager {
             let difficulty = BotDifficulty.Normal;
             if (opts.difficultyName === 'easy') difficulty = BotDifficulty.Easy;
             if (opts.difficultyName === 'hard') difficulty = BotDifficulty.Hard;
-            this.createBotGame(client, difficulty);
+            console.log('opts.map', opts.map);
+            this.createBotGame(client, difficulty, opts.map || []);
         });
 
         client.on('game:link:create', () => {
@@ -105,12 +106,10 @@ export class GameManager {
         })
 
         client.on('game:maps', () => {
-            if (!client.isAdmin()) return;
             client.send('game:maps', { count: Maps.length });
         })
 
         client.on('game:map-request', ({ id }) => {
-            if (!client.isAdmin()) return;
             this.sendMapToEditor(client, id);
         })
 
@@ -135,7 +134,7 @@ export class GameManager {
         });
     }
 
-    async createBotGame(client: Client, difficulty: BotDifficulty) {
+    async createBotGame(client: Client, difficulty: BotDifficulty, map?: number[]) {
         if (client.isConnected()) {
             client.setInGame();
 
@@ -146,7 +145,7 @@ export class GameManager {
             })
 
             const botOpponent = new BotClient(botProfile, difficulty);
-            this.createMatch(client, botOpponent);
+            this.createMatch(client, botOpponent, null, map);
         }
     }
 
@@ -184,14 +183,14 @@ export class GameManager {
         client.linkedGame = null;
     }
 
-    createMatch(player1: Client, player2: Client, linkedGame: LinkedGame | null = null) {
+    createMatch(player1: Client, player2: Client, linkedGame: LinkedGame | null = null, map?: number[]) {
         if (player1.isInGame()) player1.getMatch()?.terminate();
         if (player2.isInGame()) player2.getMatch()?.terminate();
 
         player1.setInGame();
         player2.setInGame();
 
-        const match = new GameMatch(this.getRandomMap());
+        const match = new GameMatch(map || this.getRandomMap());
 
         player1.setOpponent(player2);
         player1.setMatch(match);

@@ -113,13 +113,13 @@ export const LobbyScreen: React.FC<LobbyScreenProps> = ({ game }) => {
     }
 
     return (
-        <div className='lobby-screen screen scrollable'>
+        <div className='lobby-screen screen sidebar-screen'>
             <div className='header'>
                 <Logo lang={game.getPlayer().authInfo.lang} scale={0.5} margin={5} />
             </div>
             <div className='body'>
-                <div className='player-panel-col'>
-                    <div className='player-panel scrollable'>
+                <div className='sidebar-column'>
+                    <div className='sidebar-panel player-panel scrollable'>
                         <PlayerCard info={game.getPlayer().authInfo} />
                         <div className='stat-table player-points'>
                             <div className='row'>
@@ -135,16 +135,17 @@ export const LobbyScreen: React.FC<LobbyScreenProps> = ({ game }) => {
                         }
                         <button className='button-primary' onClick={() => setBotSelectorVisible(true)}>{texts.PlayWithBot}</button>
                         <button className='button-secondary' onClick={() => game.startLinkedGame()}>{texts.LinkPlay}</button>
+                        <button onClick={() => game.startSandbox()}>{texts.PlaySandbox}</button>
                     </div>
                 </div>
                 {tab === LobbyTabs.MatchesAndPlayers
                     ?
-                    <div className='tops-panel'>
-                        <div className="top-widget">
+                    <div className='main-panel'>
+                        <div className="main-widget">
                             <div className='header'>
                                 <div className='title'>{texts.MatchesAndPlayers}</div>
                             </div>
-                            <div className='tops scrollable'>
+                            <div className='content scrollable'>
                                 {matches.length > 0
                                     ?
                                     <div className='matches-list'>{matches}</div>
@@ -158,11 +159,11 @@ export const LobbyScreen: React.FC<LobbyScreenProps> = ({ game }) => {
                         </div>
                     </div>
                     :
-                    <div className='tops-panel'>
-                        <div className="top-widget">
+                    <div className='main-panel'>
+                        <div className="main-widget">
                             <div className='header'>
                                 <div className='title'>{texts.TopPlayers}</div>
-                                <ul className='periods'>
+                                <ul className='tabs'>
                                     {topPeriods.map((period: string): JSX.Element =>
                                         <li
                                             className={`period${topPeriodTab === period ? ' active' : ''}`}
@@ -171,7 +172,7 @@ export const LobbyScreen: React.FC<LobbyScreenProps> = ({ game }) => {
                                     )}
                                 </ul>
                             </div>
-                            <div className='tops scrollable'>
+                            <div className='content scrollable'>
                                 {tops}
                             </div>
                         </div>

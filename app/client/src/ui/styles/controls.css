@@ -34,7 +34,8 @@ button:hover {
 }
 
 button.active {
-  background: linear-gradient(#7285a3, #525b6d);
+  border-color: #34a4d4;
+  background: rgb(20 103 139 / 15%);
 }
 
 .button-primary {
@@ -59,4 +60,21 @@ button.active {
 .button-secondary:hover {
   border-color: #28d174;
   color: #28d174;
+}
+
+.spinner {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+.spinner>button {
+  margin: 0 !important;
+  font-size: 18px;
+}
+
+.spinner .value {
+  flex-grow: 1;
+  font-size: 24px;
 }

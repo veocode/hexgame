@@ -32,6 +32,29 @@ export class HexMap {
         this.initNeighborsCache();
     }
 
+    validate(): boolean {
+        const pieces: { [player: number]: number } = {};
+        pieces[PlayerTag.Player1] = 0;
+        pieces[PlayerTag.Player2] = 0;
+
+        const tags = [PlayerTag.Player1, PlayerTag.Player2];
+
+        this.getCells().forEach(cell => {
+            tags.forEach(tag => {
+                if (cell.isOccupiedBy(tag)) {
+                    const neighbors = this.getCellEmptyNeighbors(cell.id);
+                    const hasEmptyNear = neighbors[HexNeighborLevel.Near].length > 0;
+                    const hasEmptyFar = neighbors[HexNeighborLevel.Far].length > 0;
+                    if (hasEmptyFar && hasEmptyNear) pieces[tag] += 1;
+                }
+            })
+        });
+
+        console.log('pieces', pieces)
+
+        return pieces[PlayerTag.Player1] > 0 && pieces[PlayerTag.Player2] > 0;
+    }
+
     clone(): HexMap {
         const clone = new HexMap();
         clone.setCells(this.getCells());

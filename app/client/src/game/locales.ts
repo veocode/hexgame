@@ -5,6 +5,7 @@ const Locales: LocaleDefinitionList = {
         name: 'English',
         displayName: '🇺🇸',
         texts: {
+            InvalidMap: 'Map should have starting pieces for both players and empty space for at least one move',
             Difficulty: 'Select Bot Difficulty',
             Easy: 'Easy',
             Normal: 'Normal',
@@ -26,7 +27,7 @@ const Locales: LocaleDefinitionList = {
             InvitationExpired: 'Invitation has expired',
             Starting: 'Starting Match...',
             PlayAgain: 'Play Again',
-            PlaySandbox: 'Sandbox Map Editor',
+            PlaySandbox: 'Map Editor',
             Connecting: '🌐 Connecting...',
             LinkPlay: 'Play with friend',
             LinkWait: '⏳ Waiting for a friend...',

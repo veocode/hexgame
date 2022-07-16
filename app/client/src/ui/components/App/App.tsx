@@ -38,8 +38,10 @@ if (vk.isDetected()) {
 
 export const App: React.FC<{}> = () => {
   const [state, setState] = useState<GameState>(game.getState());
+  const [isAlert, setAlert] = useState<boolean>(game.isAlert());
 
   game.whenStateUpdated(setState);
+  game.whenAlert(setAlert);
 
   let childComponents;
 
@@ -97,6 +99,16 @@ export const App: React.FC<{}> = () => {
           <div className='icon'></div>
         </button> : ''}
       <Invite game={game} />
+      {isAlert &&
+        <div className='modal-wrap' onClick={() => game.cancelAlert()}>
+          <div className='modal-popup'>
+            <div className='message'>{game.getAlertMessage()}</div>
+            <div className='buttons'>
+              <button onClick={() => game.cancelAlert()}>{texts.Close}</button>
+            </div>
+          </div>
+        </div>
+      }
     </div>
   );
 };

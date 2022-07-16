@@ -69,7 +69,8 @@ class GameManager {
                 difficulty = botclient_1.BotDifficulty.Easy;
             if (opts.difficultyName === 'hard')
                 difficulty = botclient_1.BotDifficulty.Hard;
-            this.createBotGame(client, difficulty);
+            console.log('opts.map', opts.map);
+            this.createBotGame(client, difficulty, opts.map || []);
         });
         client.on('game:link:create', () => {
             this.createLinkedGame(client);
@@ -84,13 +85,9 @@ class GameManager {
             this.sendLobbyStatsToClient(client);
         });
         client.on('game:maps', () => {
-            if (!client.isAdmin())
-                return;
             client.send('game:maps', { count: maps_1.Maps.length });
         });
         client.on('game:map-request', ({ id }) => {
-            if (!client.isAdmin())
-                return;
             this.sendMapToEditor(client, id);
         });
         client.on('game:spectate-request', ({ matchId }) => {
@@ -109,7 +106,7 @@ class GameManager {
             this.sendPlayInviteResponse(client, toPlayerId, isAccepted);
         });
     }
-    createBotGame(client, difficulty) {
+    createBotGame(client, difficulty, map) {
         return __awaiter(this, void 0, void 0, function* () {
             if (client.isConnected()) {
                 client.setInGame();
@@ -119,7 +116,7 @@ class GameManager {
                     lang: '??'
                 });
                 const botOpponent = new botclient_1.BotClient(botProfile, difficulty);
-                this.createMatch(client, botOpponent);
+                this.createMatch(client, botOpponent, null, map);
             }
         });
     }
@@ -150,7 +147,7 @@ class GameManager {
         client.linkedGame.removeClient(client);
         client.linkedGame = null;
     }
-    createMatch(player1, player2, linkedGame = null) {
+    createMatch(player1, player2, linkedGame = null, map) {
         var _a, _b;
         if (player1.isInGame())
             (_a = player1.getMatch()) === null || _a === void 0 ? void 0 : _a.terminate();
@@ -158,7 +155,7 @@ class GameManager {
             (_b = player2.getMatch()) === null || _b === void 0 ? void 0 : _b.terminate();
         player1.setInGame();
         player2.setInGame();
-        const match = new match_1.GameMatch(this.getRandomMap());
+        const match = new match_1.GameMatch(map || this.getRandomMap());
         player1.setOpponent(player2);
         player1.setMatch(match);
         player2.setOpponent(player1);
