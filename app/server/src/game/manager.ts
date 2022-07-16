@@ -207,13 +207,16 @@ export class GameManager {
         match.whenOver((scores: MatchScoreList | null) => {
             if (scores && !match.hasLinkedGame()) {
                 const tags = [PlayerTag.Player1, PlayerTag.Player2];
+                const saved: string[] = [];
+
                 tags.forEach(tag => {
                     const player = match.getPlayer(tag);
-                    if (player) {
+                    if (player && !saved.includes(player.id)) {
                         const points = scores[tag].delta;
                         player.setIdle();
                         player.getProfile().addScore(points);
                         player.clearBlacklist();
+                        saved.push(player.id);
                     }
                 })
             }

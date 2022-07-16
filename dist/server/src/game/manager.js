@@ -168,13 +168,15 @@ class GameManager {
         match.whenOver((scores) => {
             if (scores && !match.hasLinkedGame()) {
                 const tags = [types_1.PlayerTag.Player1, types_1.PlayerTag.Player2];
+                const saved = [];
                 tags.forEach(tag => {
                     const player = match.getPlayer(tag);
-                    if (player) {
+                    if (player && !saved.includes(player.id)) {
                         const points = scores[tag].delta;
                         player.setIdle();
                         player.getProfile().addScore(points);
                         player.clearBlacklist();
+                        saved.push(player.id);
                     }
                 });
             }

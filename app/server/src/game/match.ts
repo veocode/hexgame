@@ -27,6 +27,9 @@ type MatchOverCallback = (scores: MatchScoreList | null) => void;
 export class GameMatch {
 
     public readonly id: string;
+
+    private isStopped: boolean = false;
+
     private map: HexMap;
     private players: MatchPlayerList = {};
     private spectators: ClientList = new ClientList();
@@ -253,6 +256,9 @@ export class GameMatch {
     }
 
     finishWithNoMoves(reasonType: string) {
+        if (this.isStopped) return;
+        this.isStopped = true;
+
         const loserTag = this.currentPlayerTag;
         const winnerTag = loserTag === PlayerTag.Player2
             ? PlayerTag.Player1
@@ -283,6 +289,8 @@ export class GameMatch {
     }
 
     nextTurn() {
+        if (this.isStopped) return;
+
         const scores = this.sendScoreToPlayers();
         if (!this.mapHasEmptyCells()) return this.finish();
         this.switchPlayer();
@@ -295,6 +303,7 @@ export class GameMatch {
     }
 
     requestNextMove() {
+        if (this.isStopped) return;
         const player = this.currentPlayer();
 
         if ((!player || !player.isConnected()) && !this.hasActivePlayers()) {
@@ -327,6 +336,8 @@ export class GameMatch {
     }
 
     validateAndMakeMove(player: Client, fromId: number, toId: number): boolean {
+        if (this.isStopped) return false;
+
         const srcCell = this.map.getCell(fromId);
         const dstCell = this.map.getCell(toId);
 
@@ -357,12 +368,19 @@ export class GameMatch {
         return true;
     }
 
+    stopTimeouts() {
+        this.players[PlayerTag.Player1]?.stopTurnTimeout();
+        this.players[PlayerTag.Player2]?.stopTurnTimeout();
+    }
+
     onPlayerSurrender(player: Client) {
         this.currentPlayerTag = player.getTag();
         this.finishWithNoMoves(PlayerHasNoMovesReasons.Eliminated);
     }
 
     onPlayerMoveResponse(player: Client, fromId: number, toId: number) {
+        if (this.isStopped) return;
+
         player.stopTurnTimeout();
         if (this.currentPlayerTag !== player.getTag()) return;
 
@@ -379,7 +397,9 @@ export class GameMatch {
     }
 
     onPlayerCellSelected(player: Client, cellId: number) {
+        if (this.isStopped) return;
         if (this.currentPlayerTag !== player.getTag()) return;
+
         player.getOpponent()?.send('game:match:move-cell-selected', { id: cellId });
         this.spectators.send('game:match:move-cell-selected', {
             player: player.getTag(),
@@ -388,6 +408,8 @@ export class GameMatch {
     }
 
     onPlayerTurnTimeOut(player: Client) {
+        if (this.isStopped) return;
+
         player.stopTurnTimeout();
         if (player.getTag() === this.currentPlayerTag) {
             player.addMissedTurn();

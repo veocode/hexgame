@@ -50,8 +50,6 @@ export class HexMap {
             })
         });
 
-        console.log('pieces', pieces)
-
         return pieces[PlayerTag.Player1] > 0 && pieces[PlayerTag.Player2] > 0;
     }
 

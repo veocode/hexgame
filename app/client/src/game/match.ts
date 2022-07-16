@@ -120,6 +120,7 @@ export class Match {
         this.playerTag = options.playerTag;
         this.maxTurnTime = options.maxTurnTime;
 
+
         this.updateScores(options.initialScores);
         this.bindSocketEvents();
     }
@@ -233,6 +234,7 @@ export class Match {
         })
 
         this.game.socket.on('game:match:over', (result: ServerMatchResult) => {
+            if (this.isOver()) return;
             this.turnTimer.stop();
 
             const message = result.isWithdraw
@@ -478,6 +480,8 @@ export class Match {
     }
 
     setOver(isNoMoves: boolean, result: MatchResult) {
+        if (this.isOver()) return;
+
         this.state = MatchState.Over;
         if (!isNoMoves) {
             this.updateStateMessage({

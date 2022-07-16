@@ -14,6 +14,7 @@ const Delay = {
 };
 class GameMatch {
     constructor(serializedMap) {
+        this.isStopped = false;
         this.players = {};
         this.spectators = new client_1.ClientList();
         this.currentPlayerTag = types_1.PlayerTag.Player1;
@@ -196,6 +197,9 @@ class GameMatch {
             this.callbacks.Over(scores);
     }
     finishWithNoMoves(reasonType) {
+        if (this.isStopped)
+            return;
+        this.isStopped = true;
         const loserTag = this.currentPlayerTag;
         const winnerTag = loserTag === types_1.PlayerTag.Player2
             ? types_1.PlayerTag.Player1
@@ -222,6 +226,8 @@ class GameMatch {
         setTimeout(() => this.finish(true), emptyCellsCount * Delay.noMovesFillPerCell + 1000);
     }
     nextTurn() {
+        if (this.isStopped)
+            return;
         const scores = this.sendScoreToPlayers();
         if (!this.mapHasEmptyCells())
             return this.finish();
@@ -235,6 +241,8 @@ class GameMatch {
         this.requestNextMove();
     }
     requestNextMove() {
+        if (this.isStopped)
+            return;
         const player = this.currentPlayer();
         if ((!player || !player.isConnected()) && !this.hasActivePlayers()) {
             this.terminate();
@@ -258,6 +266,8 @@ class GameMatch {
         player.setTurnTimeout(() => this.onPlayerTurnTimeOut(player), MaxTurnTimeSeconds * 1000);
     }
     validateAndMakeMove(player, fromId, toId) {
+        if (this.isStopped)
+            return false;
         const srcCell = this.map.getCell(fromId);
         const dstCell = this.map.getCell(toId);
         if (!srcCell.isOccupied())
@@ -284,12 +294,19 @@ class GameMatch {
         }
         return true;
     }
+    stopTimeouts() {
+        var _a, _b;
+        (_a = this.players[types_1.PlayerTag.Player1]) === null || _a === void 0 ? void 0 : _a.stopTurnTimeout();
+        (_b = this.players[types_1.PlayerTag.Player2]) === null || _b === void 0 ? void 0 : _b.stopTurnTimeout();
+    }
     onPlayerSurrender(player) {
         this.currentPlayerTag = player.getTag();
         this.finishWithNoMoves(types_1.PlayerHasNoMovesReasons.Eliminated);
     }
     onPlayerMoveResponse(player, fromId, toId) {
         var _a;
+        if (this.isStopped)
+            return;
         player.stopTurnTimeout();
         if (this.currentPlayerTag !== player.getTag())
             return;
@@ -305,6 +322,8 @@ class GameMatch {
     }
     onPlayerCellSelected(player, cellId) {
         var _a;
+        if (this.isStopped)
+            return;
         if (this.currentPlayerTag !== player.getTag())
             return;
         (_a = player.getOpponent()) === null || _a === void 0 ? void 0 : _a.send('game:match:move-cell-selected', { id: cellId });
@@ -314,6 +333,8 @@ class GameMatch {
         });
     }
     onPlayerTurnTimeOut(player) {
+        if (this.isStopped)
+            return;
         player.stopTurnTimeout();
         if (player.getTag() === this.currentPlayerTag) {
             player.addMissedTurn();

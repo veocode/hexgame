@@ -13,10 +13,9 @@
 
 .invite-popup {
     background: rgba(23, 30, 39, 0.92);
-    padding: 30px;
+    padding: 30px 50px;
     border-radius: 10px;
-    width: 95%;
-    max-width: 350px;
+    max-width: 95%;
     box-shadow: 0 0 40px rgb(23, 30, 39);
 }
 
