@@ -74,6 +74,7 @@ class GameMatch {
         player.on('game:match:move-response', ({ fromId, toId }) => this.onPlayerMoveResponse(player, fromId, toId));
         player.on('game:match:move-cell-selected', ({ id }) => this.onPlayerCellSelected(player, id));
         player.on('game:match:emoji', ({ emoji }) => this.onPlayerEmoji(player, emoji));
+        player.on('game:match:surrender', () => this.onPlayerSurrender(player));
     }
     unbindPlayerEvents(player) {
         player.off('game:match:move-response');
@@ -282,6 +283,10 @@ class GameMatch {
             });
         }
         return true;
+    }
+    onPlayerSurrender(player) {
+        this.currentPlayerTag = player.getTag();
+        this.finishWithNoMoves(types_1.PlayerHasNoMovesReasons.Eliminated);
     }
     onPlayerMoveResponse(player, fromId, toId) {
         var _a;

@@ -107,6 +107,7 @@ export class GameMatch {
         player.on('game:match:move-response', ({ fromId, toId }) => this.onPlayerMoveResponse(player, fromId, toId));
         player.on('game:match:move-cell-selected', ({ id }) => this.onPlayerCellSelected(player, id));
         player.on('game:match:emoji', ({ emoji }) => this.onPlayerEmoji(player, emoji));
+        player.on('game:match:surrender', () => this.onPlayerSurrender(player));
     }
 
     unbindPlayerEvents(player: Client) {
@@ -354,6 +355,11 @@ export class GameMatch {
         }
 
         return true;
+    }
+
+    onPlayerSurrender(player: Client) {
+        this.currentPlayerTag = player.getTag();
+        this.finishWithNoMoves(PlayerHasNoMovesReasons.Eliminated);
     }
 
     onPlayerMoveResponse(player: Client, fromId: number, toId: number) {

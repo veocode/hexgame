@@ -129,18 +129,19 @@
     margin-right: 5px;
 }
 
-.game-screen .spectator-panel {
+.game-screen .actions-panel {
     position: fixed;
     bottom: 19px;
     left: 60px;
-    color: #FFF;
 }
 
-.game-screen .spectator-panel span {
+.game-screen .actions-panel span {
     padding-right: 10px;
     color: #a4aeb9;
 }
 
-.game-screen .spectator-panel button {
+.game-screen .actions-panel button {
     padding: 5px 25px;
+    animation: fadeIn .4s ease-out;
+    font-size: 13px;
 }

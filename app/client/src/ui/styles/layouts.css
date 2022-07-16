@@ -13,11 +13,9 @@
 }
 
 .modal-popup {
-  background: rgba(23, 30, 39, 0.92);
-  padding: 30px;
+  background: rgba(23, 30, 39, 0.95);
+  padding: 30px 50px;
   border-radius: 10px;
-  width: 95%;
-  max-width: 350px;
   box-shadow: 0 0 40px rgb(23, 30, 39);
 }
 
@@ -34,7 +32,7 @@
 }
 
 .modal-popup .buttons {
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 .modal-popup .buttons:empty {
@@ -42,11 +40,12 @@
 }
 
 .modal-popup .buttons button {
+  margin-top: 10px;
   margin-right: 10px;
 }
 
 .modal-popup .buttons button:last-child {
-  margin: 0;
+  margin-right: 0;
 }
 
 .screen {

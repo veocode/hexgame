@@ -5,6 +5,9 @@ const Locales: LocaleDefinitionList = {
         name: 'English',
         displayName: '🇺🇸',
         texts: {
+            Spectate: 'Spectate',
+            AreYouSure: 'Are you sure?',
+            Surrender: '🏳️ Surrender',
             InvalidMap: 'Map should have starting pieces for both players and empty space for at least one move',
             Difficulty: 'Select Bot Difficulty',
             Easy: 'Easy',
@@ -75,6 +78,9 @@ const Locales: LocaleDefinitionList = {
         name: 'Español',
         displayName: '🇪🇸',
         texts: {
+            Spectate: 'Espectador',
+            AreYouSure: '¿Está seguro?',
+            Surrender: '🏳️ Rendirse',
             InvalidMap: 'El mapa debe tener piezas iniciales para ambos jugadores y espacio vacío para al menos un movimiento',
             Difficulty: 'Seleccione dificultad',
             Easy: 'Fácil',
@@ -145,6 +151,9 @@ const Locales: LocaleDefinitionList = {
         name: 'Deutsch',
         displayName: '🇩🇪',
         texts: {
+            Spectate: 'Zuschauer',
+            AreYouSure: 'Bist du dir sicher?',
+            Surrender: '🏳️ Aufgeben',
             InvalidMap: 'Die Karte sollte Startsteine für beide Spieler und freien Platz für mindestens einen Zug haben',
             Difficulty: 'Wählen Sie Schwierigkeit',
             Easy: 'Einfach',
@@ -215,6 +224,9 @@ const Locales: LocaleDefinitionList = {
         name: 'Français',
         displayName: '🇫🇷',
         texts: {
+            Spectate: 'Spectateur',
+            AreYouSure: 'Êtes-vous sûr?',
+            Surrender: '🏳️ Abandon',
             InvalidMap: 'La carte doit avoir des pièces de départ pour les deux joueurs et un espace vide pour au moins un coup',
             Difficulty: 'Sélectionnez la difficulté',
             Easy: 'Facile',
@@ -285,6 +297,9 @@ const Locales: LocaleDefinitionList = {
         name: 'Русский',
         displayName: '🇷🇺',
         texts: {
+            Spectate: 'Наблюдать',
+            AreYouSure: 'Вы уверены?',
+            Surrender: '🏳️ Сдаться',
             InvalidMap: 'На карте должны быть стартовые фигуры для обоих игроков и пустое место хотя бы для одного хода.',
             Difficulty: 'Выберите сложность бота',
             Easy: 'Легкий',

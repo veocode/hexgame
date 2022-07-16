@@ -193,7 +193,11 @@ export class BotClient extends Client {
     getMoveNormal(): PossibleMove {
         const map = this.match.getMap();
         const moves = this.getPossibleMoves(map);
-        moves.all.sort((move1, move2) => move2.profit - move1.profit);
+        moves.all.sort((move1, move2) =>
+            move1.profit === move2.profit
+                ? (Math.random() < 0.5 ? 1 : -1)
+                : move2.profit - move1.profit
+        );
         return moves.all[0];
     }
 

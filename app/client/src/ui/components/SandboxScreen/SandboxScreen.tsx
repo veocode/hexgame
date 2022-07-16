@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { getLocaleTexts } from '../../../game/locales';
 import { Sandbox, SandboxTool } from '../../../game/sandbox';
-import { HexMap } from '../../../shared/hexmap';
 import { HexMapCell } from '../../../shared/hexmapcell';
 import { Logo } from '../App/Logo/Logo';
 import { HexField } from '../GameScreen/HexField/HexField';

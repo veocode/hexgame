@@ -104,13 +104,15 @@ export const GameScreen: React.FC<GameScreenProps> = ({ match }) => {
                     onCellClick={id => match.onCellClick(id)}
                     playerColors={match.getPlayerColors()}
                 />
-                {match.isSpectating() ?
-                    <div className='spectator-panel'>
-                        <button onClick={() => match.getGame().stopSpectating()}>{texts.Quit}</button>
-                    </div> : ''}
-                {resultBox}
+                <div className='actions-panel'>
+                    {!match.isSpectating() && match.getTurnCount() > 5 && !match.isSurrender() &&
+                        <button onClick={() => match.surrender()}>{texts.Surrender}</button>}
+                    {match.isSpectating() &&
+                        <button onClick={() => match.getGame().stopSpectating()}>{texts.Quit}</button>}
+                </div>
             </div>
             {(!isEmojisLocked && !match.isSpectating()) ? <EmojiSelector onSelected={emoji => match.sendEmoji(emoji)} /> : ''}
+            {resultBox}
         </div>
     );
 };

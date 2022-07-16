@@ -46,7 +46,7 @@ export const LobbyScreen: React.FC<LobbyScreenProps> = ({ game }) => {
                 })
 
                 tops.push(
-                    <div key={`top-${period}`} className={`top scrollable${topPeriodTab === period ? ' active' : ''}`}>
+                    <div key={`top-${period}`} className={`top ${topPeriodTab === period ? ' active' : ''}`}>
                         <div className='stat-table score-table'>
                             {playerRows}
                         </div>
@@ -77,13 +77,13 @@ export const LobbyScreen: React.FC<LobbyScreenProps> = ({ game }) => {
                     <div className='actions'>
                         <button
                             className='btn-spectate'
-                            title={'Spectate'}
+                            title={texts.Spectate}
                             onClick={() => game.startSpectating(matchDescription.id)}
                         >👁</button>
                         {matchDescription.hasBot &&
                             <button
                                 className='btn-play button-primary'
-                                title={'Offer to Play'}
+                                title={texts.OfferToPlay}
                                 onClick={() => game.sendInviteToPlayer(matchDescription.player1.id, matchDescription.player1.nickname)}
                             >⚔️</button>}
                     </div>
@@ -166,6 +166,7 @@ export const LobbyScreen: React.FC<LobbyScreenProps> = ({ game }) => {
                                 <ul className='tabs'>
                                     {topPeriods.map((period: string): JSX.Element =>
                                         <li
+                                            key={period}
                                             className={`period${topPeriodTab === period ? ' active' : ''}`}
                                             onClick={() => setTopPeriodTab(period)}
                                         >{texts[`TopPlayers_${period}`]}</li>

@@ -96,8 +96,10 @@ export class Match {
     protected scores: MatchScoreList | null = null;
     protected result: MatchResult | null = null;
 
+    protected turnCount: number = 1;
     protected maxTurnTime: number = 30;
     protected turnTimer: Timer = new Timer();
+    protected isSurrendered: boolean = false;
 
     protected callbacks: {
         MapUpdated?: MapUpdatedCallback | null,
@@ -122,6 +124,10 @@ export class Match {
         this.bindSocketEvents();
     }
 
+    getTurnCount(): number {
+        return this.turnCount || 0;
+    }
+
     getGame(): Game {
         return this.game;
     }
@@ -135,7 +141,20 @@ export class Match {
     }
 
     getInitialStateMessage() {
-        return '';
+        return '⏳';
+    }
+
+    surrender() {
+        if (this.isSurrender()) return;
+        if (!window.confirm(texts.AreYouSure)) return;
+        this.game.socket.emit('game:match:surrender');
+        this.isSurrendered = true;
+        this.isMoveDone = true;
+        this.sendEmoji('🏳️');
+    }
+
+    isSurrender(): boolean {
+        return this.isSurrendered;
     }
 
     bindSocketEvents() {
@@ -168,6 +187,7 @@ export class Match {
         this.game.socket.on('game:match:move-by-opponent', async ({ fromId, toId }) => {
             this.map.resetHighlight();
             await this.makeMove(fromId, toId, true);
+            this.turnCount++;
         })
 
         this.game.socket.on('game:match:move-cell-selected', async ({ id }) => {
@@ -320,6 +340,7 @@ export class Match {
             if (!isOpponent) {
                 this.game.socket.emit('game:match:move-response', { fromId, toId });
                 this.isMoveDone = true;
+                this.turnCount++;
             }
 
             if (level === HexNeighborLevel.Near) {
