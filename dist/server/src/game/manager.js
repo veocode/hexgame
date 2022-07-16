@@ -69,7 +69,6 @@ class GameManager {
                 difficulty = botclient_1.BotDifficulty.Easy;
             if (opts.difficultyName === 'hard')
                 difficulty = botclient_1.BotDifficulty.Hard;
-            console.log('opts.map', opts.map);
             this.createBotGame(client, difficulty, opts.map || []);
         });
         client.on('game:link:create', () => {
@@ -155,7 +154,8 @@ class GameManager {
             (_b = player2.getMatch()) === null || _b === void 0 ? void 0 : _b.terminate();
         player1.setInGame();
         player2.setInGame();
-        const match = new match_1.GameMatch(map || this.getRandomMap());
+        map = map.length ? map : this.getRandomMap();
+        const match = new match_1.GameMatch(map);
         player1.setOpponent(player2);
         player1.setMatch(match);
         player2.setOpponent(player1);
