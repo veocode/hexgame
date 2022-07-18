@@ -15,7 +15,7 @@ export const LocaleSelector: React.FC<{}> = () => {
         localeButtons.push(
             <button
                 key={index}
-                className={'locale-button' + (userLang === locale.lang ? ' active' : '')}
+                className={'round-button locale-button' + (userLang === locale.lang ? ' active' : '')}
                 title={locale.name}
                 onClick={() => onLangSelect(locale.lang)}
             >{locale.displayName}</button>
@@ -23,7 +23,7 @@ export const LocaleSelector: React.FC<{}> = () => {
     })
 
     return (
-        <div className='locale-selector'>
+        <div className='locale-selector buttons-row'>
             {localeButtons}
         </div>
     );

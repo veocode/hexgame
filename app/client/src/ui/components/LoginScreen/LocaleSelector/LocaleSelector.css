@@ -2,7 +2,7 @@
     position: absolute;
     z-index: 100;
     left: 50%;
-    bottom: 0;
+    bottom: 50px;
     display: flex;
     flex-direction: row;
     transform: translate(-50%, 0);
@@ -22,27 +22,14 @@
 }
 
 .locale-selector button {
-    border-radius: 50%;
     width: 40px;
     height: 40px;
     padding: 0;
-    margin-bottom: 5px;
-    background: none;
-    border: solid 2px rgba(255, 255, 255, .2);
-    box-shadow: none;
-    font-size: 14px;
-    margin-left: 5px;
-    opacity: .35;
-}
-
-.locale-selector button:hover {
-    background: rgba(255, 255, 255, .3);
-    border: solid 2px rgba(255, 255, 255, 0);
-    opacity: .4;
-}
-
-.locale-selector button.active {
     opacity: .5;
-    border: solid 2px #6f7a8a;
-    background: #6f7a8a;
+    margin-bottom: 5px;
+}
+
+.locale-selector button:hover,
+.locale-selector button.active {
+    opacity: 1;
 }

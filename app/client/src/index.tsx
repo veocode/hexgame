@@ -6,6 +6,7 @@ import './ui/styles/animations.css';
 import './ui/styles/controls.css';
 import './ui/styles/blocks.css';
 import './ui/styles/layouts.css';
+import './ui/styles/icons.css'
 
 
 const root = ReactDOM.createRoot(

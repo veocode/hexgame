@@ -3,10 +3,11 @@ import { HexMapCell } from '../../../shared/hexmapcell';
 import { HexField } from './HexField/HexField';
 import { StatePanel } from './StatePanel/StatePanel';
 import { getLocaleTexts } from '../../../game/locales';
-import './GameScreen.css';
-import { Match, MatchResult, MatchScoreDict, MatchStateMessage } from '../../../game/match';
+import { Match, MatchScoreDict, MatchStateMessage } from '../../../game/match';
 import { EmojiSelector } from './EmojiSelector/EmojiSelector';
 import { EmojiDisplay, EmojisByPlayersDict } from './EmojiDisplay/EmojiDisplay';
+import { ResultBox } from './ResultBox/ResultBox';
+import './GameScreen.css';
 
 const texts = getLocaleTexts();
 
@@ -18,72 +19,15 @@ export const GameScreen: React.FC<GameScreenProps> = ({ match }) => {
     const [cells, setCells] = useState<HexMapCell[]>(match.getMap().getCells());
     const [stateMessage, setStateMessage] = useState<MatchStateMessage>({ text: '' });
     const [matchScores, setMatchScores] = useState<MatchScoreDict | null>(match.getScores());
-    const [matchResult, setMatchResult] = useState<MatchResult | null>(null);
     const [emojis, setEmojis] = useState<EmojisByPlayersDict>(match.getCurrentEmojis());
     const [isEmojisLocked, setEmojisLocked] = useState<boolean>(match.isEmojisLockedForCooldown());
 
     match.whenMapUpdated(setCells);
     match.whenStateMessageUpdated(setStateMessage);
     match.whenScoreUpdated(setMatchScores);
-    match.whenOver(setMatchResult);
 
     match.whenEmojisUpdated(setEmojis);
     match.whenEmojisLockUpdated(setEmojisLocked);
-
-    let resultBox: JSX.Element | null = null;
-
-    if (matchResult) {
-        const points = matchResult.pointsEarned;
-        const signedPoints = points > 0 ? `+${points}` : `${points}`;
-        const signClass = points > 0 ? 'positive' : 'negative';
-
-        resultBox = (
-            <div className='result-wrap'>
-                <div className='result-box'>
-                    <div className='message'>
-                        {matchResult.message}
-                    </div>
-                    {points !== 0 && !match.isSpectating() && !matchResult.isLinkedGame ?
-                        <div className='result-points'>
-                            <div className='row'>
-                                <div className='label'>{texts.PointsEarned}:</div>
-                                <div className={`points ${signClass}`}>{signedPoints}</div>
-                            </div>
-                            <div className='row'>
-                                <div className='label'>{texts.PointsToday}:</div>
-                                <div className='points'>{matchResult.pointsToday}</div>
-                            </div>
-                            <div className='row'>
-                                <div className='label'>{texts.PointsTotal}:</div>
-                                <div className='points'>{matchResult.pointsTotal}</div>
-                            </div>
-                        </div>
-                        : ''}
-                    <div className='button'>
-                        {match.isSpectating()
-                            ? <button onClick={() => match.getGame().stopSpectating()}>{texts.Close}</button>
-                            :
-                            <div>
-                                {
-                                    match.hasBot()
-                                        ?
-                                        <div>
-                                            <button onClick={() => match.getGame().startWithBot()}>{texts.PlayAgain}</button>
-                                            <button onClick={() => match.getGame().setLobby()}>{texts.Quit}</button>
-                                        </div>
-                                        :
-                                        <div>
-                                            <button onClick={() => match.getGame().setLobby()}>{texts.Close}</button>
-                                        </div>
-                                }
-                            </div>
-
-                        }
-                    </div>
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div className='game-screen screen'>
@@ -105,14 +49,22 @@ export const GameScreen: React.FC<GameScreenProps> = ({ match }) => {
                     playerColors={match.getPlayerColors()}
                 />
                 <div className='actions-panel'>
-                    {!match.isSpectating() && match.getTurnCount() > 5 && !match.isSurrender() &&
-                        <button onClick={() => match.surrender()}>{texts.Surrender}</button>}
+                    {(!isEmojisLocked && !match.isSpectating()) &&
+                        <EmojiSelector onSelected={emoji => match.sendEmoji(emoji)} />
+                    }
+                    {!match.isSpectating() && !match.isSurrender() && match.getTurnCount() > 5 &&
+                        <button onClick={() => match.surrender()} title={texts.Surrender}>
+                            <i className='icon icon-flag'></i>
+                        </button>
+                    }
                     {match.isSpectating() &&
-                        <button onClick={() => match.getGame().stopSpectating()}>{texts.Quit}</button>}
+                        <button onClick={() => match.getGame().stopSpectating()} title={texts.Quit}>
+                            <i className='icon icon-close'></i>
+                        </button>
+                    }
                 </div>
             </div>
-            {(!isEmojisLocked && !match.isSpectating()) ? <EmojiSelector onSelected={emoji => match.sendEmoji(emoji)} /> : ''}
-            {resultBox}
+            <ResultBox match={match} />
         </div>
     );
 };

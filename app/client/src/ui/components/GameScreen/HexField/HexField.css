@@ -1,6 +1,6 @@
 @media (orientation:landscape) {
     .hex-field {
-        --hex-height: calc((100vh - 60px) / 8);
+        --hex-height: calc((100vh - 60px) / 9);
         --hex-width: calc(var(--hex-height) * 0.87);
     }
 
@@ -15,6 +15,7 @@
     .hex-field {
         --hex-height: calc((100vw - 30px) / 9);
         --hex-width: calc(var(--hex-height) * 0.87);
+        padding-left: calc(var(--hex-width)/3);
     }
 
     @media (min-width: 700px) {
@@ -27,7 +28,6 @@
 .hex-field {
     margin: 0 auto;
     display: inline-block;
-    padding-left: calc(var(--hex-width)/3);
 }
 
 .hex-field .row {

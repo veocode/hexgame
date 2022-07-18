@@ -1,0 +1,78 @@
+.result-wrap {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    animation: growIn .65s ease-in;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+}
+
+.result-box {
+    background: rgba(23, 30, 39, 0.92);
+    padding: 30px;
+    border-radius: 10px;
+    width: 95%;
+    max-width: 350px;
+    box-shadow: 0 0 40px rgb(23, 30, 39);
+}
+
+.result-box .message {
+    font-size: 24px;
+    color: #FFF;
+    font-weight: lighter;
+    margin-bottom: 20px;
+}
+
+.result-box .result-points {
+    display: flex;
+    flex-direction: column;
+    color: #a4aeb9;
+    border: solid 1px #616b75;
+    border-radius: 10px;
+    padding: 16px 25px;
+    margin-bottom: 20px;
+}
+
+.result-box .result-points .row {
+    display: flex;
+    border-bottom: dashed 1px #616b75;
+    padding: 8px 0;
+}
+
+.result-box .result-points .row:first-child {
+    padding-top: 0;
+}
+
+.result-box .result-points .row:last-child {
+    border: none;
+    padding-bottom: 0;
+}
+
+.result-box .result-points .row .label {
+    flex-grow: 1;
+    text-align: left;
+}
+
+.result-box .result-points .row .points {
+    padding: 0 15px;
+    margin-left: 10px;
+    width: 25%;
+    text-align: center;
+    color: #FFF;
+    font-weight: bold;
+}
+
+.result-box .result-points .row .points.positive {
+    color: #58e693;
+}
+
+.result-box .result-points .row .points.negative {
+    color: #fd7070;
+}
+
+.result-box button {
+    margin-top: 5px;
+    margin-right: 5px;
+}

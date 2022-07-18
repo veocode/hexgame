@@ -1,0 +1,24 @@
+i.icon {
+  display: inline-block;
+  background: url(../images/icons/chat.svg) no-repeat center;
+  background-size: contain;
+  min-width: 16px;
+  min-height: 16px;
+  overflow: hidden;
+}
+
+i.icon-chat {
+  background-image: url(../images/icons/chat.svg);
+}
+
+i.icon-close {
+  background-image: url(../images/icons/close.svg);
+}
+
+i.icon-emoji {
+  background-image: url(../images/icons/emoji.svg);
+}
+
+i.icon-flag {
+  background-image: url(../images/icons/flag.svg);
+}

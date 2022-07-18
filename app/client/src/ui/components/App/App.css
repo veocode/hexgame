@@ -7,36 +7,3 @@
     padding: 10px;
     background: radial-gradient(#383d46, #22252b);
 }
-
-.button-fullscreen,
-.button-fullscreen:hover {
-    display: inline-block;
-    background: none;
-    border: none;
-    box-shadow: none;
-}
-
-.button-fullscreen {
-    position: absolute;
-    width: 30px;
-    height: 30px;
-    left: 0;
-    bottom: 30px;
-    box-sizing: border-box;
-    z-index: 2;
-}
-
-.button-fullscreen .icon {
-    display: inline-block;
-    width: 30px;
-    height: 30px;
-    background: url(../../images/fullscreen.svg) no-repeat center;
-    background-size: contain;
-    opacity: 0.25;
-}
-
-@media (hover: hover) {
-    .button-fullscreen:hover .icon {
-        opacity: 0.4;
-    }
-}

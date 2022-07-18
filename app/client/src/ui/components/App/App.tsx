@@ -90,14 +90,6 @@ export const App: React.FC<{}> = () => {
   return (
     <div className='game-app'>
       {childComponents}
-      {(state !== GameState.Tutorial && state !== GameState.Loading && state !== GameState.Lobby) ?
-        <button
-          className='button-fullscreen'
-          title='F11'
-          onClick={() => game.toggleFullScreen()}
-        >
-          <div className='icon'></div>
-        </button> : ''}
       <Invite game={game} />
       {isAlert &&
         <div className='modal-wrap' onClick={() => game.cancelAlert()}>

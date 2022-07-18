@@ -62,6 +62,18 @@ button.active {
   color: #28d174;
 }
 
+.round-button {
+  border-radius: 50%;
+}
+
+.buttons-row button {
+  margin-right: 5px;
+}
+
+.buttons-row button:last-child {
+  margin-right: 0;
+}
+
 .spinner {
   display: flex;
   width: 100%;
