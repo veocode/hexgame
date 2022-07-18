@@ -63,6 +63,9 @@ class GameMatch {
             }
         }
         ;
+        if (this.spectators.hasId(player.id)) {
+            this.removeSpectator(player);
+        }
     }
     getPlayer(tag) {
         return this.players[tag];
@@ -105,9 +108,19 @@ class GameMatch {
             maxTurnTime: MaxTurnTimeSeconds,
             hasBot: this.hasBot(),
         });
+        this.forEachPlayerAndSpectator(client => client.send('game:match:spectators', {
+            count: this.spectators.count()
+        }));
+    }
+    forEachPlayerAndSpectator(callback) {
+        this.forEachPlayer(player => callback(player));
+        this.forEachSpectator(spectator => callback(spectator));
     }
     removeSpectator(spectator) {
         this.spectators.remove(spectator);
+        this.forEachPlayerAndSpectator(client => client.send('game:match:spectators', {
+            count: this.spectators.count()
+        }));
     }
     getSpectators() {
         return this.spectators;

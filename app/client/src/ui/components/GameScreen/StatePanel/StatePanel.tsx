@@ -4,7 +4,7 @@ import { ScoreCounter } from '../ScoreCounter/StatePanel';
 import './StatePanel.css';
 
 interface StatePanelProps {
-    scores: MatchScoreList | null
+    scores: MatchScoreList | null,
 };
 
 export const StatePanel: React.FC<StatePanelProps> = ({ scores }) => {
@@ -16,7 +16,8 @@ export const StatePanel: React.FC<StatePanelProps> = ({ scores }) => {
                     nickname={scores?.own.nickname || ''}
                     score={scores?.own.score || 0}
                 />
-                <div className='separator'></div>
+                <div className='separator'>
+                </div>
                 <ScoreCounter
                     orientation='right'
                     nickname={scores?.opponent.nickname || ''}

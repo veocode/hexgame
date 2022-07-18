@@ -8,6 +8,7 @@ import { EmojiSelector } from './EmojiSelector/EmojiSelector';
 import { EmojiDisplay, EmojisByPlayersDict } from './EmojiDisplay/EmojiDisplay';
 import { ResultBox } from './ResultBox/ResultBox';
 import './GameScreen.css';
+import { Surrender } from './Surrender/Surrender';
 
 const texts = getLocaleTexts();
 
@@ -21,6 +22,7 @@ export const GameScreen: React.FC<GameScreenProps> = ({ match }) => {
     const [matchScores, setMatchScores] = useState<MatchScoreDict | null>(match.getScores());
     const [emojis, setEmojis] = useState<EmojisByPlayersDict>(match.getCurrentEmojis());
     const [isEmojisLocked, setEmojisLocked] = useState<boolean>(match.isEmojisLockedForCooldown());
+    const [spectatorCount, setSpectatorCount] = useState<number>(0);
 
     match.whenMapUpdated(setCells);
     match.whenStateMessageUpdated(setStateMessage);
@@ -29,42 +31,47 @@ export const GameScreen: React.FC<GameScreenProps> = ({ match }) => {
     match.whenEmojisUpdated(setEmojis);
     match.whenEmojisLockUpdated(setEmojisLocked);
 
+    match.whenSpectatorCountUpdated(setSpectatorCount);
+
     return (
         <div className='game-screen screen'>
             <StatePanel
                 scores={matchScores}
             />
             <EmojiDisplay emojis={emojis} />
-            <div className='game-field'>
+            <div className='game-wrap'>
                 <div className='state-message'>
                     <div className='message'>
                         {stateMessage.text || match.getInitialStateMessage()}
                     </div>
                 </div>
-                <HexField
-                    width={match.getMap().getWidth()}
-                    height={match.getMap().getHeight()}
-                    cells={cells}
-                    onCellClick={id => match.onCellClick(id)}
-                    playerColors={match.getPlayerColors()}
-                />
-                <div className='actions-panel'>
-                    {(!isEmojisLocked && !match.isSpectating()) &&
-                        <EmojiSelector onSelected={emoji => match.sendEmoji(emoji)} />
-                    }
-                    {!match.isSpectating() && !match.isSurrender() && match.getTurnCount() > 5 &&
-                        <button onClick={() => match.surrender()} title={texts.Surrender}>
-                            <i className='icon icon-flag'></i>
-                        </button>
-                    }
-                    {match.isSpectating() &&
-                        <button onClick={() => match.getGame().stopSpectating()} title={texts.Quit}>
-                            <i className='icon icon-close'></i>
-                        </button>
-                    }
+                <div className='game-field'>
+                    <HexField
+                        width={match.getMap().getWidth()}
+                        height={match.getMap().getHeight()}
+                        cells={cells}
+                        onCellClick={id => match.onCellClick(id)}
+                        playerColors={match.getPlayerColors()}
+                    />
+                    <div className='actions-panel'>
+                        <div className={`spectator-counter ${spectatorCount > 0 ? 'visible' : ''}`}>
+                            <i className='icon icon-eye'></i> {Math.max(spectatorCount, 1)}
+                        </div>
+                        {(!isEmojisLocked && !match.isSpectating()) &&
+                            <EmojiSelector onSelected={emoji => match.sendEmoji(emoji)} />
+                        }
+                        {!match.isSpectating() && !match.isSurrender() && match.getTurnCount() > 5 &&
+                            <Surrender onConfirmed={() => match.surrender()} />
+                        }
+                        {match.isSpectating() &&
+                            <button onClick={() => match.getGame().stopSpectating()} title={texts.Quit}>
+                                <i className='icon icon-close'></i>
+                            </button>
+                        }
+                    </div>
                 </div>
             </div>
             <ResultBox match={match} />
-        </div>
+        </div >
     );
 };

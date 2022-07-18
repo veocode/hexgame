@@ -1,17 +1,46 @@
+.game-screen {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.game-wrap {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
 .game-screen .game-field {
-    flex-grow: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     position: relative;
-    height: 100%;
+    padding: 0 10px;
+}
+
+.game-screen .hex-field {
+    margin: 40px auto;
+    margin-bottom: 60px;
 }
 
 @media (orientation: landscape) {
     .game-screen .emoji-selector .emoji-bar {
         left: auto;
         right: 0;
+    }
+
+    .game-screen .hex-field {
+        margin: 10px auto;
+        padding-left: 55px;
+        padding-top: 5px;
+    }
+
+    .game-screen .game-field {
+        flex-direction: row;
+        width: 100%;
     }
 }
 
@@ -21,30 +50,14 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 3vh;
-}
-
-@media (min-width: 640px) {
-    .game-screen .state-message {
-        position: fixed;
-        transform: translate(-50%, 0);
-        left: 50%;
-        margin-top: 5px;
-        font-size: 18px;
-        top: 15px;
-    }
 }
 
 .game-screen .actions-panel {
-    position: fixed;
-    right: 30px;
-    top: 0;
-    height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding-top: 60px;
+    position: relative;
 }
 
 .game-screen .actions-panel span {
@@ -61,8 +74,6 @@
     margin-bottom: 10px;
     animation: growIn 0.4s ease-out;
     border-color: #6A6D72;
-    border-width: 3px;
-    background-color: #272B32;
 }
 
 .game-screen .actions-panel button .icon {
@@ -70,6 +81,10 @@
     width: 29px;
     height: 29px;
     opacity: 0.3;
+}
+
+.game-screen .actions-panel button:hover {
+    border-color: #7e8188;
 }
 
 .game-screen .actions-panel button:hover .icon {
@@ -82,14 +97,8 @@
 
 @media (orientation: portrait) {
     .game-screen .actions-panel {
-        left: 50%;
-        right: auto;
-        top: auto;
         height: auto;
-        bottom: 20px;
-        transform: translate(-50%, 0);
         flex-direction: row;
-        margin-left: 6px;
     }
 
     .game-screen .actions-panel button {
@@ -112,4 +121,24 @@
             height: 24px;
         }
     }
+}
+
+.spectator-counter {
+    position: absolute;
+    top: -32px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    opacity: 0.3;
+    min-width: 30px;
+    opacity: 0;
+    transition: opacity .3s;
+}
+
+.spectator-counter.visible {
+    opacity: 0.3;
+}
+
+.spectator-counter .icon {
+    position: relative;
+    top: 2px;
 }

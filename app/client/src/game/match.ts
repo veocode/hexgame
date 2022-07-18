@@ -70,6 +70,7 @@ type ScoreUpdatedCallback = (scores: MatchScoreDict) => void;
 type OverCallback = (result: MatchResult) => void;
 type EmojisUpdatedCallback = (emojis: EmojisByPlayersDict) => void;
 type EmojisLockUpdatedCallback = (isLocked: boolean) => void;
+type SpectatorCountUpdatedCallback = (count: number) => void;
 
 export type MatchScoreList = {
     own: {
@@ -100,6 +101,7 @@ export class Match {
     protected maxTurnTime: number = 30;
     protected turnTimer: Timer = new Timer();
     protected isSurrendered: boolean = false;
+    protected spectatorCount: number = 0;
 
     protected callbacks: {
         MapUpdated?: MapUpdatedCallback | null,
@@ -107,7 +109,8 @@ export class Match {
         ScoreUpdated?: ScoreUpdatedCallback | null,
         Over?: OverCallback | null,
         EmojisUpdated?: EmojisUpdatedCallback | null,
-        EmojisLockUpdated?: EmojisLockUpdatedCallback | null
+        EmojisLockUpdated?: EmojisLockUpdatedCallback | null,
+        SpectatorCountUpdated?: SpectatorCountUpdatedCallback | null
     } = {};
 
     constructor(
@@ -147,7 +150,6 @@ export class Match {
 
     surrender() {
         if (this.isSurrender()) return;
-        if (!window.confirm(texts.AreYouSure)) return;
         this.game.socket.emit('game:match:surrender');
         this.isSurrendered = true;
         this.isMoveDone = true;
@@ -249,6 +251,13 @@ export class Match {
 
         this.game.socket.on('game:match:emoji', async ({ emoji }) => {
             this.playerSetEmoji(this.getOpponentTag(), emoji);
+        })
+
+        this.game.socket.on('game:match:spectators', ({ count }) => {
+            if (count !== this.spectatorCount) {
+                this.spectatorCount = count;
+                this.callbacks.SpectatorCountUpdated?.call(this, count);
+            }
         })
     }
 
@@ -547,15 +556,17 @@ export class Match {
                 : PlayerTag.Player1;
         }
 
-        if (this.emojis[playerTag] !== null) return;
+        if (this.emojis[playerTag] !== null && this.emojis[playerTag] !== '🏳️') return;
 
         this.emojis[playerTag] = emoji;
         this.updateEmojis();
 
-        setTimeout(() => {
-            this.emojis[playerTag] = null;
-            this.updateEmojis();
-        }, emojiLifeTime);
+        if (emoji !== '🏳️') {
+            setTimeout(() => {
+                this.emojis[playerTag] = null;
+                this.updateEmojis();
+            }, emojiLifeTime);
+        }
     }
 
     updateEmojis() {
@@ -576,6 +587,10 @@ export class Match {
         return this.playerTag === PlayerTag.Player1
             ? PlayerTag.Player2
             : PlayerTag.Player1;
+    }
+
+    whenSpectatorCountUpdated(callback: SpectatorCountUpdatedCallback) {
+        this.callbacks.SpectatorCountUpdated = callback;
     }
 
 }

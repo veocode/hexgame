@@ -11,12 +11,20 @@ i.icon-chat {
   background-image: url(../images/icons/chat.svg);
 }
 
+i.icon-check {
+  background-image: url(../images/icons/check.svg);
+}
+
 i.icon-close {
   background-image: url(../images/icons/close.svg);
 }
 
 i.icon-emoji {
   background-image: url(../images/icons/emoji.svg);
+}
+
+i.icon-eye {
+  background-image: url(../images/icons/eye.svg);
 }
 
 i.icon-flag {

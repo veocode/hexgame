@@ -1,7 +1,6 @@
 .state-panel {
     position: relative;
     width: 100%;
-    max-width: 1000px;
 }
 
 .state-panel .score-counters {
@@ -15,6 +14,21 @@
     user-select: none;
 }
 
+.state-panel .score-counters .score-counter {
+    flex-grow: 2;
+    width: 48%;
+}
+
 .state-panel .score-counters .separator {
     flex-grow: 1;
+}
+
+.state-panel .spectator-counter {
+    line-height: 32px;
+    opacity: .2;
+}
+
+.state-panel .spectator-counter .icon {
+    position: relative;
+    top: 2px;
 }

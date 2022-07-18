@@ -1,77 +1,9 @@
-.emoji-overlay {
-    position: fixed;
-    width: 100vw;
-    height: 100vh;
-    left: 0;
-    top: 0;
-    opacity: 0;
-    pointer-events: none;
-    z-index: 9;
-}
-
-.emoji-selector.opened .emoji-overlay {
-    pointer-events: all;
-}
-
-.emoji-selector {
+.emoji-selector .title {
     position: relative;
+    margin-top: 15px;
+    color: #DDD;
 }
 
-.emoji-selector .emoji-bar {
-    position: absolute;
-    width: 260px;
-    background: #25282e;
-    left: 50%;
-    bottom: 0;
-    margin-left: -125px;
-    margin-top: -8px;
-    border-radius: 10px;
-    opacity: 0;
-    pointer-events: none;
-    z-index: 10;
-}
-
-.emoji-selector.opening .emoji-bar {
-    animation: popIn .4s ease-in-out;
-}
-
-.emoji-selector.closing .emoji-bar {
-    animation: popOut .4s ease-in-out;
-}
-
-.emoji-selector.opened .emoji-bar {
-    opacity: 1;
-    pointer-events: all;
-}
-
-.emoji-selector .emoji-list {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    padding: 15px 0;
-    padding-bottom: 10px;
-    padding-right: 10px;
-}
-
-.emoji-selector .emoji-list button.emoji {
-    padding: 0;
-    width: 48px;
-    height: 48px;
-    margin: 0;
-    margin-left: 10px;
-    background: #363B43;
-    border: none;
-    border-radius: 50%;
-    box-shadow: none;
-    outline: none;
-    font-size: 24px;
-    margin-bottom: 10px;
-    transition: all .3s;
-}
-
-@media (hover: hover) {
-    .emoji-selector .emoji-list button.emoji:hover {
-        background: #484e58;
-    }
+.emoji-selector .button-yes {
+    margin-right: 10px;
 }

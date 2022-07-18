@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import './EmojiSelector.css';
+import { getLocaleTexts } from '../../../../game/locales';
+import './Surrender.css';
 
-const emojis: string[] = [
-    '👋', '👍', '😀', '😎',
-    '😛', '☹️', '😡', '😭',
-];
+const texts = getLocaleTexts();
 
 enum State {
     Closed = 0,
@@ -12,14 +10,13 @@ enum State {
     Opened,
     Opening
 }
-
-export type EmojiSelectedCallback = (emoji: string) => void;
-
-interface EmojiSelectorProps {
-    onSelected: EmojiSelectedCallback
+interface SurrenderProps {
+    onConfirmed: SurrenderConfirmedCallback
 };
 
-export const EmojiSelector: React.FC<EmojiSelectorProps> = ({ onSelected }) => {
+export type SurrenderConfirmedCallback = () => void;
+
+export const Surrender: React.FC<SurrenderProps> = ({ onConfirmed }) => {
     const [state, setState] = useState<State>(State.Closed);
 
     const open = () => {
@@ -37,31 +34,25 @@ export const EmojiSelector: React.FC<EmojiSelectorProps> = ({ onSelected }) => {
         if (state === State.Opened) close();
     }
 
-    const selectEmoji = (emoji: string) => {
-        onSelected(emoji);
-        close();
-    }
-
     const classes = ['emoji-selector'];
     if (state === State.Opening) classes.push('opening');
     if (state === State.Closing) classes.push('closing');
     if (state === State.Closed) classes.push('closed');
     if (state === State.Opened) classes.push('opened');
 
-    const emojiButtons: JSX.Element[] = [];
-    emojis.forEach((emoji, index) => {
-        emojiButtons.push(
-            <button key={index} onClick={() => selectEmoji(emoji)} className='emoji'>{emoji}</button>
-        );
-    })
-
     return (
         <div className={classes.join(' ')}>
-            <button onClick={() => toggle()} ><i className='icon icon-emoji'></i></button>
+            <button onClick={() => toggle()} ><i className='icon icon-flag'></i></button>
             <div className='emoji-overlay' onClick={() => toggle()}></div>
             <div className='emoji-bar'>
+                <div className='title'>{texts.Surrender}</div>
                 <div className='emoji-list'>
-                    {emojiButtons}
+                    <button className='button-yes' onClick={() => onConfirmed()}>
+                        <i className='icon icon-check'></i>
+                    </button>
+                    <button className='button-no' onClick={() => close()}>
+                        <i className='icon icon-close'></i>
+                    </button>
                 </div>
             </div>
         </div>

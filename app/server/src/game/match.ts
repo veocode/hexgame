@@ -95,6 +95,10 @@ export class GameMatch {
                 this.finishWithNoMoves(PlayerHasNoMovesReasons.Left);
             }
         };
+
+        if (this.spectators.hasId(player.id)) {
+            this.removeSpectator(player);
+        }
     }
 
     getPlayer(tag: PlayerTag): Client | null {
@@ -146,10 +150,23 @@ export class GameMatch {
             maxTurnTime: MaxTurnTimeSeconds,
             hasBot: this.hasBot(),
         });
+
+        this.forEachPlayerAndSpectator(client => client.send('game:match:spectators', {
+            count: this.spectators.count()
+        }));
+    }
+
+    forEachPlayerAndSpectator(callback: (client: Client) => void) {
+        this.forEachPlayer(player => callback(player));
+        this.forEachSpectator(spectator => callback(spectator));
     }
 
     removeSpectator(spectator: Client) {
         this.spectators.remove(spectator);
+
+        this.forEachPlayerAndSpectator(client => client.send('game:match:spectators', {
+            count: this.spectators.count()
+        }));
     }
 
     getSpectators(): ClientList {
