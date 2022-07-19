@@ -119,7 +119,7 @@ class GameMatch {
     }
     removeSpectator(spectator) {
         this.spectators.remove(spectator);
-        this.forEachPlayerAndSpectator(client => client.send('game:match:spectators', {
+        this.forEachPlayerAndSpectator(client => client === null || client === void 0 ? void 0 : client.send('game:match:spectators', {
             count: this.spectators.count()
         }));
     }

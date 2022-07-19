@@ -166,7 +166,7 @@ export class GameMatch {
     removeSpectator(spectator: Client) {
         this.spectators.remove(spectator);
 
-        this.forEachPlayerAndSpectator(client => client.send('game:match:spectators', {
+        this.forEachPlayerAndSpectator(client => client?.send('game:match:spectators', {
             count: this.spectators.count()
         }));
     }
