@@ -122,6 +122,7 @@ export class GameMatch {
         player.off('game:match:move-response');
         player.off('game:match:move-cell-selected');
         player.off('game:match:emoji');
+        player.off('game:match:surrender');
     }
 
     getPlayersCount(): number {
@@ -220,6 +221,12 @@ export class GameMatch {
     }
 
     finish(isNoMoves: boolean = false) {
+        if (this.isStopped) return;
+        this.isStopped = true;
+
+        this.players[PlayerTag.Player1]?.stopTurnTimeout();
+        this.players[PlayerTag.Player2]?.stopTurnTimeout();
+
         const scores = this.getPlayerScores();
         const scorePlayer1 = scores[PlayerTag.Player1].score;
         const scorePlayer2 = scores[PlayerTag.Player2].score;
@@ -275,9 +282,6 @@ export class GameMatch {
     }
 
     finishWithNoMoves(reasonType: string) {
-        if (this.isStopped) return;
-        this.isStopped = true;
-
         const loserTag = this.currentPlayerTag;
         const winnerTag = loserTag === PlayerTag.Player2
             ? PlayerTag.Player1

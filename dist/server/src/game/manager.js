@@ -172,11 +172,11 @@ class GameManager {
                 tags.forEach(tag => {
                     const player = match.getPlayer(tag);
                     if (player && !saved.includes(player.id)) {
+                        saved.push(player.id);
                         const points = scores[tag].points;
                         player.setIdle();
                         player.getProfile().addScore(points);
                         player.clearBlacklist();
-                        saved.push(player.id);
                     }
                 });
             }

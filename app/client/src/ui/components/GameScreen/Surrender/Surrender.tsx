@@ -11,12 +11,13 @@ enum State {
     Opening
 }
 interface SurrenderProps {
-    onConfirmed: SurrenderConfirmedCallback
+    onConfirmed: SurrenderConfirmedCallback,
+    enabled: boolean
 };
 
 export type SurrenderConfirmedCallback = () => void;
 
-export const Surrender: React.FC<SurrenderProps> = ({ onConfirmed }) => {
+export const Surrender: React.FC<SurrenderProps> = ({ onConfirmed, enabled }) => {
     const [state, setState] = useState<State>(State.Closed);
 
     const open = () => {
@@ -24,9 +25,10 @@ export const Surrender: React.FC<SurrenderProps> = ({ onConfirmed }) => {
         setTimeout(() => setState(State.Opened), 400);
     }
 
-    const close = () => {
+    const close = (): boolean => {
         setState(State.Closing);
         setTimeout(() => setState(State.Closed), 400);
+        return true;
     }
 
     const toggle = () => {
@@ -42,12 +44,12 @@ export const Surrender: React.FC<SurrenderProps> = ({ onConfirmed }) => {
 
     return (
         <div className={classes.join(' ')}>
-            <button onClick={() => toggle()} ><i className='icon icon-flag'></i></button>
+            <button onClick={() => enabled && toggle()} className={`${enabled || 'disabled'}`}><i className='icon icon-flag'></i></button>
             <div className='emoji-overlay' onClick={() => toggle()}></div>
             <div className='emoji-bar'>
                 <div className='title'>{texts.Surrender}</div>
                 <div className='emoji-list'>
-                    <button className='button-yes' onClick={() => onConfirmed()}>
+                    <button className='button-yes' onClick={() => close() && onConfirmed()}>
                         <i className='icon icon-check'></i>
                     </button>
                     <button className='button-no' onClick={() => close()}>

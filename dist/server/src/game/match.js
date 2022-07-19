@@ -84,6 +84,7 @@ class GameMatch {
         player.off('game:match:move-response');
         player.off('game:match:move-cell-selected');
         player.off('game:match:emoji');
+        player.off('game:match:surrender');
     }
     getPlayersCount() {
         return Object.keys(this.players).length;
@@ -164,6 +165,12 @@ class GameMatch {
             this.callbacks.Over(null);
     }
     finish(isNoMoves = false) {
+        var _a, _b;
+        if (this.isStopped)
+            return;
+        this.isStopped = true;
+        (_a = this.players[types_1.PlayerTag.Player1]) === null || _a === void 0 ? void 0 : _a.stopTurnTimeout();
+        (_b = this.players[types_1.PlayerTag.Player2]) === null || _b === void 0 ? void 0 : _b.stopTurnTimeout();
         const scores = this.getPlayerScores();
         const scorePlayer1 = scores[types_1.PlayerTag.Player1].score;
         const scorePlayer2 = scores[types_1.PlayerTag.Player2].score;
@@ -212,9 +219,6 @@ class GameMatch {
             this.callbacks.Over(scores);
     }
     finishWithNoMoves(reasonType) {
-        if (this.isStopped)
-            return;
-        this.isStopped = true;
         const loserTag = this.currentPlayerTag;
         const winnerTag = loserTag === types_1.PlayerTag.Player2
             ? types_1.PlayerTag.Player1

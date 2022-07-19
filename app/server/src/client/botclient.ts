@@ -193,17 +193,31 @@ export class BotClient extends Client {
     getMoveNormal(): PossibleMove {
         const map = this.match.getMap();
         const moves = this.getPossibleMoves(map);
+
+        moves.far.sort((move1, move2) =>
+            move1.profit === move2.profit
+                ? (Math.random() < 0.5 ? 1 : -1)
+                : move2.profit - move1.profit
+        );
+
         moves.all.sort((move1, move2) =>
             move1.profit === move2.profit
                 ? (Math.random() < 0.5 ? 1 : -1)
                 : move2.profit - move1.profit
         );
+
+        if (this.match.getTurn() > 6 && Math.random() <= 0.85) {
+            if (moves.far.length && moves.all[0].profit === moves.far[0].profit) {
+                return moves.far[0];
+            }
+        }
+
         return moves.all[0];
     }
 
     getMoveHard(): PossibleMove {
         const map = this.match.getMap();
-        const moves = this.getPossibleMoves(map);
+        const moves = this.getPossibleMovesHard(map);
         if (moves.all.length === 1) return moves.all[0];
 
         const opponentTag = this.getOpponentTag();
@@ -307,6 +321,86 @@ export class BotClient extends Client {
 
         return moves;
     }
+
+    getPossibleMovesHard(map: HexMap, myTag?: PlayerTag, opponentTag?: PlayerTag): PossibleMoveList {
+        myTag = myTag || this.getTag();
+        opponentTag = opponentTag || this.getOpponent().getTag();
+
+        const isEasy = this.difficulty === BotDifficulty.Easy;
+
+        const moves: PossibleMoveList = {
+            all: [],
+            far: [],
+            near: [],
+        }
+
+        const levels: HexNeighborLevel[] = [
+            HexNeighborLevel.Near,
+            HexNeighborLevel.Far
+        ];
+
+        map.getCells().forEach(cell => {
+            if (!cell.isOccupiedBy(myTag)) return;
+
+            const emptyNeighbors = map.getCellEmptyNeighbors(cell.id);
+            const hasNear = emptyNeighbors[HexNeighborLevel.Near].length > 0;
+            const hasFar = emptyNeighbors[HexNeighborLevel.Far].length > 0;
+            const hasMoves = hasNear || hasFar;
+            if (!hasMoves) { return; }
+
+            let ownToLoseInCounter = 0;
+
+            if (!isEasy) {
+                ownToLoseInCounter = map.isCellCanBeAttacked(cell.id, opponentTag)
+                    ? map.getCellAllyNeighbors(cell.id, myTag).length
+                    : 0;
+            }
+
+            levels.forEach(level => {
+                emptyNeighbors[level].forEach(emptyCellId => {
+                    const emptyCell = map.getCell(emptyCellId);
+                    const hostiles = map.getCellHostileNeighbors(emptyCellId, myTag);
+                    const isJump = level === HexNeighborLevel.Far;
+
+                    const neighbors = map.getCellNeighbors(emptyCellId);
+                    const hostilesNear = hostiles.length;
+                    let hostilesFar = 0;
+                    neighbors[HexNeighborLevel.Far].forEach(neighborId => {
+                        if (map.getCell(neighborId).isHostileTo(myTag)) {
+                            hostilesFar++;
+                        }
+                    })
+
+                    let hostileToCapture = (isJump ? 0 : 1) + (hostiles.length * 2);
+
+                    if (hostilesFar > 0 && hostilesNear === 0) hostileToCapture += 1;
+
+                    let hostilesCannotBeAttacked = 0;
+                    hostiles.forEach(hostileId => {
+                        if (!map.isCellCanBeAttacked(hostileId, opponentTag)) {
+                            hostilesCannotBeAttacked++;
+                        }
+                    })
+
+                    if (hostilesCannotBeAttacked === hostiles.length) hostileToCapture += 1;
+
+                    const move: PossibleMove = {
+                        id: `${cell.id}-${emptyCell.id}`,
+                        fromCell: cell,
+                        toCell: emptyCell,
+                        profit: hostileToCapture - (isJump ? ownToLoseInCounter : 0),
+                        isJump,
+                    };
+
+                    moves.all.push(move);
+                    move.isJump ? moves.far.push(move) : moves.near.push(move);
+                })
+            })
+        });
+
+        return moves;
+    }
+
 
     private getMapAfterMove(map: HexMap, move: PossibleMove, myTag?: PlayerTag) {
         myTag = myTag || this.getTag();

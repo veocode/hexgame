@@ -57,11 +57,11 @@ export const GameScreen: React.FC<GameScreenProps> = ({ match }) => {
                         <div className={`spectator-counter ${spectatorCount > 0 ? 'visible' : ''}`}>
                             <i className='icon icon-eye'></i> {Math.max(spectatorCount, 1)}
                         </div>
-                        {(!isEmojisLocked && !match.isSpectating()) &&
-                            <EmojiSelector onSelected={emoji => match.sendEmoji(emoji)} />
+                        {!match.isSpectating() &&
+                            <EmojiSelector onSelected={emoji => match.sendEmoji(emoji)} enabled={isEmojisLocked === false} />
                         }
-                        {!match.isSpectating() && !match.isSurrender() && match.getTurnCount() > 5 &&
-                            <Surrender onConfirmed={() => match.surrender()} />
+                        {!match.isSpectating() &&
+                            <Surrender onConfirmed={() => match.surrender()} enabled={!match.isSurrender() && match.getTurnCount() > 5} />
                         }
                         {match.isSpectating() &&
                             <button onClick={() => match.getGame().stopSpectating()} title={texts.Quit}>

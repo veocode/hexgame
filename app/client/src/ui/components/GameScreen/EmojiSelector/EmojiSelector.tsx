@@ -16,10 +16,11 @@ enum State {
 export type EmojiSelectedCallback = (emoji: string) => void;
 
 interface EmojiSelectorProps {
-    onSelected: EmojiSelectedCallback
+    onSelected: EmojiSelectedCallback,
+    enabled: boolean
 };
 
-export const EmojiSelector: React.FC<EmojiSelectorProps> = ({ onSelected }) => {
+export const EmojiSelector: React.FC<EmojiSelectorProps> = ({ onSelected, enabled }) => {
     const [state, setState] = useState<State>(State.Closed);
 
     const open = () => {
@@ -57,7 +58,7 @@ export const EmojiSelector: React.FC<EmojiSelectorProps> = ({ onSelected }) => {
 
     return (
         <div className={classes.join(' ')}>
-            <button onClick={() => toggle()} ><i className='icon icon-emoji'></i></button>
+            <button onClick={() => enabled && toggle()} className={`${enabled || 'disabled'}`}><i className='icon icon-emoji'></i></button>
             <div className='emoji-overlay' onClick={() => toggle()}></div>
             <div className='emoji-bar'>
                 <div className='emoji-list'>

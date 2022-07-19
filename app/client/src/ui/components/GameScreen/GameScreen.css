@@ -74,6 +74,7 @@
     margin-bottom: 10px;
     animation: growIn 0.4s ease-out;
     border-color: #6A6D72;
+    transition: opacity 0.4s;
 }
 
 .game-screen .actions-panel button .icon {
@@ -93,6 +94,11 @@
 
 .game-screen .actions-panel button:last-child {
     margin-bottom: 0;
+}
+
+.game-screen .actions-panel button.disabled {
+    opacity: 0.25;
+    pointer-events: none;
 }
 
 @media (orientation: portrait) {
