@@ -47,8 +47,13 @@
 }
 
 @media (max-height: 478px) {
-    .footer {
+    .login-screen .footer {
         display: none;
+    }
+
+    .login-screen .logo {
+        transform: scale(0.75) !important;
+        padding-top: 60px;
     }
 }
 

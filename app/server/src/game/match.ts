@@ -18,7 +18,8 @@ export type MatchScoreList = {
     [key: number]: {
         nickname: string,
         score: number,
-        delta: number
+        delta: number,
+        points: number
     }
 };
 
@@ -148,10 +149,11 @@ export class GameMatch {
             scores: this.getPlayerScores(),
             currentPlayer: this.currentPlayerTag,
             maxTurnTime: MaxTurnTimeSeconds,
+            spectators: this.spectators.count(),
             hasBot: this.hasBot(),
         });
 
-        this.forEachPlayerAndSpectator(client => client.send('game:match:spectators', {
+        this.forEachPlayerAndSpectator(client => client?.send('game:match:spectators', {
             count: this.spectators.count()
         }));
     }
@@ -235,12 +237,11 @@ export class GameMatch {
         this.forEachPlayer(player => {
             if (!player) return;
 
-            const opponentMultiplier = player.getOpponent()?.getScoreMultiplier() || 1;
-
             const playerScores = player.getProfile().getScore();
-            const pointsEarned = isLinkedGame ? 0 : Math.round(scores[player.getTag()].delta * opponentMultiplier);
+            const pointsEarned = isLinkedGame ? 0 : scores[player.getTag()].points;
             const pointsToday = Math.max(playerScores.today + pointsEarned, 0);
             const pointsTotal = Math.max(playerScores.total + pointsEarned, 0);
+            const pointsMultiplier = player.getOpponent()?.getScoreMultiplier() || 1;
 
             const matchResult = {
                 winner: winnerTag,
@@ -249,6 +250,7 @@ export class GameMatch {
                 isNoMoves,
                 isLinkedGame,
                 pointsEarned,
+                pointsMultiplier,
                 pointsToday,
                 pointsTotal,
                 scores
@@ -494,6 +496,7 @@ export class GameMatch {
                 nickname: this.players[tag]?.getAuthInfo().nickname || '-',
                 score: 0,
                 delta: 0,
+                points: 0,
             };
         })
 
@@ -507,6 +510,7 @@ export class GameMatch {
                 ? PlayerTag.Player2
                 : PlayerTag.Player1;
             scores[tag].delta = scores[tag].score - scores[opponentTag].score;
+            scores[tag].points = Math.round(scores[tag].delta * (this.getPlayer(opponentTag)?.getScoreMultiplier() || 1));
         })
 
         return scores;

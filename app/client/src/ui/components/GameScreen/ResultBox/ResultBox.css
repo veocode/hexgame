@@ -14,7 +14,7 @@
     padding: 30px;
     border-radius: 10px;
     width: 95%;
-    max-width: 350px;
+    max-width: 400px;
     box-shadow: 0 0 40px rgb(23, 30, 39);
 }
 
@@ -62,6 +62,10 @@
     text-align: center;
     color: #FFF;
     font-weight: bold;
+}
+
+.result-box .result-points .row .points.points-lite {
+    font-weight: lighter;
 }
 
 .result-box .result-points .row .points.positive {

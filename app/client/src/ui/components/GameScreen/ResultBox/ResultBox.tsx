@@ -34,6 +34,10 @@ export const ResultBox: React.FC<ResultBoxProps> = ({ match }) => {
                                 <div className={`points ${signClass}`}>{signedPoints}</div>
                             </div>
                             <div className='row'>
+                                <div className='label'>{texts.PointsMultiplier}:</div>
+                                <div className='points points-lite'>{matchResult.pointsMultiplier * 100}%</div>
+                            </div>
+                            <div className='row'>
                                 <div className='label'>{texts.PointsToday}:</div>
                                 <div className='points'>{matchResult.pointsToday}</div>
                             </div>

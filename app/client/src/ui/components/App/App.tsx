@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Game, GameInviteState, GameState } from '../../../game/game';
+import { Game, GameState } from '../../../game/game';
 import { MessageScreen } from '../MessageScreen/MessageScreen';
 import { LoginScreen } from '../LoginScreen/LoginScreen';
 import { GameScreen } from '../GameScreen/GameScreen';
@@ -19,22 +19,24 @@ const texts = getLocaleTexts();
 const game: Game = new Game(window.location.hostname);
 const vk = new VkBridge();
 
-if (vk.isDetected()) {
-  vk.getUserInfo().then(info => {
-    game.createPlayer({
-      sourceId: `vk-${info.id}`,
-      lang: getUserLang(),
-      nickname: info.firstName,
-      name: info.firstName + ' ' + info.lastName,
-      avatarUrl: info.avatarUrl,
-      cityId: info.cityId,
-      countryId: info.countryId,
+game.preloadAssets().then(() => {
+  if (vk.isDetected()) {
+    vk.getUserInfo().then(info => {
+      game.createPlayer({
+        sourceId: `vk-${info.id}`,
+        lang: getUserLang(),
+        nickname: info.firstName,
+        name: info.firstName + ' ' + info.lastName,
+        avatarUrl: info.avatarUrl,
+        cityId: info.cityId,
+        countryId: info.countryId,
+      });
+      game.connect();
     });
+  } else {
     game.connect();
-  });
-} else {
-  game.connect();
-}
+  }
+})
 
 export const App: React.FC<{}> = () => {
   const [state, setState] = useState<GameState>(game.getState());

@@ -5,6 +5,8 @@ import { Match } from "./match";
 import { Sandbox } from "./sandbox";
 import { SpectateMatch } from "./spectate";
 
+const VERSION = 100;
+
 const texts = getLocaleTexts();
 
 export enum GameState {
@@ -49,6 +51,11 @@ export interface GameServerStats {
     matches: GameServerMatchDescription[]
 }
 
+interface AssetManifest {
+    entrypoints: string[],
+    files: { [path: string]: string },
+}
+
 interface TopPlayerInfo {
     place: number,
     name: string,
@@ -84,6 +91,7 @@ export class Game {
     public readonly socket: Socket;
     public linkedGameUrl: string = '';
 
+    private connectionRetries: number = 0;
     private state: GameState = GameState.Loading;
     private lobbyData: LobbyData | null = null;
 
@@ -169,9 +177,12 @@ export class Game {
     }
 
     connect() {
+        this.connectionRetries += 1;
+        if (this.connectionRetries === 3) {
+            return window.location.reload();
+        }
         this.setConnecting();
         this.socket.connect();
-        this.socket.once('game:connected', () => this.setLoggedOut());
     }
 
     login() {
@@ -207,6 +218,15 @@ export class Game {
             this.connect();
         });
 
+        this.socket.once('game:connected', ({ version: serverVersion }) => {
+            if (VERSION < serverVersion) {
+                console.log('Outdated Client, refreshing page...');
+                setTimeout(() => window.location.reload(), 2000);
+                return;
+            }
+            this.setLoggedOut();
+        });
+
         this.socket.on('game:match:start', ({ playerTag, map, scores, maxTurnTime, hasBot }) => {
             this.startMatch(new Match(this, {
                 map,
@@ -217,12 +237,13 @@ export class Game {
             }));
         });
 
-        this.socket.on('game:match:start-spectating', ({ currentPlayer, map, scores, maxTurnTime, hasBot }) => {
+        this.socket.on('game:match:start-spectating', ({ currentPlayer, map, scores, maxTurnTime, spectators, hasBot }) => {
             this.startMatch(new SpectateMatch(this, {
                 map,
                 currentPlayer,
                 initialScores: scores,
                 maxTurnTime,
+                spectators,
                 hasBot
             }));
         });
@@ -542,6 +563,41 @@ export class Game {
             });
             this.setInviteState(GameInviteState.None);
         }
+    }
+
+    preloadAssets(): Promise<void> {
+        return new Promise<void>(async resolve => {
+            const manifestResponse = await fetch('/asset-manifest.json');
+            if (manifestResponse.ok) {
+                const manifest = await manifestResponse.json();
+                await this.preloadAssetsByManifest(manifest);
+            }
+            resolve();
+        })
+    }
+
+    preloadAssetsByManifest(manifest: AssetManifest): Promise<void> {
+        return new Promise<void>(resolve => {
+            const assetUrls: string[] = [];
+            for (const [path, url] of Object.entries(manifest.files)) {
+                if (path.endsWith('.svg') || path.endsWith('.png')) {
+                    assetUrls.push(url);
+                }
+            }
+
+            const preloadNextAsset = () => {
+                if (assetUrls.length === 0) return resolve();
+
+                const url = assetUrls.pop();
+                if (!url) return resolve();;
+
+                const image = new Image();
+                image.onload = () => preloadNextAsset();
+                image.src = url;
+            }
+
+            preloadNextAsset();
+        })
     }
 
 }

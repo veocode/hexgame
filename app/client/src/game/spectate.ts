@@ -10,6 +10,7 @@ export interface SpectateMatchOptions {
     currentPlayer: number,
     initialScores: MatchServerScoreDict,
     maxTurnTime: number,
+    spectators: number,
     hasBot: boolean
 }
 
@@ -108,6 +109,13 @@ export class SpectateMatch extends Match {
 
         this.game.socket.on('game:match:emoji', async ({ player, emoji }) => {
             this.playerSetEmoji(player, emoji);
+        })
+
+        this.game.socket.on('game:match:spectators', ({ count }) => {
+            if (count !== this.spectatorCount) {
+                this.spectatorCount = count;
+                this.callbacks.SpectatorCountUpdated?.call(this, count);
+            }
         })
     }
 

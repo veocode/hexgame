@@ -44,7 +44,8 @@ export type MatchServerScoreDict = {
     [key: number]: {
         nickname: string,
         score: number,
-        delta: number
+        delta: number,
+        points: number
     }
 };
 
@@ -57,6 +58,7 @@ export interface ServerMatchResult {
     pointsEarned: number,
     pointsToday: number,
     pointsTotal: number,
+    pointsMultiplier: number,
     scores: MatchServerScoreDict
 }
 

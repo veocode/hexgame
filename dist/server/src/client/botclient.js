@@ -65,7 +65,7 @@ class BotClient extends client_1.Client {
             case BotDifficulty.Normal:
                 return 1;
             case BotDifficulty.Hard:
-                return 1.25;
+                return 1.5;
         }
     }
     isBot() {

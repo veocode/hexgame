@@ -11,6 +11,8 @@ import { Profile } from './client/profile';
 import { ProfileModel } from './client/profilemodel';
 import { logger } from './shared/logger';
 
+const VERSION = 100;
+
 interface TopPlayerInfo {
     place: number,
     name: string,
@@ -104,7 +106,7 @@ export class GameServer {
         socket.on("error", () => socket.disconnect());
         socket.on("disconnect", () => this.unregisterSocket(socket));
         socket.on("game:login", ({ authInfo }) => this.onClientLogin(socket, authInfo));
-        socket.emit('game:connected');
+        socket.emit('game:connected', { version: VERSION });
     }
 
     async onClientLogin(socket: Socket, authInfo: AuthInfo) {

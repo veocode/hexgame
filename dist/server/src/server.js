@@ -21,6 +21,7 @@ const fs_1 = require("fs");
 const profile_1 = require("./client/profile");
 const profilemodel_1 = require("./client/profilemodel");
 const logger_1 = require("./shared/logger");
+const VERSION = 100;
 class GameServer {
     constructor() {
         this.sockets = {};
@@ -86,7 +87,7 @@ class GameServer {
             socket.on("error", () => socket.disconnect());
             socket.on("disconnect", () => this.unregisterSocket(socket));
             socket.on("game:login", ({ authInfo }) => this.onClientLogin(socket, authInfo));
-            socket.emit('game:connected');
+            socket.emit('game:connected', { version: VERSION });
         });
     }
     onClientLogin(socket, authInfo) {

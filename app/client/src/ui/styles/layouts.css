@@ -80,8 +80,6 @@
   background: #3a4049;
   border-radius: 5px;
   align-items: center;
-  display: flex;
-  flex-direction: column;
   margin-bottom: 20px;
   padding: 20px;
   width: 240px;
@@ -195,7 +193,7 @@
 }
 
 @media (max-height: 400px) {
-  .sidebar-screen .logo {
+  .sidebar-screen .header {
     display: none;
   }
 }

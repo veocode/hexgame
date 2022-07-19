@@ -106,9 +106,10 @@ class GameMatch {
             scores: this.getPlayerScores(),
             currentPlayer: this.currentPlayerTag,
             maxTurnTime: MaxTurnTimeSeconds,
+            spectators: this.spectators.count(),
             hasBot: this.hasBot(),
         });
-        this.forEachPlayerAndSpectator(client => client.send('game:match:spectators', {
+        this.forEachPlayerAndSpectator(client => client === null || client === void 0 ? void 0 : client.send('game:match:spectators', {
             count: this.spectators.count()
         }));
     }
@@ -178,11 +179,11 @@ class GameMatch {
             var _a;
             if (!player)
                 return;
-            const opponentMultiplier = ((_a = player.getOpponent()) === null || _a === void 0 ? void 0 : _a.getScoreMultiplier()) || 1;
             const playerScores = player.getProfile().getScore();
-            const pointsEarned = isLinkedGame ? 0 : Math.round(scores[player.getTag()].delta * opponentMultiplier);
+            const pointsEarned = isLinkedGame ? 0 : scores[player.getTag()].points;
             const pointsToday = Math.max(playerScores.today + pointsEarned, 0);
             const pointsTotal = Math.max(playerScores.total + pointsEarned, 0);
+            const pointsMultiplier = ((_a = player.getOpponent()) === null || _a === void 0 ? void 0 : _a.getScoreMultiplier()) || 1;
             const matchResult = {
                 winner: winnerTag,
                 isWinner: !isWithdraw && winnerTag === player.getTag(),
@@ -190,6 +191,7 @@ class GameMatch {
                 isNoMoves,
                 isLinkedGame,
                 pointsEarned,
+                pointsMultiplier,
                 pointsToday,
                 pointsTotal,
                 scores
@@ -411,6 +413,7 @@ class GameMatch {
                 nickname: ((_a = this.players[tag]) === null || _a === void 0 ? void 0 : _a.getAuthInfo().nickname) || '-',
                 score: 0,
                 delta: 0,
+                points: 0,
             };
         });
         this.map.getCells().forEach(cell => {
@@ -419,10 +422,12 @@ class GameMatch {
             scores[cell.getOccupiedBy()].score += 1;
         });
         tags.forEach(tag => {
+            var _a;
             const opponentTag = tag === types_1.PlayerTag.Player1
                 ? types_1.PlayerTag.Player2
                 : types_1.PlayerTag.Player1;
             scores[tag].delta = scores[tag].score - scores[opponentTag].score;
+            scores[tag].points = Math.round(scores[tag].delta * (((_a = this.getPlayer(opponentTag)) === null || _a === void 0 ? void 0 : _a.getScoreMultiplier()) || 1));
         });
         return scores;
     }

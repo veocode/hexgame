@@ -88,7 +88,7 @@ export class BotClient extends Client {
             case BotDifficulty.Normal:
                 return 1;
             case BotDifficulty.Hard:
-                return 1.25;
+                return 1.5;
         }
     }
 
