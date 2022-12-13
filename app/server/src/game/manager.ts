@@ -189,8 +189,15 @@ export class GameManager {
         player1.setInGame();
         player2.setInGame();
 
-        map = map && map.length ? map : this.getRandomMap();
-        const match = new GameMatch(map);
+        let isCustomMap: boolean = false;
+
+        if (map && map.length) {
+            isCustomMap = true;
+        } else {
+            map = this.getRandomMap();
+        }
+
+        const match = new GameMatch(map, isCustomMap);
 
         player1.setOpponent(player2);
         player1.setMatch(match);

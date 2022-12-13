@@ -27,7 +27,7 @@ export const ResultBox: React.FC<ResultBoxProps> = ({ match }) => {
                     <div className='message'>
                         {matchResult.message}
                     </div>
-                    {points !== 0 && !match.isSpectating() && !matchResult.isLinkedGame ?
+                    {points !== 0 && !match.isSpectating() && !matchResult.isUnrankedGame ?
                         <div className='result-points'>
                             <div className='row'>
                                 <div className='label'>{texts.PointsEarned}:</div>

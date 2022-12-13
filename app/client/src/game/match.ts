@@ -54,7 +54,7 @@ export interface ServerMatchResult {
     isWinner: boolean,
     isWithdraw: boolean,
     isNoMoves: boolean,
-    isLinkedGame: boolean,
+    isUnrankedGame: boolean,
     pointsEarned: number,
     pointsToday: number,
     pointsTotal: number,

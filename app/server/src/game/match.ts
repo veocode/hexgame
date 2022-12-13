@@ -38,15 +38,17 @@ export class GameMatch {
     private turnCounter: number = 0;
 
     private linkedGame: LinkedGame | null = null;
+    private isCustomMap: boolean = true;
 
     private callbacks: {
         Over?: MatchOverCallback | null
     } = {};
 
-    constructor(serializedMap: number[]) {
+    constructor(serializedMap: number[], isCustomMap: boolean = false) {
         this.id = generateId();
         this.map = new HexMap();
         this.map.deserealize(serializedMap);
+        this.isCustomMap = isCustomMap;
     }
 
     getMap(): HexMap {
@@ -239,13 +241,13 @@ export class GameMatch {
                 : PlayerTag.Player2
         }
 
-        const isLinkedGame = this.hasLinkedGame();
+        const isUnrankedGame = this.hasLinkedGame() || this.isCustomMap;
 
         this.forEachPlayer(player => {
             if (!player) return;
 
             const playerScores = player.getProfile().getScore();
-            const pointsEarned = isLinkedGame ? 0 : scores[player.getTag()].points;
+            const pointsEarned = isUnrankedGame ? 0 : scores[player.getTag()].points;
             const pointsToday = Math.max(playerScores.today + pointsEarned, 0);
             const pointsTotal = Math.max(playerScores.total + pointsEarned, 0);
             const pointsMultiplier = player.getOpponent()?.getScoreMultiplier() || 1;
@@ -255,7 +257,7 @@ export class GameMatch {
                 isWinner: !isWithdraw && winnerTag === player.getTag(),
                 isWithdraw,
                 isNoMoves,
-                isLinkedGame,
+                isUnrankedGame,
                 pointsEarned,
                 pointsMultiplier,
                 pointsToday,

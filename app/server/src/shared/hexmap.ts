@@ -107,6 +107,22 @@ export class HexMap {
         return null;
     }
 
+    getCellFarHostileNeighbors(id: number, hostileToTag: PlayerTag | null = null): number[] {
+        const cell = this.cells[id];
+
+        if (!hostileToTag) hostileToTag = cell.getOccupiedBy();
+        const nearestNeighborIds = this.getCellNearestNeighborIds(id);
+        const hostileIds: number[] = [];
+
+        nearestNeighborIds.forEach(nearId => {
+            if (this.cells[nearId].isHostileTo(hostileToTag)) {
+                hostileIds.push(nearId);
+            }
+        });
+
+        return hostileIds;
+    }
+
     getCellHostileNeighbors(id: number, hostileToTag: PlayerTag | null = null): number[] {
         const cell = this.cells[id];
 

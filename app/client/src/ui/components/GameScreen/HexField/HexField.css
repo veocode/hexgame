@@ -6,14 +6,14 @@
 
     @media (min-height: 700px) {
         .hex-field {
-            --hex-height: calc((100vh - 60px) / 12);
+            --hex-height: calc((100vh - 60px) / 13);
         }
     }
 }
 
 @media (orientation: portrait) {
     .hex-field {
-        --hex-height: calc((100vw - 30px) / 9);
+        --hex-height: calc((100vw - 30px) / 9.5);
         --hex-width: calc(var(--hex-height) * 0.87);
         padding-left: calc(var(--hex-width)/3);
     }
